@@ -7,8 +7,11 @@
 //
 
 #import "MDSpreadView.h"
+#import "NSIndexPath+MDSpreadView.h"
 
 @implementation MDSpreadView
+
+@synthesize dataSource=_dataSource, rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight;
 
 - (id)initWithFrame:(CGRect)frame
 {
