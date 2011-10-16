@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class MDSpreadView;
+@class MDSpreadViewCell;
 
 @protocol MDSpreadViewDelegate<NSObject, UIScrollViewDelegate>
 
@@ -36,20 +37,20 @@
 - (NSInteger)spreadView:(MDSpreadView *)aSpreadView numberOfColumnsInSection:(NSInteger)section;
 - (NSInteger)spreadView:(MDSpreadView *)aSpreadView numberOfRowsInSection:(NSInteger)section;
 
-//- (UITableViewCell *)tableView:(MDSpreadView *)tableView cellForRowIndexPath:(NSIndexPath *)indexPath columnIndexPath:(NSIndexPath *)columnIndex;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
 
 @optional
 
 - (NSInteger)numberOfColumnSectionsInSpreadView:(MDSpreadView *)aSpreadView;    // Default is 1 if not implemented
 - (NSInteger)numberOfRowSectionsInSpreadView:(MDSpreadView *)aSpreadView;       // Default is 1 if not implemented
 
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnSection:(NSIndexPath *)columnSection;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnIndex;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowIndex;
+- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
+- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
 
-- (UIImage *)spreadView:(MDSpreadView *)aSpreadView imageForHeaderInRowSection:(NSInteger)section forColumnSection:(NSIndexPath *)columnSection;
-- (UIImage *)spreadView:(MDSpreadView *)aSpreadView imageForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnIndex;
-- (UIImage *)spreadView:(MDSpreadView *)aSpreadView imageForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowIndex;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
 
 @end
 
@@ -64,8 +65,8 @@
     CGFloat sectionColumnHeaderWidth;
 }
 
-@property (nonatomic, assign) id <MDSpreadViewDataSource> dataSource;
-@property (nonatomic, assign) id <MDSpreadViewDelegate> delegate;
+@property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
+@property (nonatomic, assign) IBOutlet id <MDSpreadViewDelegate> delegate;
 @property (nonatomic) CGFloat rowHeight;
 @property (nonatomic) CGFloat sectionRowHeaderHeight;
 @property (nonatomic) CGFloat columnWidth;
