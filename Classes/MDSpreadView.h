@@ -10,6 +10,7 @@
 
 @class MDSpreadView;
 @class MDSpreadViewCell;
+@class MDSpreadViewDescriptor;
 
 @protocol MDSpreadViewDelegate<NSObject, UIScrollViewDelegate>
 
@@ -59,10 +60,17 @@
 @interface MDSpreadView : UIScrollView {
   @private
     id <MDSpreadViewDataSource> _dataSource;
+    
     CGFloat rowHeight;
     CGFloat sectionRowHeaderHeight;
     CGFloat columnWidth;
     CGFloat sectionColumnHeaderWidth;
+    
+    NSMutableSet *dequeuedCells;
+    MDSpreadViewDescriptor *descriptor;
+    
+    NSUInteger selectedRow;
+    NSUInteger selectedSection;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;

@@ -26,6 +26,10 @@
         }
     }
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
+        self.opaque = NO;
+        self.clipsToBounds = NO;
+        self.backgroundColor = nil;
+        
         MDSpreadViewCellBackground *newBackground = nil;
         MDSpreadViewCellBackground *newSelectedBackground = nil;
         if (aStyle == MDSpreadViewHeaderCellStyleCorner) {

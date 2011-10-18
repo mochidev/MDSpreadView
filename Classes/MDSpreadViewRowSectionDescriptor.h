@@ -21,4 +21,7 @@
 - (MDSpreadViewCell *)cellAtIndex:(NSUInteger)index;
 - (void)setCell:(MDSpreadViewCell *)cell atIndex:(NSUInteger)index;
 
+- (NSArray *)allCells;
+- (void)clearAllCells;
+
 @end

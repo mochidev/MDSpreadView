@@ -18,4 +18,10 @@
 - (MDSpreadViewRowSectionDescriptor *)sectionAtIndex:(NSUInteger)index;
 - (void)setSection:(MDSpreadViewRowSectionDescriptor *)section atIndex:(NSUInteger)index;
 
+- (void)setRowCount:(NSUInteger)count forSection:(NSUInteger)rowSection;
+- (NSUInteger)rowCountForSection:(NSUInteger)rowSection;
+
+- (NSArray *)allCells;
+- (void)clearAllCells;
+
 @end

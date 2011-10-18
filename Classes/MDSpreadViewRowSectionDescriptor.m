@@ -34,6 +34,11 @@
             [cells addObject:[NSNull null]];
         }
     } else if (count < oldCount) {
+        for (int i = count; i < oldCount; i++) {
+            id cell = [cells objectAtIndex:i];
+            if (cell != [NSNull null])
+                [cell removeFromSuperview];
+        }
         [cells removeObjectsInRange:NSMakeRange(count, oldCount-count)];
     }
 }
@@ -51,7 +56,7 @@
 
 - (void)setCell:(MDSpreadViewCell *)cell atIndex:(NSUInteger)index
 {
-    if (index > [cells count]) self.count = index+1;
+    if (index >= [cells count]) self.count = index+1;
     id obj = cell;
     if (!obj) obj = [NSNull null];
     [cells replaceObjectAtIndex:index withObject:obj];
@@ -62,6 +67,32 @@
     [headerCell release];
     [cells release];
     [super dealloc];
+}
+
+- (NSArray *)allCells
+{
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    
+    if (self.headerCell) {
+        [allCells addObject:headerCell];
+    }
+    
+    for (MDSpreadViewCell *cell in cells) {
+        if ((NSNull *)cell != [NSNull null]) {
+            [allCells addObject:cell];
+        }
+    }
+    
+    return [allCells autorelease];
+}
+
+- (void)clearAllCells
+{
+    NSUInteger oldCount = self.count;
+    self.count = 0;
+    self.count = oldCount;
+    [self.headerCell removeFromSuperview];
+    self.headerCell = nil;
 }
 
 @end

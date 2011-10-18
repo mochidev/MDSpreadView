@@ -146,14 +146,19 @@
     return self.textLabel.text;
 }
 
-- (void)setObjectValue:(id)objectValue
+- (void)setObjectValue:(id)anObject
 {
+    [anObject retain];
+    [objectValue release];
+    objectValue = anObject;
+    
     if ([objectValue isKindOfClass:[NSString class]]) {
         self.textLabel.text = objectValue;
     }
 }
 
 - (void)dealloc {
+    [objectValue release];
     [backgroundView release];
     [highlightedBackgroundView release];
     [textLabel release];

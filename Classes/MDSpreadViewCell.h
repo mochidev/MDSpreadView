@@ -21,6 +21,7 @@ typedef enum {
     BOOL highlighted;
     
     NSInteger style;
+    id objectValue;
 }
 
 @property (nonatomic, retain) UIView *backgroundView;
