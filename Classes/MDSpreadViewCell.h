@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuartzCore/CoreAnimation.h>
 
 typedef enum {
     MDSpreadViewCellStyleDefault

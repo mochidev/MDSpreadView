@@ -30,6 +30,8 @@
         self.opaque = YES;
         self.backgroundColor = [UIColor whiteColor];
         self.reuseIdentifier = aReuseIdentifier;
+//        self.layer.shouldRasterize = YES;
+//        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
         
         UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];

@@ -26,7 +26,6 @@
         }
     }
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
-        self.opaque = NO;
         self.clipsToBounds = NO;
         self.backgroundColor = nil;
         
@@ -51,7 +50,7 @@
         
 		self.textLabel.font = [UIFont boldSystemFontOfSize:18];
 		self.textLabel.opaque = NO;
-		self.textLabel.backgroundColor = [UIColor clearColor];
+		self.textLabel.backgroundColor = nil;
 		self.textLabel.textColor = [UIColor whiteColor];
 		self.textLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
 		self.textLabel.shadowOffset = CGSizeMake(0, 1);

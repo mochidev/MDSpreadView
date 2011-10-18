@@ -67,8 +67,8 @@
     
     rowHeight = 25;
     sectionRowHeaderHeight = 22;
-    columnWidth = 200;
-    sectionColumnHeaderWidth = 100;
+    columnWidth = 220;
+    sectionColumnHeaderWidth = 110;
     
     selectedRow = NSNotFound;
     selectedSection = NSNotFound;
@@ -135,7 +135,11 @@
         [descriptor setRowCount:numberOfRows forSection:i];
     }
     
-    [dequeuedCells addObjectsFromArray:[descriptor allCells]];
+    NSArray *allCells = [descriptor allCells];
+    for (MDSpreadViewCell *cell in allCells) {
+        cell.hidden = YES;
+    }
+    [dequeuedCells addObjectsFromArray:allCells];
     [descriptor clearAllCells];
     
     calculatedSize.width -= 1;
@@ -167,8 +171,8 @@
     CGRect cellFrame;
     
     CGFloat headerWidth = self.sectionColumnHeaderWidth;
-    CGFloat cellWidth = self.columnWidth;
     CGFloat headerHeight = self.sectionRowHeaderHeight;
+    CGFloat cellWidth = self.columnWidth;
     CGFloat cellHeight = self.rowHeight;
     
     for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
@@ -179,7 +183,7 @@
         if (cellOrigin.x + headerWidth + cellWidth * numberOfColumns < offset.x || cellOrigin.x >= offset.x+boundsSize.width) {
             NSArray *allCells = [descriptor allCellsForHeaderColumnForSection:columnSection];
             for (MDSpreadViewCell *cell in allCells) {
-                [cell removeFromSuperview];
+                cell.hidden = YES;
             }
             if (allCells) [dequeuedCells addObjectsFromArray:allCells];
             [descriptor clearHeaderColumnForSection:columnSection];
@@ -190,15 +194,15 @@
                 
                 if (cellOrigin.x >= offset.x) {
                     cellFrame.origin.x = cellOrigin.x;
-                } else if (cellOrigin.x + columnWidth * numberOfColumns < offset.x) {
-                    cellFrame.origin.x = cellOrigin.x + columnWidth * numberOfColumns;
+                } else if (cellOrigin.x + cellWidth * numberOfColumns < offset.x) {
+                    cellFrame.origin.x = cellOrigin.x + cellWidth * numberOfColumns;
                 } else {
                     cellFrame.origin.x = offset.x;
                 }
                 
                 if (cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
                     MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
-                    [cell removeFromSuperview];
+                    cell.hidden = YES;
                     if (cell) [dequeuedCells addObject:cell];
                     [descriptor setHeaderCell:nil forRowSection:rowSection forColumnSection:columnSection];
                 } else {
@@ -209,31 +213,32 @@
                         [descriptor setHeaderCell:cell forRowSection:rowSection forColumnSection:columnSection];
                     }
                     
-                    if ([cell superview] != self) {
-                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
-                    }
-                    
                     cellFrame.size = CGSizeMake(headerWidth, headerHeight);
                     
                     if (cellOrigin.y >= offset.y) {
                         cellFrame.origin.y = cellOrigin.y;
-                    } else if (cellOrigin.y + rowHeight * numberOfRows < offset.y) {
-                        cellFrame.origin.y = cellOrigin.y + rowHeight * numberOfRows;
+                    } else if (cellOrigin.y + cellHeight * numberOfRows < offset.y) {
+                        cellFrame.origin.y = cellOrigin.y + cellHeight * numberOfRows;
                     } else {
                         cellFrame.origin.y = offset.y;
                     }
                     
                     [cell setFrame:cellFrame];
+                    
+                    cell.hidden = NO;
+                    if ([cell superview] != self) {
+                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
+                    }
                 }
                 
                 cellOrigin.y += headerHeight;
-                cellFrame.size = CGSizeMake(headerWidth, rowHeight);
+                cellFrame.size = CGSizeMake(headerWidth, cellHeight);
                 
                 for (int row = 0; row < numberOfRows; row++) {
                     NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
-                    if (cellOrigin.y + rowHeight < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
+                    if (cellOrigin.y + cellHeight < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
                         MDSpreadViewCell *cell = [descriptor cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
-                        [cell removeFromSuperview];
+                        cell.hidden = YES;
                         if (cell) [dequeuedCells addObject:cell];
                         [descriptor setHeaderCell:nil forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
                     } else {
@@ -244,15 +249,16 @@
                             [descriptor setHeaderCell:cell forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
                         }
                         
-                        if ([cell superview] != self) {
-                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
-                        }
-                        
                         cellFrame.origin.y = cellOrigin.y;
                         
                         [cell setFrame:cellFrame];
+                        
+                        cell.hidden = NO;
+                        if ([cell superview] != self) {
+                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
+                        }
                     }
-                    cellOrigin.y += rowHeight;
+                    cellOrigin.y += cellHeight;
                 }
             }
         }
@@ -265,7 +271,7 @@
             if (cellOrigin.x + columnWidth < offset.x || cellOrigin.x >= offset.x+boundsSize.width) {
                 NSArray *allCells = [descriptor allCellsForColumnAtIndexPath:columnPath];
                 for (MDSpreadViewCell *cell in allCells) {
-                    [cell removeFromSuperview];
+                    cell.hidden = YES;
                 }
                 if (allCells) [dequeuedCells addObjectsFromArray:allCells];
                 [descriptor clearColumnAtIndexPath:columnPath];
@@ -274,7 +280,7 @@
                     NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
                     if (cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
                         MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnPath];
-                        [cell removeFromSuperview];
+                        cell.hidden = YES;
                         if (cell) [dequeuedCells addObject:cell];
                         [descriptor setHeaderCell:nil forRowSection:rowSection forColumnAtIndexPath:columnPath];
                     } else {
@@ -285,31 +291,32 @@
                             [descriptor setHeaderCell:cell forRowSection:rowSection forColumnAtIndexPath:columnPath];
                         }
                         
-                        if ([cell superview] != self) {
-                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
-                        }
-                        
-                        cellFrame = CGRectMake(cellOrigin.x, 0, columnWidth, headerHeight);
+                        cellFrame = CGRectMake(cellOrigin.x, 0, cellWidth, headerHeight);
                         
                         if (cellOrigin.y >= offset.y) {
                             cellFrame.origin.y = cellOrigin.y;
-                        } else if (cellOrigin.y + rowHeight * numberOfRows < offset.y) {
-                            cellFrame.origin.y = cellOrigin.y + rowHeight * numberOfRows;
+                        } else if (cellOrigin.y + cellHeight * numberOfRows < offset.y) {
+                            cellFrame.origin.y = cellOrigin.y + cellHeight * numberOfRows;
                         } else {
                             cellFrame.origin.y = offset.y;
                         }
                         
                         [cell setFrame:cellFrame];
+                        
+                        cell.hidden = NO;
+                        if ([cell superview] != self) {
+                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
+                        }
                     }
                     
                     cellOrigin.y += headerHeight;
-                    cellFrame = CGRectMake(cellOrigin.x, cellOrigin.y, columnWidth, rowHeight);
+                    cellFrame = CGRectMake(cellOrigin.x, cellOrigin.y, cellWidth, cellHeight);
                     
                     for (int row = 0; row < numberOfRows; row++) {
                         NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
                         if (cellOrigin.y + rowHeight < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
                             MDSpreadViewCell *cell = [descriptor cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
-                            [cell removeFromSuperview];
+                            cell.hidden = YES;
                             if (cell) [dequeuedCells addObject:cell];
                             [descriptor setCell:nil forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                         } else {
@@ -320,15 +327,16 @@
                                 [descriptor setCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                             }
                             
-                            if ([cell superview] != self) {
-                                [self insertSubview:cell aboveSubview:anchorCell];
-                            }
-                            
                             cellFrame.origin.y = cellOrigin.y;
                             
                             [cell setFrame:cellFrame];
+                            
+                            cell.hidden = NO;
+                            if ([cell superview] != self) {
+                                [self insertSubview:cell aboveSubview:anchorCell];
+                            }
                         }
-                        cellOrigin.y += rowHeight;
+                        cellOrigin.y += cellHeight;
                     }
                 }
             }
@@ -336,6 +344,8 @@
             cellOrigin.x += cellWidth;
         }
     }
+    
+//    NSLog(@"views: %d", self.subviews.count);
 }
 
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
@@ -350,6 +360,7 @@
     if (dequeuedCell) {
         [dequeuedCell retain];
         [dequeuedCells removeObject:dequeuedCell];
+        [dequeuedCell prepareForReuse];
     }
     return [dequeuedCell autorelease];
 }
