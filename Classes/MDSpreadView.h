@@ -71,6 +71,11 @@
     
     NSUInteger selectedRow;
     NSUInteger selectedSection;
+    
+    UIView *anchorCell;
+    UIView *anchorRowHeaderCell;
+    UIView *anchorColumnHeaderCell;
+    UIView *anchorCornerHeaderCell;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;

@@ -72,6 +72,26 @@
     
     selectedRow = NSNotFound;
     selectedSection = NSNotFound;
+    
+    anchorCell = [[UIView alloc] init];
+    anchorCell.hidden = YES;
+    [self addSubview:anchorCell];
+    [anchorCell release];
+    
+    anchorRowHeaderCell = [[UIView alloc] init];
+    anchorRowHeaderCell.hidden = YES;
+    [self addSubview:anchorRowHeaderCell];
+    [anchorRowHeaderCell release];
+    
+    anchorColumnHeaderCell = [[UIView alloc] init];
+    anchorColumnHeaderCell.hidden = YES;
+    [self addSubview:anchorColumnHeaderCell];
+    [anchorColumnHeaderCell release];
+    
+    anchorCornerHeaderCell = [[UIView alloc] init];
+    anchorCornerHeaderCell.hidden = YES;
+    [self addSubview:anchorCornerHeaderCell];
+    [anchorCornerHeaderCell release];
 }
 
 - (id<MDSpreadViewDelegate>)delegate
@@ -118,6 +138,9 @@
     [dequeuedCells addObjectsFromArray:[descriptor allCells]];
     [descriptor clearAllCells];
     
+    calculatedSize.width -= 1;
+    calculatedSize.height -= 1;
+    
     self.contentSize = calculatedSize;
     
 //    if (selectedSection != NSNotFound || selectedRow!= NSNotFound) {
@@ -135,16 +158,12 @@
     [super layoutSubviews];
     
     CGPoint offset = self.contentOffset;
-//    CGSize contentSize = self.contentSize;
     CGSize boundsSize = self.bounds.size;
     
     NSUInteger numberOfColumnSections = [descriptor columnSectionCount];
     NSUInteger numberOfRowSections = [descriptor rowSectionCount];
     
     CGPoint cellOrigin = CGPointZero;
-    
-//    MDSpreadViewCell *recentHeader = nil;
-//    MDSpreadViewColumnDescriptor *recentColumnHeader = nil;
     CGRect cellFrame;
     
     CGFloat headerWidth = self.sectionColumnHeaderWidth;
@@ -167,6 +186,16 @@
         } else {
             for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
                 NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
+                cellFrame = CGRectZero;
+                
+                if (cellOrigin.x >= offset.x) {
+                    cellFrame.origin.x = cellOrigin.x;
+                } else if (cellOrigin.x + columnWidth * numberOfColumns < offset.x) {
+                    cellFrame.origin.x = cellOrigin.x + columnWidth * numberOfColumns;
+                } else {
+                    cellFrame.origin.x = offset.x;
+                }
+                
                 if (cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
                     MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
                     [cell removeFromSuperview];
@@ -181,18 +210,10 @@
                     }
                     
                     if ([cell superview] != self) {
-                        [self addSubview:cell];
+                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
                     }
                     
-                    cellFrame = CGRectMake(0, 0, headerWidth, headerHeight);
-                    
-                    if (cellOrigin.x >= offset.x) {
-                        cellFrame.origin.x = cellOrigin.x;
-                    } else if (cellOrigin.x + columnWidth * numberOfColumns < offset.x) {
-                        cellFrame.origin.x = cellOrigin.x + columnWidth * numberOfColumns;
-                    } else {
-                        cellFrame.origin.x = offset.x;
-                    }
+                    cellFrame.size = CGSizeMake(headerWidth, headerHeight);
                     
                     if (cellOrigin.y >= offset.y) {
                         cellFrame.origin.y = cellOrigin.y;
@@ -206,6 +227,7 @@
                 }
                 
                 cellOrigin.y += headerHeight;
+                cellFrame.size = CGSizeMake(headerWidth, rowHeight);
                 
                 for (int row = 0; row < numberOfRows; row++) {
                     NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
@@ -223,18 +245,10 @@
                         }
                         
                         if ([cell superview] != self) {
-                            [self insertSubview:cell atIndex:0];
+                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
                         }
                         
-                        cellFrame = CGRectMake(0, cellOrigin.y, headerWidth, rowHeight);
-                        
-                        if (cellOrigin.x >= offset.x) {
-                            cellFrame.origin.x = cellOrigin.x;
-                        } else if (cellOrigin.x + columnWidth * numberOfColumns < offset.x) {
-                            cellFrame.origin.x = cellOrigin.x + columnWidth * numberOfColumns;
-                        } else {
-                            cellFrame.origin.x = offset.x;
-                        }
+                        cellFrame.origin.y = cellOrigin.y;
                         
                         [cell setFrame:cellFrame];
                     }
@@ -272,7 +286,7 @@
                         }
                         
                         if ([cell superview] != self) {
-                            [self insertSubview:cell atIndex:0];
+                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
                         }
                         
                         cellFrame = CGRectMake(cellOrigin.x, 0, columnWidth, headerHeight);
@@ -289,6 +303,7 @@
                     }
                     
                     cellOrigin.y += headerHeight;
+                    cellFrame = CGRectMake(cellOrigin.x, cellOrigin.y, columnWidth, rowHeight);
                     
                     for (int row = 0; row < numberOfRows; row++) {
                         NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
@@ -306,10 +321,10 @@
                             }
                             
                             if ([cell superview] != self) {
-                                [self insertSubview:cell atIndex:0];
+                                [self insertSubview:cell aboveSubview:anchorCell];
                             }
                             
-                            cellFrame = CGRectMake(cellOrigin.x, cellOrigin.y, columnWidth, rowHeight);
+                            cellFrame.origin.y = cellOrigin.y;
                             
                             [cell setFrame:cellFrame];
                         }
@@ -320,46 +335,7 @@
             
             cellOrigin.x += cellWidth;
         }
-        
-//        cellOrigin += headerHeight;
-//        
-//        for (int row = 0; row < numberOfRows; row++) {
-//            if (cellOrigin + rowHeight < offset || cellOrigin >= offset+clipHeight) {
-//                //NSLog(@"%d:%d cell: %@", section, row, [self cellForRow:row inSection:section]);
-//                [self setCell:nil forRow:row inSection:section];
-//            } else {
-//                MDTableViewCell *cell = [self cellForRow:row inSection:section];
-//                //NSLog(@"  %d:%d cell: %@", section, row, cell);
-//                if (!cell) {
-//                    cell = [self tableView:self cellForRow:row inSection:section];
-//                    [self setCell:cell forRow:row inSection:section];
-//                }
-//                
-//                if ([cell superview] != self) {
-//                    [self addSubview:cell positioned:NSWindowBelow relativeTo:nil];
-//                }
-//                
-//                [cell setHidden:NO];
-//                cell.selected = (section == selectedSection && row == selectedRow);
-//                cell.alternatedRow = row % 2;
-//                
-//                cellFrame = NSMakeRect(0, actualHeight-cellOrigin-rowHeight, cellWidth, rowHeight);
-//                
-//                NSRect cellFrameAdjustments = cell.frameAdjustments;
-//                
-//                cellFrame.origin.x += cellFrameAdjustments.origin.x;
-//                cellFrame.origin.y += cellFrameAdjustments.origin.y;
-//                cellFrame.size.width += cellFrameAdjustments.size.width;
-//                cellFrame.size.height += cellFrameAdjustments.size.height;
-//                
-//                [cell setFrame:cellFrame];
-//                [cell setNeedsDisplay:YES];
-//            }
-//            cellOrigin += rowHeight;
-//        }
     }
-    
-//    NSLog(@"%d", self.subviews.count);
 }
 
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
@@ -379,38 +355,6 @@
 }
 
 #pragma mark - Fetchers
-
-//- (NSUInteger)tableView:(MDSectionedTableView *)tableView numberOfRowsInSection:(NSUInteger)section
-//{
-//    NSInteger returnValue = 0;
-//    
-//    if (dataSource && [dataSource respondsToSelector:@selector(tableView:numberOfRowsInSection:)])
-//        returnValue = [dataSource tableView:tableView numberOfRowsInSection:section];
-//    
-//    return returnValue;
-//}
-//
-//- (MDTableViewCell *)tableView:(MDSectionedTableView *)tableView cellForRow:(NSUInteger)row inSection:(NSUInteger)section
-//{
-//    MDTableViewCell *returnValue = nil;
-//    
-//    if (dataSource && [dataSource respondsToSelector:@selector(tableView:cellForRow:inSection:)])
-//        returnValue = [dataSource tableView:tableView cellForRow:row inSection:section];
-//    
-//    return returnValue;
-//}
-//
-//- (MDTableViewCell *)tableView:(MDSectionedTableView *)tableView cellForHeaderOfSection:(NSUInteger)section
-//{
-//    MDTableViewCell *returnValue = nil;
-//    
-//    if (dataSource && [dataSource respondsToSelector:@selector(tableView:cellForHeaderOfSection:)])
-//        returnValue = [dataSource tableView:tableView cellForHeaderOfSection:section];
-//    
-//    return returnValue;
-//}
-//
-
 
 - (CGFloat)_widthForColumnHeaderInSection:(NSInteger)columnSection
 {

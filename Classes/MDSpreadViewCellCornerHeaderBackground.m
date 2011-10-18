@@ -12,31 +12,31 @@
 
 - (void)prepareBackground
 {
-	UIImage *topLeft = [UIImage imageNamed:@"MDSpreadViewCornerTopLeft.png"];
-	backgroundTopLeft = [[UIImageView alloc] initWithImage:topLeft highlightedImage:topLeft];
+	backgroundTopLeft = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerTopLeft.png"]
+                                          highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerTopLeftSelected.png"]];
     backgroundTopLeft.contentMode = UIViewContentModeScaleToFill;
-    backgroundTopLeft.contentStretch = CGRectMake(2./backgroundTopLeft.bounds.size.width, 2./backgroundTopLeft.bounds.size.height, 1./backgroundTopLeft.bounds.size.width, 1./backgroundTopLeft.bounds.size.height);
+    backgroundTopLeft.contentStretch = CGRectMake(3./backgroundTopLeft.bounds.size.width, 3./backgroundTopLeft.bounds.size.height, 1./backgroundTopLeft.bounds.size.width, 1./backgroundTopLeft.bounds.size.height);
 	[self addSubview:backgroundTopLeft];
 	[backgroundTopLeft release];
 	
-	UIImage *topRight = [UIImage imageNamed:@"MDSpreadViewCornerTopRight.png"];
-	backgroundTopRight = [[UIImageView alloc] initWithImage:topRight highlightedImage:topRight];
+	backgroundTopRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRight.png"]
+                                           highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRightSelected.png"]];
     backgroundTopRight.contentMode = UIViewContentModeScaleToFill;
-    backgroundTopRight.contentStretch = CGRectMake(1./backgroundTopRight.bounds.size.width, 2./backgroundTopRight.bounds.size.height, 1./backgroundTopRight.bounds.size.width, 1./backgroundTopRight.bounds.size.height);
+    backgroundTopRight.contentStretch = CGRectMake(2./backgroundTopRight.bounds.size.width, 3./backgroundTopRight.bounds.size.height, 1./backgroundTopRight.bounds.size.width, 1./backgroundTopRight.bounds.size.height);
 	[self addSubview:backgroundTopRight];
 	[backgroundTopRight release];
 	
-	UIImage *bottomLeft = [UIImage imageNamed:@"MDSpreadViewCornerBottomLeft.png"];
-	backgroundBottomLeft = [[UIImageView alloc] initWithImage:bottomLeft highlightedImage:bottomLeft];
+	backgroundBottomLeft = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeft.png"]
+                                             highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeftSelected.png"]];
     backgroundBottomLeft.contentMode = UIViewContentModeScaleToFill;
-    backgroundBottomLeft.contentStretch = CGRectMake(2./backgroundBottomLeft.bounds.size.width, 1./backgroundBottomLeft.bounds.size.height, 1./backgroundBottomLeft.bounds.size.width, 1./backgroundBottomLeft.bounds.size.height);
+    backgroundBottomLeft.contentStretch = CGRectMake(3./backgroundBottomLeft.bounds.size.width, 2./backgroundBottomLeft.bounds.size.height, 1./backgroundBottomLeft.bounds.size.width, 1./backgroundBottomLeft.bounds.size.height);
 	[self addSubview:backgroundBottomLeft];
 	[backgroundBottomLeft release];
 	
-	UIImage *bottomRight = [UIImage imageNamed:@"MDSpreadViewCornerBottomRight.png"];
-	backgroundBottomRight = [[UIImageView alloc] initWithImage:bottomRight highlightedImage:bottomRight];
+	backgroundBottomRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRight.png"]
+                                              highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRightSelected.png"]];
     backgroundBottomRight.contentMode = UIViewContentModeScaleToFill;
-    backgroundBottomRight.contentStretch = CGRectMake(5./backgroundBottomRight.bounds.size.width, 5./backgroundBottomRight.bounds.size.height, 1./backgroundBottomRight.bounds.size.width, 1./backgroundBottomRight.bounds.size.height);
+    backgroundBottomRight.contentStretch = CGRectMake(6./backgroundBottomRight.bounds.size.width, 6./backgroundBottomRight.bounds.size.height, 1./backgroundBottomRight.bounds.size.width, 1./backgroundBottomRight.bounds.size.height);
 	[self addSubview:backgroundBottomRight];
 	[backgroundBottomRight release];
 }

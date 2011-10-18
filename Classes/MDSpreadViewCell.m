@@ -34,13 +34,13 @@
         
         UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
         imageView.contentMode = UIViewContentModeScaleToFill;
-        imageView.contentStretch = CGRectMake(1./imageView.bounds.size.width, 1./imageView.bounds.size.height, 1./imageView.bounds.size.width, 1./imageView.bounds.size.height);
+        imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
         self.backgroundView = imageView;
         [imageView release];
         
         imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCellSelected.png"]];
         imageView.contentMode = UIViewContentModeScaleToFill;
-        imageView.contentStretch = CGRectMake(1./imageView.bounds.size.width, 1./imageView.bounds.size.height, 1./imageView.bounds.size.width, 1./imageView.bounds.size.height);
+        imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
         self.highlightedBackgroundView = imageView;
         [imageView release];
         
