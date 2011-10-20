@@ -347,15 +347,14 @@
                             if (!cell) {
                                 cell = [self _cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                                 [descriptor setCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
-                            }
-                            
-                            cellFrame.origin.y = cellOrigin.y;
-                            
-                            [cell setFrame:cellFrame];
-                            
-                            cell.hidden = NO;
-                            if ([cell superview] != self) {
+                                
+                                cellFrame.origin.y = cellOrigin.y;
+                                [cell setFrame:cellFrame];
+                                
+                                cell.hidden = NO;
                                 [self insertSubview:cell aboveSubview:anchorCell];
+                            } else {
+                                cell.hidden = NO;
                             }
                         }
                         cellOrigin.y += cellHeight;

@@ -96,10 +96,7 @@
 - (MDSpreadViewColumnDescriptor *)columnAtIndex:(NSUInteger)index
 {
     if (index < [columns count]) {
-        id obj = [columns objectAtIndex:index];
-        if (obj != [NSNull null]) {
-            return obj;
-        }
+        return [columns objectAtIndex:index];
     }
     return nil;
 }

@@ -82,10 +82,7 @@
 - (MDSpreadViewRowSectionDescriptor *)sectionAtIndex:(NSUInteger)index
 {
     if (index < [rowSections count]) {
-        id obj = [rowSections objectAtIndex:index];
-        if (obj != [NSNull null]) {
-            return obj;
-        }
+        return [rowSections objectAtIndex:index];
     }
     return nil;
 }
