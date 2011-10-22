@@ -190,4 +190,27 @@
     [super dealloc];
 }
 
+- (BOOL)isAccessibilityElement
+{
+    return YES;
+}
+
+- (NSString *)accessibilityLabel
+{
+    return textLabel.text;
+}
+
+- (NSString *)accessibilityHint
+{
+    return @"Double tap to show more information.";
+}
+
+- (UIAccessibilityTraits)accessibilityTraits
+{
+    if (self.highlighted) {
+        return UIAccessibilityTraitSelected;
+    }
+    return UIAccessibilityTraitNone;
+}
+
 @end

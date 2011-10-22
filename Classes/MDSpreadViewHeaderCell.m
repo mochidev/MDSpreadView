@@ -94,5 +94,34 @@
     self.textLabel.opaque = NO;
     self.textLabel.backgroundColor = [UIColor clearColor];
 }
+- (BOOL)isAccessibilityElement
+{
+    return YES;
+}
+
+- (NSString *)accessibilityLabel
+{
+    if (self.style == MDSpreadViewHeaderCellStyleRow) {
+        return [NSString stringWithFormat:@"%@ Row", self.textLabel.text];
+    } else {
+        return [NSString stringWithFormat:@"%@ Column", self.textLabel.text];
+    }
+    
+    return self.textLabel.text;
+}
+
+- (NSString *)accessibilityHint
+{
+    return @"";
+//    return @"Double tap to sort.";
+}
+
+//- (UIAccessibilityTraits)accessibilityTraits
+//{
+//    if (self.highlighted) {
+//        return UIAccessibilityTraitSelected|UIAccessibilityTraitButton;
+//    }
+//    return UIAccessibilityTraitButton;
+//}
 
 @end
