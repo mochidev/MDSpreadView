@@ -101,7 +101,7 @@
 
 - (NSString *)accessibilityLabel
 {
-    if (self.style == MDSpreadViewHeaderCellStyleRow) {
+    if (self.style == MDSpreadViewHeaderCellStyleColumn) {
         return [NSString stringWithFormat:@"%@ Row", self.textLabel.text];
     } else {
         return [NSString stringWithFormat:@"%@ Column", self.textLabel.text];
