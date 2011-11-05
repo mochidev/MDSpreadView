@@ -134,6 +134,8 @@
 
 - (void)clearAllCells
 {
+    [self.headerColumn clearAllCells];
+    
     for (MDSpreadViewColumnDescriptor *column in columns) {
         [column clearAllCells];
     }

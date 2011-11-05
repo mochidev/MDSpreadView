@@ -96,22 +96,22 @@
     selectedSection = NSNotFound;
     
     anchorCell = [[UIView alloc] init];
-    anchorCell.hidden = YES;
+//    anchorCell.hidden = YES;
     [self addSubview:anchorCell];
     [anchorCell release];
     
     anchorRowHeaderCell = [[UIView alloc] init];
-    anchorRowHeaderCell.hidden = YES;
+//    anchorRowHeaderCell.hidden = YES;
     [self addSubview:anchorRowHeaderCell];
     [anchorRowHeaderCell release];
     
     anchorColumnHeaderCell = [[UIView alloc] init];
-    anchorColumnHeaderCell.hidden = YES;
+//    anchorColumnHeaderCell.hidden = YES;
     [self addSubview:anchorColumnHeaderCell];
     [anchorColumnHeaderCell release];
     
     anchorCornerHeaderCell = [[UIView alloc] init];
-    anchorCornerHeaderCell.hidden = YES;
+//    anchorCornerHeaderCell.hidden = YES;
     [self addSubview:anchorCornerHeaderCell];
     [anchorCornerHeaderCell release];
 }
@@ -135,8 +135,91 @@
 
 #pragma mark - Data
 
+- (void)setRowHeight:(CGFloat)newHeight
+{
+    rowHeight = newHeight;
+    
+    CGSize calculatedSize = CGSizeZero;
+    calculatedSize.width = self.contentSize.width;
+    
+    NSUInteger numberOfRowSections = descriptor.rowSectionCount;
+    
+    for (NSUInteger i = 0; i < numberOfRowSections; i++) {
+        NSUInteger numberOfRows = [descriptor rowCountForSection:i];
+        calculatedSize.height += self.sectionRowHeaderHeight + numberOfRows*self.rowHeight;
+    }
+    
+    calculatedSize.height -= 1;
+    
+    self.contentSize = calculatedSize;
+    [self layoutSubviews];
+}
+
+- (void)setSectionRowHeaderHeight:(CGFloat)newHeight
+{
+    sectionRowHeaderHeight = newHeight;
+    
+    CGSize calculatedSize = CGSizeZero;
+    calculatedSize.width = self.contentSize.width;
+    
+    NSUInteger numberOfRowSections = descriptor.rowSectionCount;
+    
+    for (NSUInteger i = 0; i < numberOfRowSections; i++) {
+        NSUInteger numberOfRows = [descriptor rowCountForSection:i];
+        calculatedSize.height += self.sectionRowHeaderHeight + numberOfRows*self.rowHeight;
+    }
+    
+    calculatedSize.height -= 1;
+    
+    self.contentSize = calculatedSize;
+    [self layoutSubviews];
+}
+
+- (void)setColumnWidth:(CGFloat)newWidth
+{
+    columnWidth = newWidth;
+    
+    CGSize calculatedSize = CGSizeZero;
+    calculatedSize.height = self.contentSize.height;
+    
+    NSUInteger numberOfColumnSections = descriptor.columnSectionCount;
+    
+    for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
+        NSUInteger numberOfColumns = [descriptor columnCountForSection:i];
+        calculatedSize.width += self.sectionColumnHeaderWidth + numberOfColumns*self.columnWidth;
+    }
+    
+    calculatedSize.width -= 1;
+    
+    self.contentSize = calculatedSize;
+    [self layoutSubviews];
+}
+
+- (void)setSectionColumnHeaderWidth:(CGFloat)newWidth
+{
+    sectionColumnHeaderWidth = newWidth;
+    
+    CGSize calculatedSize = CGSizeZero;
+    calculatedSize.height = self.contentSize.height;
+    
+    NSUInteger numberOfColumnSections = descriptor.columnSectionCount;
+    
+    for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
+        NSUInteger numberOfColumns = [descriptor columnCountForSection:i];
+        calculatedSize.width += self.sectionColumnHeaderWidth + numberOfColumns*self.columnWidth;
+    }
+    
+    calculatedSize.width -= 1;
+    
+    self.contentSize = calculatedSize;
+    [self layoutSubviews];
+}
+
 - (void)reloadData
 {
+    [CATransaction begin];
+    [CATransaction setDisableActions:YES];
+    
     CGSize calculatedSize = CGSizeZero;
     
     NSUInteger numberOfColumnSections = [self _numberOfColumnSections];
@@ -177,6 +260,8 @@
 //    }
     
     [self layoutSubviews];
+    
+    [CATransaction commit];
 }
 
 - (void)layoutSubviews
@@ -249,7 +334,8 @@
                     
                     cell.hidden = NO;
                     if ([cell superview] != self) {
-                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
+                        [anchorCornerHeaderCell addSubview:cell];
+//                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
                     }
                 }
                 
@@ -277,7 +363,8 @@
                         
                         cell.hidden = NO;
                         if ([cell superview] != self) {
-                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
+                            [anchorColumnHeaderCell addSubview:cell];
+//                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
                         }
                     }
                     cellOrigin.y += cellHeight;
@@ -327,7 +414,8 @@
                         
                         cell.hidden = NO;
                         if ([cell superview] != self) {
-                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
+                            [anchorRowHeaderCell addSubview:cell];
+//                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
                         }
                     }
                     
@@ -347,14 +435,15 @@
                             if (!cell) {
                                 cell = [self _cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                                 [descriptor setCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
+                            }
                                 
-                                cellFrame.origin.y = cellOrigin.y;
-                                [cell setFrame:cellFrame];
+                            cellFrame.origin.y = cellOrigin.y;
+                            [cell setFrame:cellFrame];
                                 
-                                cell.hidden = NO;
-                                [self insertSubview:cell aboveSubview:anchorCell];
-                            } else {
-                                cell.hidden = NO;
+                            cell.hidden = NO;
+                            if ([cell superview] != self) {
+                                [anchorCell addSubview:cell];
+//                                [self insertSubview:cell belowSubview:anchorCell];
                             }
                         }
                         cellOrigin.y += cellHeight;
