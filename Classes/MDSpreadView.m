@@ -268,6 +268,10 @@
 {
     [super layoutSubviews];
     
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:0];
+    [CATransaction setDisableActions:YES];
+    
     CGPoint offset = self.contentOffset;
     CGSize boundsSize = self.bounds.size;
     
@@ -454,6 +458,8 @@
             cellOrigin.x += cellWidth;
         }
     }
+    
+    [CATransaction commit];
     
 //    NSLog(@"views: %d", self.subviews.count);
 }
