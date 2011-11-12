@@ -30,20 +30,23 @@
 
 #import <Foundation/Foundation.h>
 #import "NSIndexPath+MDSpreadView.h"
-@class MDSpreadViewColumnSectionDescriptor;
 @class MDSpreadViewCell;
+@class MDSpreadViewAxisDescriptor;
 
 @interface MDSpreadViewDescriptor : NSObject {
     NSMutableArray *columnSections;
     
     NSUInteger rowSectionCount;
+    
+    MDSpreadViewAxisDescriptor *columnAxis;
+    MDSpreadViewAxisDescriptor *rowAxis;
+    
+    NSMutableDictionary *cells;
+    NSMutableDictionary *columnCells;
 }
-@property (nonatomic, readonly) NSMutableArray *columnSections;
+//@property (nonatomic, readonly) NSMutableArray *columnSections;
 @property (nonatomic) NSUInteger columnSectionCount;
 @property (nonatomic) NSUInteger rowSectionCount;
-
-- (MDSpreadViewColumnSectionDescriptor *)sectionAtIndex:(NSUInteger)index;
-- (void)setSection:(MDSpreadViewColumnSectionDescriptor *)section atIndex:(NSUInteger)index;
 
 - (void)setColumnCount:(NSUInteger)count forSection:(NSUInteger)columnSection;
 - (NSUInteger)columnCountForSection:(NSUInteger)columnSection;
@@ -64,6 +67,8 @@
 - (NSArray *)allCells;
 - (void)clearAllCells;
 
+- (void)addCell:(MDSpreadViewCell *)cell toColumnIndexPath:(NSIndexPath *)path;
+- (void)removeCell:(MDSpreadViewCell *)cell fromColumnIndexPath:(NSIndexPath *)path;
 - (NSArray *)allCellsForHeaderColumnForSection:(NSUInteger)columnSection;
 - (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath;
 - (void)clearHeaderColumnForSection:(NSUInteger)columnSection;
