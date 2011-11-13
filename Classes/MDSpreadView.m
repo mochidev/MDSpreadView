@@ -97,15 +97,15 @@
     [self addSubview:anchorCell];
     [anchorCell release];
     
-    anchorRowHeaderCell = [[UIView alloc] init];
-//    anchorRowHeaderCell.hidden = YES;
-    [self addSubview:anchorRowHeaderCell];
-    [anchorRowHeaderCell release];
-    
     anchorColumnHeaderCell = [[UIView alloc] init];
 //    anchorColumnHeaderCell.hidden = YES;
     [self addSubview:anchorColumnHeaderCell];
     [anchorColumnHeaderCell release];
+    
+    anchorRowHeaderCell = [[UIView alloc] init];
+//    anchorRowHeaderCell.hidden = YES;
+    [self addSubview:anchorRowHeaderCell];
+    [anchorRowHeaderCell release];
     
     anchorCornerHeaderCell = [[UIView alloc] init];
 //    anchorCornerHeaderCell.hidden = YES;
@@ -248,6 +248,10 @@
     calculatedSize.height -= 1;
     
     self.contentSize = calculatedSize;
+//    anchorCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
+//    anchorColumnHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
+//    anchorCornerHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
+//    anchorRowHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
     
 //    if (selectedSection != NSNotFound || selectedRow!= NSNotFound) {
 //        if (selectedSection > numberOfSections || selectedRow > [self tableView:self numberOfRowsInSection:selectedSection]) {
@@ -260,6 +264,23 @@
     
     [CATransaction commit];
 }
+
+//- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+//{
+//    UIView *returnValue = [anchorCornerHeaderCell hitTest:[anchorCornerHeaderCell convertPoint:point fromView:self] withEvent:event];
+//    if (returnValue != anchorCornerHeaderCell) return returnValue;
+//    
+//    returnValue = [anchorRowHeaderCell hitTest:[anchorRowHeaderCell convertPoint:point fromView:self] withEvent:event];
+//    if (returnValue != anchorRowHeaderCell) return returnValue;
+//    
+//    returnValue = [anchorColumnHeaderCell hitTest:[anchorColumnHeaderCell convertPoint:point fromView:self] withEvent:event];
+//    if (returnValue != anchorColumnHeaderCell) return returnValue;
+//    
+//    returnValue = [anchorCell hitTest:[anchorCell convertPoint:point fromView:self] withEvent:event];
+//    if (returnValue != anchorCell) return returnValue;
+//    
+//    return [super hitTest:point withEvent:event];
+//}
 
 - (void)layoutSubviews
 {
@@ -342,8 +363,9 @@
                     
                     cell.hidden = NO;
                     if ([cell superview] != self) {
-                        [anchorCornerHeaderCell addSubview:cell];
-//                        [self insertSubview:cell aboveSubview:anchorCornerHeaderCell];
+//                        [anchorCornerHeaderCell addSubview:cell];
+//                        [self insertSubview:cell atIndex:[self.subviews indexOfObjectIdenticalTo:anchorCornerHeaderCell]];
+                        [self insertSubview:cell belowSubview:anchorCornerHeaderCell];
                     }
                 }
                 
@@ -373,8 +395,9 @@
                         
                         cell.hidden = NO;
                         if ([cell superview] != self) {
-                            [anchorColumnHeaderCell addSubview:cell];
-//                            [self insertSubview:cell aboveSubview:anchorColumnHeaderCell];
+//                            [anchorColumnHeaderCell addSubview:cell];
+//                            [self insertSubview:cell atIndex:[self.subviews indexOfObjectIdenticalTo:anchorColumnHeaderCell]];
+                            [self insertSubview:cell belowSubview:anchorColumnHeaderCell];
                         }
                     }
                     cellOrigin.y += cellHeight;
@@ -427,8 +450,9 @@
                         
                         cell.hidden = NO;
                         if ([cell superview] != self) {
-                            [anchorRowHeaderCell addSubview:cell];
-//                            [self insertSubview:cell aboveSubview:anchorRowHeaderCell];
+//                            [anchorRowHeaderCell addSubview:cell];
+//                            [self insertSubview:cell atIndex:[self.subviews indexOfObjectIdenticalTo:anchorRowHeaderCell]];
+                            [self insertSubview:cell belowSubview:anchorRowHeaderCell];
                         }
                     }
                     
@@ -453,12 +477,13 @@
                             }
                                 
                             cellFrame.origin.y = cellOrigin.y;
-                            [cell setFrame:cellFrame];
+                                [cell setFrame:cellFrame];
                                 
                             cell.hidden = NO;
                             if ([cell superview] != self) {
-                                [anchorCell addSubview:cell];
-//                                [self insertSubview:cell belowSubview:anchorCell];
+//                                [anchorCell addSubview:cell];
+//                                [self insertSubview:cell atIndex:[self.subviews indexOfObjectIdenticalTo:anchorCell]];
+                                [self insertSubview:cell belowSubview:anchorCell];
                             }
                         }
                         cellOrigin.y += cellHeight;
