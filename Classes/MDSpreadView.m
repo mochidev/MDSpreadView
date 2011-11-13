@@ -33,9 +33,6 @@
 #import "MDSpreadViewCell.h"
 #import "MDSpreadViewHeaderCell.h"
 #import "MDSpreadViewDescriptor.h"
-#import "MDSpreadViewColumnSectionDescriptor.h"
-#import "MDSpreadViewColumnDescriptor.h"
-#import "MDSpreadViewRowSectionDescriptor.h"
 
 @interface MDSpreadView ()
 
