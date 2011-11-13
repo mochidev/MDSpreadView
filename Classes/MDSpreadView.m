@@ -286,18 +286,23 @@
     CGFloat cellWidth = self.columnWidth;
     CGFloat cellHeight = self.rowHeight;
     
+    BOOL hideRestOfColumns = NO;
+    BOOL hideRestOfRows = NO;
+    
     for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        hideRestOfRows = NO;
 //        headerWidth = [self _widthForColumnHeaderInSection:section];
         NSUInteger numberOfColumns = [descriptor columnCountForSection:columnSection];
         cellOrigin.y = 0;
         
-        if (cellOrigin.x + headerWidth + cellWidth * numberOfColumns < offset.x || cellOrigin.x >= offset.x+boundsSize.width) {
-            NSArray *allCells = [descriptor allCellsForHeaderColumnForSection:columnSection];
-            for (MDSpreadViewCell *cell in allCells) {
-                cell.hidden = YES;
-            }
+        if (hideRestOfColumns || cellOrigin.x + headerWidth + cellWidth * numberOfColumns < offset.x) {
+            NSArray *allCells = [descriptor clearHeaderColumnForSection:columnSection];
             if (allCells) [dequeuedCells addObjectsFromArray:allCells];
-            [descriptor clearHeaderColumnForSection:columnSection];
+        } else if (cellOrigin.x >= offset.x+boundsSize.width) {
+            hideRestOfColumns = YES;
+            NSArray *allCells = [descriptor clearHeaderColumnForSection:columnSection];
+            if (allCells) [dequeuedCells addObjectsFromArray:allCells];
         } else {
             for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
                 NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
@@ -311,11 +316,13 @@
                     cellFrame.origin.x = offset.x;
                 }
                 
-                if (cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
-                    MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
-                    cell.hidden = YES;
+                if (hideRestOfRows || cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y) {
+                    MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnSection:columnSection];
                     if (cell) [dequeuedCells addObject:cell];
-                    [descriptor setHeaderCell:nil forRowSection:rowSection forColumnSection:columnSection];
+                } else if (cellOrigin.y >= offset.y+boundsSize.height) {
+                    hideRestOfRows = YES;
+                    MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnSection:columnSection];
+                    if (cell) [dequeuedCells addObject:cell];
                 } else {
                     MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
                     
@@ -348,11 +355,13 @@
                 
                 for (int row = 0; row < numberOfRows; row++) {
                     NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
-                    if (cellOrigin.y + cellHeight < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
-                        MDSpreadViewCell *cell = [descriptor cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
-                        cell.hidden = YES;
+                    if (hideRestOfRows || cellOrigin.y + cellHeight < offset.y) {
+                        MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
                         if (cell) [dequeuedCells addObject:cell];
-                        [descriptor setHeaderCell:nil forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+                    } else if (cellOrigin.y >= offset.y+boundsSize.height) {
+                        hideRestOfRows = YES;
+                        MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+                        if (cell) [dequeuedCells addObject:cell];
                     } else {
                         MDSpreadViewCell *cell = [descriptor cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
                         
@@ -379,23 +388,26 @@
         cellOrigin.x += headerWidth;
         
         for (int column = 0; column < numberOfColumns; column++) {
+            hideRestOfRows = NO;
             cellOrigin.y = 0;
             NSIndexPath *columnPath = [NSIndexPath indexPathForColumn:column inSection:columnSection];
-            if (cellOrigin.x + columnWidth < offset.x || cellOrigin.x >= offset.x+boundsSize.width) {
-                NSArray *allCells = [descriptor allCellsForColumnAtIndexPath:columnPath];
-                for (MDSpreadViewCell *cell in allCells) {
-                    cell.hidden = YES;
-                }
+            if (hideRestOfColumns || cellOrigin.x + columnWidth < offset.x) {
+                NSArray *allCells = [descriptor clearColumnAtIndexPath:columnPath];
                 if (allCells) [dequeuedCells addObjectsFromArray:allCells];
-                [descriptor clearColumnAtIndexPath:columnPath];
+            } else if (cellOrigin.x >= offset.x+boundsSize.width) {
+                hideRestOfColumns = YES;
+                NSArray *allCells = [descriptor clearColumnAtIndexPath:columnPath];
+                if (allCells) [dequeuedCells addObjectsFromArray:allCells];
             } else {
                 for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
                     NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
-                    if (cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
-                        MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnPath];
-                        cell.hidden = YES;
+                    if (hideRestOfRows || cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y) {
+                        MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnAtIndexPath:columnPath];
                         if (cell) [dequeuedCells addObject:cell];
-                        [descriptor setHeaderCell:nil forRowSection:rowSection forColumnAtIndexPath:columnPath];
+                    } else if (cellOrigin.y >= offset.y+boundsSize.height) {
+                        hideRestOfRows = YES;
+                        MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnAtIndexPath:columnPath];
+                        if (cell) [dequeuedCells addObject:cell];
                     } else {
                         MDSpreadViewCell *cell = [descriptor cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnPath];
                         
@@ -428,11 +440,13 @@
                     
                     for (int row = 0; row < numberOfRows; row++) {
                         NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
-                        if (cellOrigin.y + rowHeight < offset.y || cellOrigin.y >= offset.y+boundsSize.height) {
-                            MDSpreadViewCell *cell = [descriptor cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
-                            cell.hidden = YES;
+                        if (hideRestOfRows || cellOrigin.y + rowHeight < offset.y) {
+                            MDSpreadViewCell *cell = [descriptor setCell:nil forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                             if (cell) [dequeuedCells addObject:cell];
-                            [descriptor setCell:nil forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
+                        } else if (cellOrigin.y >= offset.y+boundsSize.height) {
+                            hideRestOfRows = YES;
+                            MDSpreadViewCell *cell = [descriptor setCell:nil forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
+                            if (cell) [dequeuedCells addObject:cell];
                         } else {
                             MDSpreadViewCell *cell = [descriptor cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                             
@@ -457,6 +471,7 @@
             
             cellOrigin.x += cellWidth;
         }
+        [pool drain];
     }
     
     [CATransaction commit];

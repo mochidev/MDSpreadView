@@ -39,24 +39,19 @@
 - (id)init
 {
     if (self = [super init]) {
-        columnSections = [[NSMutableArray alloc] init];
-        
         columnAxis = [[MDSpreadViewAxisDescriptor alloc] init];
         rowAxis = [[MDSpreadViewAxisDescriptor alloc] init];
         
-        cells = [[NSMutableDictionary alloc] init];
-        columnCells = [[NSMutableDictionary alloc] init];
+        columns = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [columnCells release];
-    [cells release];
+    [columns release];
     [columnAxis release];
     [rowAxis release];
-    [columnSections release];
     [super dealloc];
 }
 
@@ -100,169 +95,214 @@
     return [rowAxis countOfSectionAtIndex:rowSection];
 }
 
-- (void)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex
 {
-    NSIndexPath *path = [NSIndexPath indexPathForRow:[rowAxis linearIndexForCellAtIndexPath:rowPath] inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]];
-    MDSpreadViewCell *oldCell = [cells objectForKey:path];
-//    if (cell == [cells objectForKey:[NSIndexPath indexPathForRow:2 inSection:1]]) {
-//        NSLog(@"[1, 2]: hash for path %@: %d", path, [path hash]);
-//    }
-    if (cell) {
-        [cells setObject:cell forKey:path];
-    } else {
-        [cells removeObjectForKey:path];
+    NSInteger difference = columnIndex+1-[columns count];
+    if (columnIndex >= [columns count]) {
+        for (NSUInteger i = 0; i < difference; i++) {
+            NSMutableArray *array = [[NSMutableArray alloc] init];
+            [columns addObject:array];
+            [array release];
+        }
     }
     
-    if (oldCell != cell) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:path.section];
-        [oldCell removeFromSuperview];
-        [self removeCell:oldCell fromColumnIndexPath:indexPath];
-        [self addCell:cell toColumnIndexPath:indexPath];
+    NSMutableArray *rows = [columns objectAtIndex:columnIndex];
+    difference = rowIndex+1-[rows count];
+    if (rowIndex >= [rows count]) {
+        for (NSUInteger i = 0; i < difference; i++) {
+            [rows addObject:[NSNull null]];
+        }
     }
+    
+    MDSpreadViewCell *oldCell = [rows objectAtIndex:rowIndex];
+    if ((NSNull *)oldCell == [NSNull null]) {
+        oldCell = nil;
+    } else {
+        [oldCell retain];
+        oldCell.hidden = YES;
+        [oldCell removeFromSuperview];
+    }
+    
+    if (cell) {
+        [rows replaceObjectAtIndex:rowIndex withObject:cell];
+    } else {
+        [rows replaceObjectAtIndex:rowIndex withObject:[NSNull null]];
+    }
+    return [oldCell autorelease];
 }
 
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
+- (MDSpreadViewCell *)cellForColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex
 {
-    MDSpreadViewCell *oldCell = [self cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
-    if (cell) {
-        [cells setObject:cell forKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:rowSection] inSection:[columnAxis linearIndexForHeaderAtIndex:columnSection]]];
-    } else {
-        [cells removeObjectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:rowSection] inSection:[columnAxis linearIndexForHeaderAtIndex:columnSection]]];
+    if (columnIndex < [columns count]) {
+        NSMutableArray *rows = [columns objectAtIndex:columnIndex];
+        if (rowIndex < [rows count]) {
+            MDSpreadViewCell *cell = [rows objectAtIndex:rowIndex];
+            if ((NSNull *)cell != [NSNull null]) {
+                return cell;
+            }
+        }
     }
-    
-    if (oldCell != cell) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForHeaderAtIndex:columnSection]];
-        [oldCell removeFromSuperview];
-        [self removeCell:oldCell fromColumnIndexPath:indexPath];
-        [self addCell:cell toColumnIndexPath:indexPath];
-    }
+    return nil;
 }
 
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
 {
-    MDSpreadViewCell *oldCell = [self cellForHeaderInRowSection:section forColumnAtIndexPath:columnPath];
-    if (cell) {
-        [cells setObject:cell forKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:section] inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
-    } else {
-        [cells removeObjectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:section] inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
-    }
-    
-    if (oldCell != cell) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]];
-        [oldCell removeFromSuperview];
-        [self removeCell:oldCell fromColumnIndexPath:indexPath];
-        [self addCell:cell toColumnIndexPath:indexPath];
-    }
+    return [self setCell:cell forColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
+                                    rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
 {
-    MDSpreadViewCell *oldCell = [self cellForHeaderInColumnSection:section forRowAtIndexPath:rowPath];
-    if (cell) {
-        [cells setObject:cell forKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForCellAtIndexPath:rowPath] inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
-    } else {
-        [cells removeObjectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForCellAtIndexPath:rowPath] inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
-    }
-    
-    if (oldCell != cell) {
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForHeaderAtIndex:section]];
-        [oldCell removeFromSuperview];
-        [self removeCell:oldCell fromColumnIndexPath:indexPath];
-        [self addCell:cell toColumnIndexPath:indexPath];
-    }
+    return [self setCell:cell forColumnIndex:[columnAxis linearIndexForHeaderAtIndex:columnSection]
+                                    rowIndex:[rowAxis linearIndexForHeaderAtIndex:rowSection]];
+}
+
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath
+{
+    return [self setCell:cell forColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
+                                    rowIndex:[rowAxis linearIndexForHeaderAtIndex:section]];
+}
+
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath
+{
+    return [self setCell:cell forColumnIndex:[columnAxis linearIndexForHeaderAtIndex:section]
+                                    rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
 - (MDSpreadViewCell *)cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
 {
-    return [cells objectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForCellAtIndexPath:rowPath] inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
+    return [self cellForColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
+                           rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
 {
-    return [cells objectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:rowSection] inSection:[columnAxis linearIndexForHeaderAtIndex:columnSection]]];
+    return [self cellForColumnIndex:[columnAxis linearIndexForHeaderAtIndex:columnSection]
+                           rowIndex:[rowAxis linearIndexForHeaderAtIndex:rowSection]];
 }
 
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath
 {
-    return [cells objectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForHeaderAtIndex:section] inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
+    return [self cellForColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
+                           rowIndex:[rowAxis linearIndexForHeaderAtIndex:section]];
 }
 
 - (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath
 {
-    return [cells objectForKey:[NSIndexPath indexPathForRow:[rowAxis linearIndexForCellAtIndexPath:rowPath] inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
+    return [self cellForColumnIndex:[columnAxis linearIndexForHeaderAtIndex:section]
+                           rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
 - (NSArray *)allCells
 {
-    return [cells allValues];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    
+    for (NSMutableArray *rowArray in columns) {
+        for (id cell in rowArray) {
+            if (cell != [NSNull null]) {
+                [allCells addObject:cell];
+            }
+        }
+    }
+    
+    return [allCells autorelease];
 }
 
-- (void)clearAllCells
+- (NSArray *)clearAllCells
 {
-    NSArray *allCells = [cells allValues];
-    for (MDSpreadViewCell *cell in allCells) {
-        [cell removeFromSuperview];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    
+    for (NSMutableArray *rowArray in columns) {
+        for (id cell in rowArray) {
+            if (cell != [NSNull null]) {
+                [allCells addObject:cell];
+                [cell removeFromSuperview];
+            }
+        }
     }
-    [cells removeAllObjects];
-    [columnCells removeAllObjects];
-}
-
-- (void)addCell:(MDSpreadViewCell *)cell toColumnIndexPath:(NSIndexPath *)path
-{
-    if (!path) return;
-    NSMutableArray *array = [columnCells objectForKey:path];
-    if (!array) {
-        array = [[NSMutableArray alloc] init];
-        [columnCells setObject:array forKey:path];
-        [array release];
-    }
-    if (cell)
-        [array addObject:cell];
-}
-
-- (void)removeCell:(MDSpreadViewCell *)cell fromColumnIndexPath:(NSIndexPath *)path
-{
-    if (!path) return;
-    NSMutableArray *array = [columnCells objectForKey:path];
-    if (cell)
-        [array removeObjectIdenticalTo:cell];
-    if ([array count] == 0) {
-        [columnCells removeObjectForKey:path];
-    }
+    
+    [columns removeAllObjects];
+    return [allCells autorelease];
 }
 
 - (NSArray *)allCellsForHeaderColumnForSection:(NSUInteger)section
 {
-    return [columnCells objectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    NSUInteger columnIndex = [columnAxis linearIndexForHeaderAtIndex:section];
+    
+    if (columnIndex < [columns count]) {
+        NSMutableArray *rowArray = [columns objectAtIndex:columnIndex];
+        
+        for (id cell in rowArray) {
+            if (cell != [NSNull null]) {
+                [allCells addObject:cell];
+            }
+        }
+    }
+    
+    return [allCells autorelease];
 }
 
 - (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath
 {
-    return [columnCells objectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    NSUInteger columnIndex = [columnAxis linearIndexForCellAtIndexPath:columnPath];
+    
+    if (columnIndex < [columns count]) {
+        NSMutableArray *rowArray = [columns objectAtIndex:columnIndex];
+        
+        for (id cell in rowArray) {
+            if (cell != [NSNull null]) {
+                [allCells addObject:cell];
+            }
+        }
+    }
+    
+    return [allCells autorelease];
 }
 
-- (void)clearHeaderColumnForSection:(NSUInteger)section
+- (NSArray *)clearHeaderColumnForSection:(NSUInteger)section
 {
-    NSMutableArray *headerColumnCells = [columnCells objectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    NSUInteger columnIndex = [columnAxis linearIndexForHeaderAtIndex:section];
     
-    for (MDSpreadViewCell *cell in headerColumnCells) {
-        [cells removeObjectsForKeys:[cells allKeysForObject:cell]];
-        [cell removeFromSuperview];
+    if (columnIndex < [columns count]) {
+        NSMutableArray *rowArray = [columns objectAtIndex:columnIndex];
+        
+        for (NSUInteger i = 0; i < [rowArray count]; i++) {
+            MDSpreadViewCell *cell = [rowArray objectAtIndex:i];
+            if ((NSNull *)cell != [NSNull null]) {
+                [cell removeFromSuperview];
+                cell.hidden = YES;
+                [allCells addObject:cell];
+                [rowArray replaceObjectAtIndex:i withObject:[NSNull null]];
+            }
+        }
     }
-    [headerColumnCells removeAllObjects];
-    [columnCells removeObjectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForHeaderAtIndex:section]]];
+    
+    return [allCells autorelease];
 }
 
-- (void)clearColumnAtIndexPath:(NSIndexPath *)columnPath
+- (NSArray *)clearColumnAtIndexPath:(NSIndexPath *)columnPath
 {
-    NSMutableArray *indexPathColumnCells = [columnCells objectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
+    NSMutableArray *allCells = [[NSMutableArray alloc] init];
+    NSUInteger columnIndex = [columnAxis linearIndexForCellAtIndexPath:columnPath];
     
-    for (MDSpreadViewCell *cell in indexPathColumnCells) {
-        [cells removeObjectsForKeys:[cells allKeysForObject:cell]];
-        [cell removeFromSuperview];
+    if (columnIndex < [columns count]) {
+        NSMutableArray *rowArray = [columns objectAtIndex:columnIndex];
+        
+        for (NSUInteger i = 0; i < [rowArray count]; i++) {
+            MDSpreadViewCell *cell = [rowArray objectAtIndex:i];
+            if ((NSNull *)cell != [NSNull null]) {
+                [cell removeFromSuperview];
+                cell.hidden = YES;
+                [allCells addObject:cell];
+                [rowArray replaceObjectAtIndex:i withObject:[NSNull null]];
+            }
+        }
     }
-    [indexPathColumnCells removeAllObjects];
-    [columnCells removeObjectForKey:[NSIndexPath indexPathForRow:0 inSection:[columnAxis linearIndexForCellAtIndexPath:columnPath]]];
+    
+    return [allCells autorelease];
 }
 
 @end

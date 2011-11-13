@@ -50,6 +50,8 @@
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
         self.clipsToBounds = NO;
         self.backgroundColor = nil;
+//        self.layer.shouldRasterize = YES;
+//        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         
         MDSpreadViewCellBackground *newBackground = nil;
         MDSpreadViewCellBackground *newSelectedBackground = nil;

@@ -34,15 +34,10 @@
 @class MDSpreadViewAxisDescriptor;
 
 @interface MDSpreadViewDescriptor : NSObject {
-    NSMutableArray *columnSections;
-    
-    NSUInteger rowSectionCount;
-    
     MDSpreadViewAxisDescriptor *columnAxis;
     MDSpreadViewAxisDescriptor *rowAxis;
     
-    NSMutableDictionary *cells;
-    NSMutableDictionary *columnCells;
+    NSMutableArray *columns;
 }
 //@property (nonatomic, readonly) NSMutableArray *columnSections;
 @property (nonatomic) NSUInteger columnSectionCount;
@@ -54,10 +49,14 @@
 - (void)setRowCount:(NSUInteger)count forSection:(NSUInteger)rowSection;
 - (NSUInteger)rowCountForSection:(NSUInteger)rowSection;
 
-- (void)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (void)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+// Expects linear index!
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex;
+- (MDSpreadViewCell *)cellForColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex;
+
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
 
 - (MDSpreadViewCell *)cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
@@ -65,13 +64,11 @@
 - (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
 
 - (NSArray *)allCells;
-- (void)clearAllCells;
+- (NSArray *)clearAllCells;
 
-- (void)addCell:(MDSpreadViewCell *)cell toColumnIndexPath:(NSIndexPath *)path;
-- (void)removeCell:(MDSpreadViewCell *)cell fromColumnIndexPath:(NSIndexPath *)path;
 - (NSArray *)allCellsForHeaderColumnForSection:(NSUInteger)columnSection;
 - (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (void)clearHeaderColumnForSection:(NSUInteger)columnSection;
-- (void)clearColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (NSArray *)clearHeaderColumnForSection:(NSUInteger)columnSection;
+- (NSArray *)clearColumnAtIndexPath:(NSIndexPath *)columnPath;
 
 @end
