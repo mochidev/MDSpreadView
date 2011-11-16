@@ -39,10 +39,10 @@
 @optional
 
 - (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
-- (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowHeaderInSection:(NSInteger)rowSection;
+- (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowHeaderInSection:(NSInteger)rowSection; // pass 0 to hide header
 
 - (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnAtIndexPath:(NSIndexPath *)indexPath;
-- (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnHeaderInSection:(NSInteger)columnSection;
+- (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnHeaderInSection:(NSInteger)columnSection; // pass 0 to hide header
 
 // Called before the user changes the selection. Return a new indexPath, or nil, to change the proposed selection.
 //- (NSIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectRowAtIndexPath:(NSIndexPath *)indexPath;
@@ -98,10 +98,17 @@
     UIView *anchorRowHeaderCell;
     UIView *anchorColumnHeaderCell;
     UIView *anchorCornerHeaderCell;
+    
+    BOOL implementsRowHeight;
+    BOOL implementsRowHeaderHeight;
+    BOOL implementsColumnWidth;
+    BOOL implementsColumnHeaderWidth;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDelegate> delegate;
+
+// Cell Dimensions
 @property (nonatomic) CGFloat rowHeight;
 @property (nonatomic) CGFloat sectionRowHeaderHeight;
 @property (nonatomic) CGFloat columnWidth;

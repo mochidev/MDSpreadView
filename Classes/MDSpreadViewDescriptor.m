@@ -193,6 +193,66 @@
                            rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
+- (void)setHeight:(CGFloat)height forRowAtIndexPath:(NSIndexPath *)rowPath
+{
+    [rowAxis setSize:height forCellAtIndexPath:rowPath];
+}
+
+- (void)setHeight:(CGFloat)height forHeaderRowInSection:(NSInteger)rowSection
+{
+    [rowAxis setSize:height forHeaderCellAtIndex:rowSection];
+}
+
+- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(NSIndexPath *)columnPath
+{
+    [columnAxis setSize:width forCellAtIndexPath:columnPath];
+}
+
+- (void)setWidth:(CGFloat)width forHeaderColumnInSection:(NSInteger)columnSection
+{
+    [columnAxis setSize:width forHeaderCellAtIndex:columnSection];
+}
+
+- (CGFloat)heightForRowAtIndexPath:(NSIndexPath *)rowPath
+{
+    return [rowAxis sizeOfCellAtIndex:rowPath];
+}
+
+- (CGFloat)heightForHeaderRowInSection:(NSInteger)rowSection
+{
+    return [rowAxis sizeOfHeaderCellAtIndex:rowSection];
+}
+
+- (CGFloat)widthForColumnAtIndexPath:(NSIndexPath *)columnPath
+{
+    return [columnAxis sizeOfCellAtIndex:columnPath];
+}
+
+- (CGFloat)widthForHeaderColumnInSection:(NSInteger)columnSection
+{
+    return [columnAxis sizeOfHeaderCellAtIndex:columnSection];
+}
+
+- (CGFloat)heightForEntireRowSection:(NSInteger)rowSection
+{
+    return [rowAxis sizeOfSectionAtIndex:rowSection];
+}
+
+- (CGFloat)widthForEntireColumnSection:(NSInteger)columnSection
+{
+    return [columnAxis sizeOfSectionAtIndex:columnSection];
+}
+
+- (CGFloat)totalWidth
+{
+    return columnAxis.axisSize;
+}
+
+- (CGFloat)totalHeight
+{
+    return rowAxis.axisSize;
+}
+
 - (NSArray *)allCells
 {
     NSMutableArray *allCells = [[NSMutableArray alloc] init];

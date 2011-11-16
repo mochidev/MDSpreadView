@@ -39,6 +39,9 @@
 - (void)_performInit;
 
 - (CGFloat)_widthForColumnHeaderInSection:(NSInteger)columnSection;
+- (CGFloat)_widthForColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection;
+- (CGFloat)_heightForRowAtIndexPath:(NSIndexPath *)rowPath;
 
 - (NSInteger)_numberOfColumnsInSection:(NSInteger)section;
 - (NSInteger)_numberOfRowsInSection:(NSInteger)section;
@@ -136,19 +139,19 @@
 {
     rowHeight = newHeight;
     
-    CGSize calculatedSize = CGSizeZero;
-    calculatedSize.width = self.contentSize.width;
+    if (implementsRowHeight) return;
     
     NSUInteger numberOfRowSections = descriptor.rowSectionCount;
     
     for (NSUInteger i = 0; i < numberOfRowSections; i++) {
         NSUInteger numberOfRows = [descriptor rowCountForSection:i];
-        calculatedSize.height += self.sectionRowHeaderHeight + numberOfRows*self.rowHeight;
+        
+        for (NSUInteger j = 0; j < numberOfRows; j++) {
+            [descriptor setHeight:rowHeight forRowAtIndexPath:[NSIndexPath indexPathForRow:j inSection:i]];
+        }
     }
     
-    calculatedSize.height -= 1;
-    
-    self.contentSize = calculatedSize;
+    self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     [self layoutSubviews];
 }
 
@@ -156,19 +159,15 @@
 {
     sectionRowHeaderHeight = newHeight;
     
-    CGSize calculatedSize = CGSizeZero;
-    calculatedSize.width = self.contentSize.width;
+    if (implementsRowHeaderHeight) return;
     
     NSUInteger numberOfRowSections = descriptor.rowSectionCount;
     
     for (NSUInteger i = 0; i < numberOfRowSections; i++) {
-        NSUInteger numberOfRows = [descriptor rowCountForSection:i];
-        calculatedSize.height += self.sectionRowHeaderHeight + numberOfRows*self.rowHeight;
+        [descriptor setHeight:sectionRowHeaderHeight forHeaderRowInSection:i];
     }
     
-    calculatedSize.height -= 1;
-    
-    self.contentSize = calculatedSize;
+    self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     [self layoutSubviews];
 }
 
@@ -176,19 +175,19 @@
 {
     columnWidth = newWidth;
     
-    CGSize calculatedSize = CGSizeZero;
-    calculatedSize.height = self.contentSize.height;
+    if (implementsColumnWidth) return;
     
     NSUInteger numberOfColumnSections = descriptor.columnSectionCount;
     
     for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
         NSUInteger numberOfColumns = [descriptor columnCountForSection:i];
-        calculatedSize.width += self.sectionColumnHeaderWidth + numberOfColumns*self.columnWidth;
+        
+        for (NSUInteger j = 0; j < numberOfColumns; j++) {
+            [descriptor setWidth:columnWidth forColumnAtIndexPath:[NSIndexPath indexPathForColumn:j inSection:i]];
+        }
     }
     
-    calculatedSize.width -= 1;
-    
-    self.contentSize = calculatedSize;
+    self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     [self layoutSubviews];
 }
 
@@ -196,19 +195,13 @@
 {
     sectionColumnHeaderWidth = newWidth;
     
-    CGSize calculatedSize = CGSizeZero;
-    calculatedSize.height = self.contentSize.height;
-    
     NSUInteger numberOfColumnSections = descriptor.columnSectionCount;
     
     for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
-        NSUInteger numberOfColumns = [descriptor columnCountForSection:i];
-        calculatedSize.width += self.sectionColumnHeaderWidth + numberOfColumns*self.columnWidth;
+        [descriptor setWidth:sectionColumnHeaderWidth forHeaderColumnInSection:i];
     }
     
-    calculatedSize.width -= 1;
-    
-    self.contentSize = calculatedSize;
+    self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     [self layoutSubviews];
 }
 
@@ -217,7 +210,12 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    CGSize calculatedSize = CGSizeZero;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
+    implementsRowHeight = YES;
+    implementsRowHeaderHeight = YES;
+    implementsColumnWidth = YES;
+    implementsColumnHeaderWidth = YES;
     
     NSUInteger numberOfColumnSections = [self _numberOfColumnSections];
     NSUInteger numberOfRowSections = [self _numberOfRowSections];
@@ -227,14 +225,26 @@
     
     for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
         NSUInteger numberOfColumns = [self _numberOfColumnsInSection:i];
-        calculatedSize.width += self.sectionColumnHeaderWidth + numberOfColumns*self.columnWidth;
+        
         [descriptor setColumnCount:numberOfColumns forSection:i];
+        [descriptor setWidth:[self _widthForColumnHeaderInSection:i] forHeaderColumnInSection:i];
+        
+        for (NSUInteger j = 0; j < numberOfColumns; j++) {
+            NSIndexPath *path = [NSIndexPath indexPathForColumn:j inSection:i];
+            [descriptor setWidth:[self _widthForColumnAtIndexPath:path] forColumnAtIndexPath:path];
+        }
     }
     
     for (NSUInteger i = 0; i < numberOfRowSections; i++) {
         NSUInteger numberOfRows = [self _numberOfRowsInSection:i];
-        calculatedSize.height += self.sectionRowHeaderHeight + numberOfRows*self.rowHeight;
+        
         [descriptor setRowCount:numberOfRows forSection:i];
+        [descriptor setHeight:[self _heightForRowHeaderInSection:i] forHeaderRowInSection:i];
+        
+        for (NSUInteger j = 0; j < numberOfRows; j++) {
+            NSIndexPath *path = [NSIndexPath indexPathForRow:j inSection:i];
+            [descriptor setHeight:[self _heightForRowAtIndexPath:path] forRowAtIndexPath:path];
+        }
     }
     
     NSArray *allCells = [descriptor allCells];
@@ -244,10 +254,8 @@
     [dequeuedCells addObjectsFromArray:allCells];
     [descriptor clearAllCells];
     
-    calculatedSize.width -= 1;
-    calculatedSize.height -= 1;
+    self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     
-    self.contentSize = calculatedSize;
 //    anchorCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
 //    anchorColumnHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
 //    anchorCornerHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
@@ -259,6 +267,8 @@
 //            [self tableView:self didSelectRow:selectedRow inSection:selectedSection];
 //        }
 //    }
+    
+    [pool drain];
     
     [self layoutSubviews];
     
@@ -303,6 +313,8 @@
     CGFloat headerHeight = self.sectionRowHeaderHeight;
     CGFloat cellWidth = self.columnWidth;
     CGFloat cellHeight = self.rowHeight;
+    CGFloat columnSectionWidth = 0;
+    CGFloat rowSectionHeight = 0;
     
     BOOL hideRestOfColumns = NO;
     BOOL hideRestOfRows = NO;
@@ -310,11 +322,13 @@
     for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         hideRestOfRows = NO;
-//        headerWidth = [self _widthForColumnHeaderInSection:section];
         NSUInteger numberOfColumns = [descriptor columnCountForSection:columnSection];
         cellOrigin.y = 0;
         
-        if (hideRestOfColumns || cellOrigin.x + headerWidth + cellWidth * numberOfColumns < offset.x) {
+        headerWidth = [descriptor widthForHeaderColumnInSection:columnSection];
+        columnSectionWidth = [descriptor widthForEntireColumnSection:columnSection];
+        
+        if (hideRestOfColumns || headerWidth == 0 || cellOrigin.x + headerWidth + columnSectionWidth < offset.x) {
             NSArray *allCells = [descriptor clearHeaderColumnForSection:columnSection];
             if (allCells) [dequeuedCells addObjectsFromArray:allCells];
         } else if (cellOrigin.x >= offset.x+boundsSize.width) {
@@ -328,13 +342,16 @@
                 
                 if (cellOrigin.x >= offset.x) {
                     cellFrame.origin.x = cellOrigin.x;
-                } else if (cellOrigin.x + cellWidth * numberOfColumns < offset.x) {
-                    cellFrame.origin.x = cellOrigin.x + cellWidth * numberOfColumns;
+                } else if (cellOrigin.x + columnSectionWidth < offset.x) {
+                    cellFrame.origin.x = cellOrigin.x + columnSectionWidth;
                 } else {
                     cellFrame.origin.x = offset.x;
                 }
                 
-                if (hideRestOfRows || cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y) {
+                headerHeight = [descriptor heightForHeaderRowInSection:rowSection];
+                rowSectionHeight = [descriptor heightForEntireRowSection:rowSection];
+                
+                if (hideRestOfRows || headerHeight == 0 || cellOrigin.y + headerHeight + rowSectionHeight < offset.y) {
                     MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnSection:columnSection];
                     if (cell) [dequeuedCells addObject:cell];
                 } else if (cellOrigin.y >= offset.y+boundsSize.height) {
@@ -353,8 +370,8 @@
                     
                     if (cellOrigin.y >= offset.y) {
                         cellFrame.origin.y = cellOrigin.y;
-                    } else if (cellOrigin.y + cellHeight * numberOfRows < offset.y) {
-                        cellFrame.origin.y = cellOrigin.y + cellHeight * numberOfRows;
+                    } else if (cellOrigin.y + rowSectionHeight < offset.y) {
+                        cellFrame.origin.y = cellOrigin.y + rowSectionHeight;
                     } else {
                         cellFrame.origin.y = offset.y;
                     }
@@ -370,11 +387,14 @@
                 }
                 
                 cellOrigin.y += headerHeight;
-                cellFrame.size = CGSizeMake(headerWidth, cellHeight);
+                cellFrame.size.width = headerWidth;
                 
                 for (int row = 0; row < numberOfRows; row++) {
                     NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
-                    if (hideRestOfRows || cellOrigin.y + cellHeight < offset.y) {
+                    cellHeight = [descriptor heightForRowAtIndexPath:rowIndexPath];
+                    cellFrame.size.height = cellHeight;
+                    
+                    if (hideRestOfRows || cellHeight == 0 || cellOrigin.y + cellHeight < offset.y) {
                         MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
                         if (cell) [dequeuedCells addObject:cell];
                     } else if (cellOrigin.y >= offset.y+boundsSize.height) {
@@ -411,7 +431,9 @@
             hideRestOfRows = NO;
             cellOrigin.y = 0;
             NSIndexPath *columnPath = [NSIndexPath indexPathForColumn:column inSection:columnSection];
-            if (hideRestOfColumns || cellOrigin.x + columnWidth < offset.x) {
+            cellWidth = [descriptor widthForColumnAtIndexPath:columnPath];
+            
+            if (hideRestOfColumns || cellWidth == 0 || cellOrigin.x + cellWidth < offset.x) {
                 NSArray *allCells = [descriptor clearColumnAtIndexPath:columnPath];
                 if (allCells) [dequeuedCells addObjectsFromArray:allCells];
             } else if (cellOrigin.x >= offset.x+boundsSize.width) {
@@ -421,7 +443,11 @@
             } else {
                 for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
                     NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
-                    if (hideRestOfRows || cellOrigin.y + headerHeight + cellHeight * numberOfRows < offset.y) {
+                    
+                    headerHeight = [descriptor heightForHeaderRowInSection:rowSection];
+                    rowSectionHeight = [descriptor heightForEntireRowSection:rowSection];
+                    
+                    if (hideRestOfRows || headerHeight == 0 || cellOrigin.y + headerHeight + rowSectionHeight < offset.y) {
                         MDSpreadViewCell *cell = [descriptor setHeaderCell:nil forRowSection:rowSection forColumnAtIndexPath:columnPath];
                         if (cell) [dequeuedCells addObject:cell];
                     } else if (cellOrigin.y >= offset.y+boundsSize.height) {
@@ -440,8 +466,8 @@
                         
                         if (cellOrigin.y >= offset.y) {
                             cellFrame.origin.y = cellOrigin.y;
-                        } else if (cellOrigin.y + cellHeight * numberOfRows < offset.y) {
-                            cellFrame.origin.y = cellOrigin.y + cellHeight * numberOfRows;
+                        } else if (cellOrigin.y + rowSectionHeight < offset.y) {
+                            cellFrame.origin.y = cellOrigin.y + rowSectionHeight;
                         } else {
                             cellFrame.origin.y = offset.y;
                         }
@@ -461,7 +487,10 @@
                     
                     for (int row = 0; row < numberOfRows; row++) {
                         NSIndexPath *rowIndexPath = [NSIndexPath indexPathForRow:row inSection:rowSection];
-                        if (hideRestOfRows || cellOrigin.y + rowHeight < offset.y) {
+                        cellHeight = [descriptor heightForRowAtIndexPath:rowIndexPath];
+                        cellFrame.size.height = cellHeight;
+                        
+                        if (hideRestOfRows || cellHeight == 0 || cellOrigin.y + cellHeight < offset.y) {
                             MDSpreadViewCell *cell = [descriptor setCell:nil forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnPath];
                             if (cell) [dequeuedCells addObject:cell];
                         } else if (cellOrigin.y >= offset.y+boundsSize.height) {
@@ -477,7 +506,7 @@
                             }
                                 
                             cellFrame.origin.y = cellOrigin.y;
-                                [cell setFrame:cellFrame];
+                            [cell setFrame:cellFrame];
                                 
                             cell.hidden = NO;
                             if ([cell superview] != self) {
@@ -520,16 +549,52 @@
 
 #pragma mark - Fetchers
 
+#pragma Sizes
 - (CGFloat)_widthForColumnHeaderInSection:(NSInteger)columnSection
 {
-    NSInteger returnValue = self.sectionColumnHeaderWidth;
+    if (implementsColumnHeaderWidth && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnHeaderInSection:)]) {
+        return [self.delegate spreadView:self widthForColumnHeaderInSection:columnSection];
+    } else {
+        implementsColumnHeaderWidth = NO;
+    }
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnHeaderInSection:)])
-        returnValue = [self.delegate spreadView:self widthForColumnHeaderInSection:columnSection];
-    
-    return returnValue;
+    return self.sectionColumnHeaderWidth;
 }
 
+- (CGFloat)_widthForColumnAtIndexPath:(NSIndexPath *)columnPath
+{
+    if (implementsColumnWidth && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnAtIndexPath:)]) {
+        return [self.delegate spreadView:self widthForColumnAtIndexPath:columnPath];
+    } else {
+        implementsColumnWidth = NO;
+    }
+    
+    return self.columnWidth;
+}
+
+- (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection
+{
+    if (implementsRowHeaderHeight && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:heightForRowHeaderInSection:)]) {
+        return [self.delegate spreadView:self heightForRowHeaderInSection:rowSection];
+    } else {
+        implementsRowHeaderHeight = NO;
+    }
+    
+    return self.sectionRowHeaderHeight;
+}
+
+- (CGFloat)_heightForRowAtIndexPath:(NSIndexPath *)rowPath
+{
+    if (implementsRowHeight && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:heightForRowAtIndexPath:)]) {
+        return [self.delegate spreadView:self heightForRowAtIndexPath:rowPath];
+    } else {
+        implementsRowHeight = NO;
+    }
+    
+    return self.rowHeight;
+}
+
+#pragma Counts
 - (NSInteger)_numberOfColumnsInSection:(NSInteger)section
 {
     NSInteger returnValue = 0;
@@ -570,7 +635,7 @@
     return returnValue;
 }
 
-
+#pragma Cells
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
 {
     MDSpreadViewCell *returnValue = nil;

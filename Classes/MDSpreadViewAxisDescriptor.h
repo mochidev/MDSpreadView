@@ -24,10 +24,10 @@
 - (void)setSize:(CGFloat)size forCellAtIndexPath:(NSIndexPath *)index;
 - (CGFloat)sizeOfCellAtIndex:(NSIndexPath *)index;
 
-- (void)setSize:(CGFloat)size forHeaderCellAtIndexPath:(NSUInteger)index;
+- (void)setSize:(CGFloat)size forHeaderCellAtIndex:(NSUInteger)index;
 - (CGFloat)sizeOfHeaderCellAtIndex:(NSUInteger)index;
 
-- (void)setSize:(CGFloat)size forFooterCellAtIndexPath:(NSUInteger)index;
+- (void)setSize:(CGFloat)size forFooterCellAtIndex:(NSUInteger)index;
 - (CGFloat)sizeOfFooterCellAtIndex:(NSUInteger)index;
 
 - (NSUInteger)linearIndexForCellAtIndexPath:(NSIndexPath *)index;

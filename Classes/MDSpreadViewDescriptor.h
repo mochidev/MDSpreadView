@@ -42,6 +42,8 @@
 //@property (nonatomic, readonly) NSMutableArray *columnSections;
 @property (nonatomic) NSUInteger columnSectionCount;
 @property (nonatomic) NSUInteger rowSectionCount;
+@property (nonatomic, readonly) CGFloat totalHeight;
+@property (nonatomic, readonly) CGFloat totalWidth;
 
 - (void)setColumnCount:(NSUInteger)count forSection:(NSUInteger)columnSection;
 - (NSUInteger)columnCountForSection:(NSUInteger)columnSection;
@@ -62,6 +64,19 @@
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
 - (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+
+- (void)setHeight:(CGFloat)height forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (void)setHeight:(CGFloat)height forHeaderRowInSection:(NSInteger)rowSection;
+- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (void)setWidth:(CGFloat)width forHeaderColumnInSection:(NSInteger)columnSection;
+
+- (CGFloat)heightForRowAtIndexPath:(NSIndexPath *)rowPath;
+- (CGFloat)heightForHeaderRowInSection:(NSInteger)rowSection;
+- (CGFloat)widthForColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (CGFloat)widthForHeaderColumnInSection:(NSInteger)columnSection;
+
+- (CGFloat)heightForEntireRowSection:(NSInteger)rowSection;
+- (CGFloat)widthForEntireColumnSection:(NSInteger)columnSection;
 
 - (NSArray *)allCells;
 - (NSArray *)clearAllCells;

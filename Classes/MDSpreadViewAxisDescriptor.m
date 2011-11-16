@@ -104,7 +104,7 @@
     return 0;
 }
 
-- (void)setSize:(CGFloat)size forHeaderCellAtIndexPath:(NSUInteger)index
+- (void)setSize:(CGFloat)size forHeaderCellAtIndex:(NSUInteger)index
 {
     if (index < [sections count]) {
         MDSpreadViewSectionDescriptor *section = [sections objectAtIndex:index];
@@ -122,7 +122,7 @@
     return 0;
 }
 
-- (void)setSize:(CGFloat)size forFooterCellAtIndexPath:(NSUInteger)index
+- (void)setSize:(CGFloat)size forFooterCellAtIndex:(NSUInteger)index
 {
     if (index < [sections count]) {
         MDSpreadViewSectionDescriptor *section = [sections objectAtIndex:index];

@@ -19,7 +19,7 @@
         cells = [[NSMutableArray alloc] init];
         headerCell = [[MDSpreadViewCellDescriptor alloc] init];
         footerCell = [[MDSpreadViewCellDescriptor alloc] init];
-        cachedSize = headerCell.size + footerCell.size;
+        cachedSize = 0;
     }
     return self;
 }
@@ -60,7 +60,6 @@
 
 - (void)setHeaderCellSize:(CGFloat)headerCellSize
 {
-    cachedSize = cachedSize-headerCell.size+headerCellSize;
     headerCell.size = headerCellSize;
 }
 
@@ -71,7 +70,6 @@
 
 - (void)setFooterCellSize:(CGFloat)footerCellSize
 {
-    cachedSize = cachedSize-footerCell.size+footerCellSize;
     footerCell.size = footerCellSize;
 }
 
