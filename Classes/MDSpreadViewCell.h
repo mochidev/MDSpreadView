@@ -40,6 +40,7 @@ typedef enum {
     UIView *backgroundView; // default is UIImageView
     UIView *highlightedBackgroundView;
     UILabel *textLabel;
+    UILabel *detailTextLabel;
     NSString *reuseIdentifier;
     BOOL highlighted;
     
@@ -50,6 +51,7 @@ typedef enum {
 @property (nonatomic, retain) UIView *backgroundView;
 @property (nonatomic, retain) UIView *highlightedBackgroundView;
 @property (nonatomic, retain) UILabel *textLabel;
+@property (nonatomic, retain) UILabel *detailTextLabel;
 @property (nonatomic, retain) id objectValue;
 @property (nonatomic, readonly) NSInteger style;
 

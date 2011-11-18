@@ -658,6 +658,8 @@
         returnValue = cell;
     }
     
+    [returnValue setNeedsLayout];
+    
     return returnValue;
 }
 
@@ -682,6 +684,8 @@
         
         returnValue = cell;
     }
+    
+    [returnValue setNeedsLayout];
     
     return returnValue;
 }
@@ -708,6 +712,8 @@
         returnValue = cell;
     }
     
+    [returnValue setNeedsLayout];
+    
     return returnValue;
 }
 
@@ -732,6 +738,8 @@
         
         returnValue = cell;
     }
+    
+    [returnValue setNeedsLayout];
     
     return returnValue;
 }

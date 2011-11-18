@@ -38,7 +38,7 @@
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, style, objectValue;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -74,6 +74,14 @@
         label.font = [UIFont boldSystemFontOfSize:18];
 		label.highlightedTextColor = [UIColor blackColor];
         self.textLabel = label;
+        [label release];
+        
+        label = [[UILabel alloc] init];
+		label.opaque = YES;
+		label.backgroundColor = [UIColor whiteColor];
+        label.font = [UIFont boldSystemFontOfSize:18];
+		label.highlightedTextColor = [UIColor blackColor];
+        self.detailTextLabel = label;
         [label release];
     }
     return self;
@@ -118,6 +126,18 @@
     [self setNeedsLayout];
 }
 
+- (void)setDetailTextLabel:(UILabel *)aTextLabel
+{
+    [detailTextLabel removeFromSuperview];
+    [aTextLabel retain];
+    [detailTextLabel release];
+    detailTextLabel = aTextLabel;
+    
+    detailTextLabel.highlighted = highlighted;
+    [self addSubview:detailTextLabel];
+    [self setNeedsLayout];
+}
+
 - (void)layoutSubviews
 {
     backgroundView.frame = self.bounds;
@@ -134,6 +154,12 @@
 {
     self.highlighted = NO;
     self.textLabel.text = nil;
+    self.detailTextLabel.text = nil;
+}
+
+- (void)setFrame:(CGRect)frame
+{
+    [super setFrame:frame];
 }
 
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
@@ -141,10 +167,13 @@
     highlighted = isHighlighted;
     
     textLabel.opaque = !isHighlighted;
+    detailTextLabel.opaque = !isHighlighted;
     if (highlighted) {
         textLabel.backgroundColor = [UIColor clearColor];
+        detailTextLabel.backgroundColor = [UIColor clearColor];
     } else {
         textLabel.backgroundColor = [UIColor whiteColor];
+        detailTextLabel.backgroundColor = [UIColor whiteColor];
     }
     if (animated) {
         [UIView animateWithDuration:0.2 animations:^{
@@ -154,6 +183,7 @@
                 highlightedBackgroundView.alpha = 0;
             }
             textLabel.highlighted = highlighted;
+            detailTextLabel.highlighted = highlighted;
         }];
     } else {
         if (highlighted) {
@@ -162,6 +192,7 @@
             highlightedBackgroundView.alpha = 0;
         }
         textLabel.highlighted = highlighted;
+        detailTextLabel.highlighted = highlighted;
     }
 }
 
@@ -181,7 +212,8 @@
     }
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
     [objectValue release];
     [backgroundView release];
     [highlightedBackgroundView release];
@@ -197,6 +229,10 @@
 
 - (NSString *)accessibilityLabel
 {
+    if (detailTextLabel.text) {
+        return [NSString stringWithFormat:@"%@, %@", self.detailTextLabel.text, self.textLabel.text];
+    }
+    
     return textLabel.text;
 }
 
