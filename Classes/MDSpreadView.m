@@ -247,12 +247,11 @@
         }
     }
     
-    NSArray *allCells = [descriptor allCells];
+    NSArray *allCells = [descriptor clearAllCells];
     for (MDSpreadViewCell *cell in allCells) {
         cell.hidden = YES;
     }
     [dequeuedCells addObjectsFromArray:allCells];
-    [descriptor clearAllCells];
     
     self.contentSize = CGSizeMake(descriptor.totalWidth-1, descriptor.totalHeight-1);
     
