@@ -38,7 +38,7 @@
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue,indexes;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -216,6 +216,7 @@
 {
     [objectValue release];
     [backgroundView release];
+	[indexes release];
     [highlightedBackgroundView release];
     [textLabel release];
     [reuseIdentifier release];
