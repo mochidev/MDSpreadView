@@ -43,9 +43,11 @@ typedef enum {
     UILabel *detailTextLabel;
     NSString *reuseIdentifier;
     BOOL highlighted;
-    
     NSInteger style;
+	
     id objectValue;
+	NSArray *indexes;
+
 }
 
 @property (nonatomic, retain) UIView *backgroundView;
@@ -54,6 +56,8 @@ typedef enum {
 @property (nonatomic, retain) UILabel *detailTextLabel;
 @property (nonatomic, retain) id objectValue;
 @property (nonatomic, readonly) NSInteger style;
+@property (nonatomic, retain) NSArray *indexes;
+
 
 - (id)initWithStyle:(MDSpreadViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
 

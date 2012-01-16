@@ -53,6 +53,9 @@
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
 - (MDSpreadViewCell *)_cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
 
+-(void)_selectedRow:(id)sender;
+-(void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath;
+
 @end
 
 @implementation MDSpreadView
@@ -737,11 +740,26 @@
         
         returnValue = cell;
     }
+	
+	[returnValue setIndexes:[NSArray arrayWithObjects:rowPath,columnPath, nil]];
+
     
+	UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(_selectedRow:)];
+	[returnValue addGestureRecognizer:tapGesture];
+	[tapGesture release];
+	
     [returnValue setNeedsLayout];
     
     return returnValue;
 }
+
+-(void)_selectedRow:(id)sender{
+	MDSpreadViewCell *cell = (MDSpreadViewCell *)[sender view];
+	if ([[cell indexes] count] > 1){
+	[self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0] forColumnIndex:[[cell indexes] objectAtIndex:1]];
+	}
+}
+
 
 //
 //- (void)tableView:(MDSectionedTableView *)tableView didSelectRow:(NSUInteger)row inSection:(NSUInteger)section
@@ -751,6 +769,13 @@
 //}
 
 #pragma mark - Selection
+
+-(void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath{
+	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnIndex:)])
+		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnIndex:columnPath];
+	
+}
+
 
 - (NSIndexPath *)indexPathForSelectedRow
 {
