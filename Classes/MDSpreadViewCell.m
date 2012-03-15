@@ -60,13 +60,11 @@
         imageView.contentMode = UIViewContentModeScaleToFill;
         imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
         self.backgroundView = imageView;
-        [imageView release];
         
         imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCellSelected.png"]];
         imageView.contentMode = UIViewContentModeScaleToFill;
         imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
         self.highlightedBackgroundView = imageView;
-        [imageView release];
         
         UILabel *label = [[UILabel alloc] init];
 		label.opaque = YES;
@@ -74,7 +72,6 @@
         label.font = [UIFont boldSystemFontOfSize:18];
 		label.highlightedTextColor = [UIColor blackColor];
         self.textLabel = label;
-        [label release];
         
         label = [[UILabel alloc] init];
 		label.opaque = YES;
@@ -82,7 +79,6 @@
         label.font = [UIFont boldSystemFontOfSize:18];
 		label.highlightedTextColor = [UIColor blackColor];
         self.detailTextLabel = label;
-        [label release];
     }
     return self;
 }
@@ -90,8 +86,6 @@
 - (void)setBackgroundView:(UIView *)aBackgroundView
 {
     [backgroundView removeFromSuperview];
-    [aBackgroundView retain];
-    [backgroundView release];
     backgroundView = aBackgroundView;
     
     [self insertSubview:backgroundView atIndex:0];
@@ -101,8 +95,6 @@
 - (void)setHighlightedBackgroundView:(UIView *)aHighlightedBackgroundView
 {
     [highlightedBackgroundView removeFromSuperview];
-    [aHighlightedBackgroundView retain];
-    [highlightedBackgroundView release];
     highlightedBackgroundView = aHighlightedBackgroundView;
     
     if (highlighted) {
@@ -117,8 +109,6 @@
 - (void)setTextLabel:(UILabel *)aTextLabel
 {
     [textLabel removeFromSuperview];
-    [aTextLabel retain];
-    [textLabel release];
     textLabel = aTextLabel;
     
     textLabel.highlighted = highlighted;
@@ -129,8 +119,6 @@
 - (void)setDetailTextLabel:(UILabel *)aTextLabel
 {
     [detailTextLabel removeFromSuperview];
-    [aTextLabel retain];
-    [detailTextLabel release];
     detailTextLabel = aTextLabel;
     
     detailTextLabel.highlighted = highlighted;
@@ -203,8 +191,6 @@
 
 - (void)setObjectValue:(id)anObject
 {
-    [anObject retain];
-    [objectValue release];
     objectValue = anObject;
     
     if ([objectValue isKindOfClass:[NSString class]]) {
@@ -212,16 +198,6 @@
     }
 }
 
-- (void)dealloc
-{
-    [objectValue release];
-    [backgroundView release];
-	[indexes release];
-    [highlightedBackgroundView release];
-    [textLabel release];
-    [reuseIdentifier release];
-    [super dealloc];
-}
 
 - (BOOL)isAccessibilityElement
 {

@@ -39,28 +39,24 @@
     backgroundTopLeft.contentMode = UIViewContentModeScaleToFill;
     backgroundTopLeft.contentStretch = CGRectMake(3./backgroundTopLeft.bounds.size.width, 3./backgroundTopLeft.bounds.size.height, 1./backgroundTopLeft.bounds.size.width, 1./backgroundTopLeft.bounds.size.height);
 	[self addSubview:backgroundTopLeft];
-	[backgroundTopLeft release];
 	
 	backgroundTopRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRight.png"]
                                            highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRightSelected.png"]];
     backgroundTopRight.contentMode = UIViewContentModeScaleToFill;
     backgroundTopRight.contentStretch = CGRectMake(2./backgroundTopRight.bounds.size.width, 3./backgroundTopRight.bounds.size.height, 1./backgroundTopRight.bounds.size.width, 1./backgroundTopRight.bounds.size.height);
 	[self addSubview:backgroundTopRight];
-	[backgroundTopRight release];
 	
 	backgroundBottomLeft = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeft.png"]
                                              highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeftSelected.png"]];
     backgroundBottomLeft.contentMode = UIViewContentModeScaleToFill;
     backgroundBottomLeft.contentStretch = CGRectMake(3./backgroundBottomLeft.bounds.size.width, 2./backgroundBottomLeft.bounds.size.height, 1./backgroundBottomLeft.bounds.size.width, 1./backgroundBottomLeft.bounds.size.height);
 	[self addSubview:backgroundBottomLeft];
-	[backgroundBottomLeft release];
 	
 	backgroundBottomRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRight.png"]
                                               highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRightSelected.png"]];
     backgroundBottomRight.contentMode = UIViewContentModeScaleToFill;
     backgroundBottomRight.contentStretch = CGRectMake(6./backgroundBottomRight.bounds.size.width, 6./backgroundBottomRight.bounds.size.height, 1./backgroundBottomRight.bounds.size.width, 1./backgroundBottomRight.bounds.size.height);
 	[self addSubview:backgroundBottomRight];
-	[backgroundBottomRight release];
 }
 
 - (void)layoutBackground

@@ -37,7 +37,6 @@
             if (lastSection)
                 section.baseIndex = lastSection.baseIndex + lastSection.count + 2;
             [sections addObject:section];
-            [section release];
         }
     }
 }
@@ -183,10 +182,5 @@
     return baseIndex;
 }
 
-- (void)dealloc
-{
-    [sections release];
-    [super dealloc];
-}
 
 @end

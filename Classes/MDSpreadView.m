@@ -101,22 +101,18 @@
     anchorCell = [[UIView alloc] init];
 //    anchorCell.hidden = YES;
     [self addSubview:anchorCell];
-    [anchorCell release];
     
     anchorColumnHeaderCell = [[UIView alloc] init];
 //    anchorColumnHeaderCell.hidden = YES;
     [self addSubview:anchorColumnHeaderCell];
-    [anchorColumnHeaderCell release];
     
     anchorRowHeaderCell = [[UIView alloc] init];
 //    anchorRowHeaderCell.hidden = YES;
     [self addSubview:anchorRowHeaderCell];
-    [anchorRowHeaderCell release];
     
     anchorCornerHeaderCell = [[UIView alloc] init];
 //    anchorCornerHeaderCell.hidden = YES;
     [self addSubview:anchorCornerHeaderCell];
-    [anchorCornerHeaderCell release];
 }
 
 - (id<MDSpreadViewDelegate>)delegate
@@ -129,12 +125,6 @@
     super.delegate = delegate;
 }
 
-- (void)dealloc
-{
-    [descriptor release];
-    [dequeuedCells release];
-    [super dealloc];
-}
 
 #pragma mark - Data
 
@@ -213,8 +203,6 @@
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
     implementsRowHeight = YES;
     implementsRowHeaderHeight = YES;
     implementsColumnWidth = YES;
@@ -270,7 +258,6 @@
 //        }
 //    }
     
-    [pool drain];
     
     [self layoutSubviews];
     
@@ -322,7 +309,6 @@
     BOOL hideRestOfRows = NO;
     
     for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         hideRestOfRows = NO;
         NSUInteger numberOfColumns = [descriptor columnCountForSection:columnSection];
         cellOrigin.y = 0;
@@ -524,7 +510,6 @@
             
             cellOrigin.x += cellWidth;
         }
-        [pool drain];
     }
     
     [CATransaction commit];
@@ -542,11 +527,10 @@
         }
     }
     if (dequeuedCell) {
-        [dequeuedCell retain];
         [dequeuedCells removeObject:dequeuedCell];
         [dequeuedCell prepareForReuse];
     }
-    return [dequeuedCell autorelease];
+    return dequeuedCell;
 }
 
 #pragma mark - Fetchers
@@ -650,8 +634,8 @@
         
         MDSpreadViewHeaderCell *cell = (MDSpreadViewHeaderCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
-                                                  reuseIdentifier:cellIdentifier] autorelease];
+            cell = [[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                  reuseIdentifier:cellIdentifier];
         }
         
         cell.textLabel.text = [NSString stringWithFormat:@"##Corner Header %d-%d", columnSection+1, rowSection+1];
@@ -677,8 +661,8 @@
         
         MDSpreadViewHeaderCell *cell = (MDSpreadViewHeaderCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
-                                                  reuseIdentifier:cellIdentifier] autorelease];
+            cell = [[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
+                                                  reuseIdentifier:cellIdentifier];
         }
         
         cell.textLabel.text = [NSString stringWithFormat:@"##Column Header %d (%d-%d)", section+1, rowPath.section+1, rowPath.row+1];
@@ -704,8 +688,8 @@
         
         MDSpreadViewHeaderCell *cell = (MDSpreadViewHeaderCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
-                                                  reuseIdentifier:cellIdentifier] autorelease];
+            cell = [[MDSpreadViewHeaderCell alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
+                                                  reuseIdentifier:cellIdentifier];
         }
         
         cell.textLabel.text = [NSString stringWithFormat:@"##Row Header %d (%d-%d)", section+1, columnPath.section+1, columnPath.row+1];
@@ -731,8 +715,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[[MDSpreadViewCell alloc] initWithStyle:MDSpreadViewCellStyleDefault
-                                            reuseIdentifier:cellIdentifier] autorelease];
+            cell = [[MDSpreadViewCell alloc] initWithStyle:MDSpreadViewCellStyleDefault
+                                            reuseIdentifier:cellIdentifier];
         }
         
         cell.textLabel.text = [NSString stringWithFormat:@"##Test Row %d-%d (%d-%d)", rowPath.section+1, rowPath.row+1, columnPath.section+1, columnPath.row+1];
@@ -746,7 +730,6 @@
     
 	UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(_selectedRow:)];
 	[returnValue addGestureRecognizer:tapGesture];
-	[tapGesture release];
 	
     [returnValue setNeedsLayout];
     
