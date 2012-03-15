@@ -69,8 +69,6 @@
         newSelectedBackground.highlighted = YES;
         self.backgroundView = newBackground;
         self.highlightedBackgroundView = newSelectedBackground;
-        [newBackground release];
-        [newSelectedBackground release];
         
 		self.textLabel.font = [UIFont boldSystemFontOfSize:18];
 		self.textLabel.opaque = NO;

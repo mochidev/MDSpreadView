@@ -105,7 +105,7 @@
     BOOL implementsColumnHeaderWidth;
 }
 
-@property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
+@property (nonatomic, strong) IBOutlet id <MDSpreadViewDataSource> dataSource;
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDelegate> delegate;
 
 // Cell Dimensions

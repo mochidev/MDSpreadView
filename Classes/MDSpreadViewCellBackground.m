@@ -51,11 +51,6 @@
 	[self layoutBackground];
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
 - (void)prepareBackground
 {
 	

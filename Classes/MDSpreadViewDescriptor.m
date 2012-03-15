@@ -47,13 +47,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-    [columns release];
-    [columnAxis release];
-    [rowAxis release];
-    [super dealloc];
-}
 
 - (NSUInteger)columnSectionCount
 {
@@ -102,7 +95,6 @@
         for (NSUInteger i = 0; i < difference; i++) {
             NSMutableArray *array = [[NSMutableArray alloc] init];
             [columns addObject:array];
-            [array release];
         }
     }
     
@@ -118,7 +110,6 @@
     if ((NSNull *)oldCell == [NSNull null]) {
         oldCell = nil;
     } else {
-        [oldCell retain];
         oldCell.hidden = YES;
         [oldCell removeFromSuperview];
     }
@@ -128,7 +119,7 @@
     } else {
         [rows replaceObjectAtIndex:rowIndex withObject:[NSNull null]];
     }
-    return [oldCell autorelease];
+    return oldCell;
 }
 
 - (MDSpreadViewCell *)cellForColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex
@@ -265,7 +256,7 @@
         }
     }
     
-    return [allCells autorelease];
+    return allCells;
 }
 
 - (NSArray *)clearAllCells
@@ -282,7 +273,7 @@
     }
     
     [columns removeAllObjects];
-    return [allCells autorelease];
+    return allCells;
 }
 
 - (NSArray *)allCellsForHeaderColumnForSection:(NSUInteger)section
@@ -300,7 +291,7 @@
         }
     }
     
-    return [allCells autorelease];
+    return allCells;
 }
 
 - (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath
@@ -318,7 +309,7 @@
         }
     }
     
-    return [allCells autorelease];
+    return allCells;
 }
 
 - (NSArray *)clearHeaderColumnForSection:(NSUInteger)section
@@ -340,7 +331,7 @@
         }
     }
     
-    return [allCells autorelease];
+    return allCells;
 }
 
 - (NSArray *)clearColumnAtIndexPath:(NSIndexPath *)columnPath
@@ -362,7 +353,7 @@
         }
     }
     
-    return [allCells autorelease];
+    return allCells;
 }
 
 @end

@@ -38,7 +38,6 @@
         for (int i = 0; i < difference; i++) {
             MDSpreadViewCellDescriptor *cell = [[MDSpreadViewCellDescriptor alloc] init];
             [cells addObject:cell];
-            [cell release];
         }
     }
 }
@@ -91,12 +90,5 @@
     return 0;
 }
 
-- (void)dealloc
-{
-    [cells release];
-    [headerCell release];
-    [footerCell release];
-    [super dealloc];
-}
 
 @end
