@@ -741,22 +741,21 @@
         returnValue = cell;
     }
 	
-	[returnValue setIndexes:[NSArray arrayWithObjects:rowPath,columnPath, nil]];
-
+	[returnValue setIndexes:[NSArray arrayWithObjects:rowPath, columnPath, nil]];
     
-	UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(_selectedRow:)];
-	[returnValue addGestureRecognizer:tapGesture];
-	[tapGesture release];
+    [returnValue.tapGesture removeTarget:nil action:NULL];
+    [returnValue.tapGesture addTarget:self action:@selector(_selectedRow:)];
 	
     [returnValue setNeedsLayout];
     
     return returnValue;
 }
 
--(void)_selectedRow:(id)sender{
+-(void)_selectedRow:(id)sender
+{
 	MDSpreadViewCell *cell = (MDSpreadViewCell *)[sender view];
-	if ([[cell indexes] count] > 1){
-	[self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0] forColumnIndex:[[cell indexes] objectAtIndex:1]];
+	if ([[cell indexes] count] > 1) {
+        [self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0] forColumnIndex:[[cell indexes] objectAtIndex:1]];
 	}
 }
 
@@ -770,7 +769,8 @@
 
 #pragma mark - Selection
 
--(void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath{
+-(void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath
+{
 	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnIndex:)])
 		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnIndex:columnPath];
 	
