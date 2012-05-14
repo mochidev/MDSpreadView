@@ -792,4 +792,54 @@
     
 }
 
+#pragma mark - Layout
+
+- (CGRect)rectForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
+{
+    NSUInteger numberOfColumnSections = [descriptor columnSectionCount];
+    NSUInteger numberOfRowSections = [descriptor rowSectionCount];
+    
+    CGRect cellFrame = CGRectZero;
+    
+    for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
+        NSUInteger numberOfColumns = [descriptor columnCountForSection:columnSection];
+        
+        if (columnSection < columnPath.section) {
+            cellFrame.origin.x += [descriptor widthForEntireColumnSection:columnSection];
+        } else {
+            cellFrame.origin.x += [descriptor widthForHeaderColumnInSection:columnSection];
+            for (int column = 0; column < numberOfColumns; column++) {
+                if (column < columnPath.column) {
+                    cellFrame.origin.x += [descriptor widthForColumnAtIndexPath:[NSIndexPath indexPathForColumn:column inSection:columnSection]];
+                } else {
+                    cellFrame.size.width = [descriptor widthForColumnAtIndexPath:columnPath];
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
+        NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
+        
+        if (rowSection < rowPath.section) {
+            cellFrame.origin.y += [descriptor heightForEntireRowSection:rowSection];
+        } else {
+            cellFrame.origin.y += [descriptor heightForHeaderRowInSection:rowSection];
+            for (int row = 0; row < numberOfRows; row++) {
+                if (row < rowPath.row) {
+                    cellFrame.origin.y += [descriptor heightForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:rowSection]];
+                } else {
+                    cellFrame.size.height = [descriptor heightForRowAtIndexPath:rowPath];
+                    break;
+                }
+            }
+            break;
+        }
+    }
+    
+    return cellFrame;
+}
+
 @end
