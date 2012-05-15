@@ -753,10 +753,12 @@
     return returnValue;
 }
 
--(void)_selectedRow:(id)sender{
+- (void)_selectedRow:(id)sender
+{
 	MDSpreadViewCell *cell = (MDSpreadViewCell *)[sender view];
-	if ([[cell indexes] count] > 1){
-	[self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0] forColumnIndex:[[cell indexes] objectAtIndex:1]];
+	if ([[cell indexes] count] > 1) {
+        [self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0]
+                        forColumnIndex:[[cell indexes] objectAtIndex:1]];
 	}
 }
 
@@ -770,7 +772,8 @@
 
 #pragma mark - Selection
 
--(void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath{
+- (void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath
+{
 	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnIndex:)])
 		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnIndex:columnPath];
 	
