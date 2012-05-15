@@ -120,4 +120,6 @@
 - (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
+- (CGRect)rectForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+
 @end

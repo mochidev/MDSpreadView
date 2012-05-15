@@ -38,7 +38,7 @@
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue,indexes;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -83,6 +83,10 @@
 		label.highlightedTextColor = [UIColor blackColor];
         self.detailTextLabel = label;
         [label release];
+        
+        tapGesture = [[UITapGestureRecognizer alloc] init];
+        [self addGestureRecognizer:tapGesture];
+        [tapGesture release];
     }
     return self;
 }

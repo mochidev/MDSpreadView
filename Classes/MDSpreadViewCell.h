@@ -48,6 +48,7 @@ typedef enum {
     id objectValue;
 	NSArray *indexes;
 
+    UITapGestureRecognizer *tapGesture;
 }
 
 @property (nonatomic, retain) UIView *backgroundView;
@@ -57,6 +58,7 @@ typedef enum {
 @property (nonatomic, retain) id objectValue;
 @property (nonatomic, readonly) NSInteger style;
 @property (nonatomic, retain) NSArray *indexes;
+@property (nonatomic, readonly) UITapGestureRecognizer *tapGesture;
 
 
 - (id)initWithStyle:(MDSpreadViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
