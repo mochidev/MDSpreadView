@@ -772,8 +772,8 @@
 
 - (void)_didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnIndex:(NSIndexPath *)columnPath
 {
-	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnIndex:)])
-		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnIndex:columnPath];
+	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnAtIndexPath:)])
+		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
 	
 }
 
@@ -783,15 +783,15 @@
     return [NSIndexPath indexPathForRow:selectedRow inSection:selectedSection];
 }
 
-- (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(UITableViewScrollPosition)scrollPosition
-{
-    
-}
-
-- (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated
-{
-    
-}
+//- (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(UITableViewScrollPosition)scrollPosition
+//{
+//    
+//}
+//
+//- (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated
+//{
+//    
+//}
 
 #pragma mark - Layout
 
