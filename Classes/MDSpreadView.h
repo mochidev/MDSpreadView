@@ -113,6 +113,12 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     CGFloat sectionColumnHeaderWidth;
     
     NSMutableSet *dequeuedCells;
+    
+    NSMutableArray *visibleCells; // array of array
+    NSIndexPath *_visibleRowIndexPath;
+    NSIndexPath *_visibleColumnIndexPath;
+    CGRect visibleBounds;
+    
     MDSpreadViewDescriptor *descriptor;
     
     NSUInteger selectedRow;
@@ -157,7 +163,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 //- (CGRect)rectForHeaderInSection:(NSInteger)section;
 //- (CGRect)rectForFooterInSection:(NSInteger)section;
 //- (CGRect)rectForRowAtIndexPath:(NSIndexPath *)indexPath;
-- (CGRect)rectForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (CGRect)cellRectForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
 
 //- (NSIndexPath *)indexPathForRowAtPoint:(CGPoint)point;                         // returns nil if point is outside table
 //- (NSIndexPath *)indexPathForCell:(UITableViewCell *)cell;                      // returns nil if cell is not visible

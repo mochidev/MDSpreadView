@@ -29,16 +29,18 @@
 //  
 
 #import "MDSpreadViewCell.h"
+#import "MDSpreadView.h"
 
 @interface MDSpreadViewCell ()
 
 @property (nonatomic, readwrite, copy) NSString *reuseIdentifier;
+@property (nonatomic, readwrite, assign) MDSpreadView *spreadView;
 
 @end
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture, spreadView;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -218,6 +220,7 @@
 
 - (void)dealloc
 {
+    [spreadView release];
     [objectValue release];
     [backgroundView release];
 	[indexes release];

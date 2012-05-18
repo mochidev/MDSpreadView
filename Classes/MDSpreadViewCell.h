@@ -30,6 +30,7 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/CoreAnimation.h>
+@class MDSpreadView;
 
 typedef enum {
     MDSpreadViewCellStyleDefault
@@ -54,6 +55,8 @@ typedef enum {
 
 @interface MDSpreadViewCell : UIView {
   @private
+    MDSpreadView *spreadView;
+    
     UIView *backgroundView; // default is UIImageView
     UIView *highlightedBackgroundView;
     UILabel *textLabel;
