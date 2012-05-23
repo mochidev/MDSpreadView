@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+@class MDIndexPath;
 
 @interface MDSpreadViewAxisDescriptor : NSObject {
     CGFloat cachedSize;
@@ -21,8 +22,8 @@
 
 - (CGFloat)sizeOfSectionAtIndex:(NSUInteger)index;
 
-- (void)setSize:(CGFloat)size forCellAtIndexPath:(NSIndexPath *)index;
-- (CGFloat)sizeOfCellAtIndex:(NSIndexPath *)index;
+- (void)setSize:(CGFloat)size forCellAtIndexPath:(MDIndexPath *)index;
+- (CGFloat)sizeOfCellAtIndex:(MDIndexPath *)index;
 
 - (void)setSize:(CGFloat)size forHeaderCellAtIndex:(NSUInteger)index;
 - (CGFloat)sizeOfHeaderCellAtIndex:(NSUInteger)index;
@@ -30,7 +31,7 @@
 - (void)setSize:(CGFloat)size forFooterCellAtIndex:(NSUInteger)index;
 - (CGFloat)sizeOfFooterCellAtIndex:(NSUInteger)index;
 
-- (NSUInteger)linearIndexForCellAtIndexPath:(NSIndexPath *)index;
+- (NSUInteger)linearIndexForCellAtIndexPath:(MDIndexPath *)index;
 - (NSUInteger)linearIndexForHeaderAtIndex:(NSUInteger)index;
 - (NSUInteger)linearIndexForFooterAtIndex:(NSUInteger)index;
 

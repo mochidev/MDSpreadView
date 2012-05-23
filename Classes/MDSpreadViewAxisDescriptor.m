@@ -8,6 +8,7 @@
 
 #import "MDSpreadViewAxisDescriptor.h"
 #import "MDSpreadViewSectionDescriptor.h"
+#import "MDSpreadView.h"
 
 @implementation MDSpreadViewAxisDescriptor
 
@@ -85,7 +86,7 @@
     return 0;
 }
 
-- (void)setSize:(CGFloat)size forCellAtIndexPath:(NSIndexPath *)index
+- (void)setSize:(CGFloat)size forCellAtIndexPath:(MDIndexPath *)index
 {
     if (index.section < [sections count]) {
         MDSpreadViewSectionDescriptor *section = [sections objectAtIndex:index.section];
@@ -95,7 +96,7 @@
     }
 }
 
-- (CGFloat)sizeOfCellAtIndex:(NSIndexPath *)index
+- (CGFloat)sizeOfCellAtIndex:(MDIndexPath *)index
 {
     if (index.section < [sections count]) {
         MDSpreadViewSectionDescriptor *section = [sections objectAtIndex:index.section];
@@ -141,7 +142,7 @@
 }
 
 
-- (NSUInteger)linearIndexForCellAtIndexPath:(NSIndexPath *)index
+- (NSUInteger)linearIndexForCellAtIndexPath:(MDIndexPath *)index
 {
     MDSpreadViewSectionDescriptor *section = nil;
     if (index.section < [sections count]) {

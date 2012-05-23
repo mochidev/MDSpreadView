@@ -55,24 +55,24 @@
 - (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex;
 - (MDSpreadViewCell *)cellForColumnIndex:(NSUInteger)columnIndex rowIndex:(NSUInteger)rowIndex;
 
-- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
-- (MDSpreadViewCell *)cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
-- (void)setHeight:(CGFloat)height forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (void)setHeight:(CGFloat)height forRowAtIndexPath:(MDIndexPath *)rowPath;
 - (void)setHeight:(CGFloat)height forHeaderRowInSection:(NSInteger)rowSection;
-- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (void)setWidth:(CGFloat)width forHeaderColumnInSection:(NSInteger)columnSection;
 
-- (CGFloat)heightForRowAtIndexPath:(NSIndexPath *)rowPath;
+- (CGFloat)heightForRowAtIndexPath:(MDIndexPath *)rowPath;
 - (CGFloat)heightForHeaderRowInSection:(NSInteger)rowSection;
-- (CGFloat)widthForColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (CGFloat)widthForColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (CGFloat)widthForHeaderColumnInSection:(NSInteger)columnSection;
 
 - (CGFloat)heightForEntireRowSection:(NSInteger)rowSection;
@@ -82,8 +82,8 @@
 - (NSArray *)clearAllCells;
 
 - (NSArray *)allCellsForHeaderColumnForSection:(NSUInteger)columnSection;
-- (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (NSArray *)allCellsForColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (NSArray *)clearHeaderColumnForSection:(NSUInteger)columnSection;
-- (NSArray *)clearColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (NSArray *)clearColumnAtIndexPath:(MDIndexPath *)columnPath;
 
 @end

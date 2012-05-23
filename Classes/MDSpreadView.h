@@ -56,6 +56,7 @@ typedef enum {
 @protocol MDSpreadViewDataSource;
 @class MDSpreadViewCell;
 @class MDSpreadViewDescriptor;
+@class MDIndexPath;
 
 #pragma mark - MDSpreadViewDelegate
 
@@ -65,37 +66,37 @@ typedef enum {
 
 // Display customization
 
-- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Variable height support
 
-- (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowAtIndexPath:(MDIndexPath *)indexPath;
 - (CGFloat)spreadView:(MDSpreadView *)aSpreadView heightForRowHeaderInSection:(NSInteger)rowSection; // pass 0 to hide header
 
-- (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnAtIndexPath:(MDIndexPath *)indexPath;
 - (CGFloat)spreadView:(MDSpreadView *)aSpreadView widthForColumnHeaderInSection:(NSInteger)columnSection; // pass 0 to hide header
 
 // Accessories (disclosures). 
 
-- (void)spreadView:(MDSpreadView *)aSpreadView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView accessoryButtonTappedForRowWithIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Selection
 
 // Called before the user changes the selection. Return a new indexPath, or nil, to change the proposed selection.
-- (NSIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
-- (NSIndexPath *)spreadView:(MDSpreadView *)aSpreadView willDeselectRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
+- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willDeselectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Called after the user changes the selection.
-- (void)spreadView:(MDSpreadView *)aSpreadView didSelectRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView didSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
-- (MDSpreadViewSelectionMode)spreadView:(MDSpreadView *)aSpreadView selectionModeForRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
+- (MDSpreadViewSelectionMode)spreadView:(MDSpreadView *)aSpreadView selectionModeForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Copy/Paste.  All three methods must be implemented by the delegate.
 
-- (BOOL)spreadView:(MDSpreadView *)aSpreadView shouldShowMenuForRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath __attribute__((unavailable));
-- (BOOL)spreadView:(MDSpreadView *)aSpreadView canPerformAction:(SEL)action forRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath withSender:(id)sender __attribute__((unavailable));
-- (void)spreadView:(MDSpreadView *)aSpreadView performAction:(SEL)action forRowAtIndexPath:(NSIndexPath *)indexPath forColumnAtIndexPath:(NSIndexPath *)columnPath withSender:(id)sender __attribute__((unavailable));
+- (BOOL)spreadView:(MDSpreadView *)aSpreadView shouldShowMenuForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (BOOL)spreadView:(MDSpreadView *)aSpreadView canPerformAction:(SEL)action forRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSender:(id)sender __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView performAction:(SEL)action forRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSender:(id)sender __attribute__((unavailable));
 
 @end
 
@@ -115,8 +116,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableSet *dequeuedCells;
     
     NSMutableArray *visibleCells; // array of array
-    NSIndexPath *_visibleRowIndexPath;
-    NSIndexPath *_visibleColumnIndexPath;
+    MDIndexPath *_visibleRowIndexPath;
+    MDIndexPath *_visibleColumnIndexPath;
     CGRect visibleBounds;
     
     MDSpreadViewDescriptor *descriptor;
@@ -162,18 +163,18 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // includes header, footer and all rows
 //- (CGRect)rectForHeaderInSection:(NSInteger)section;
 //- (CGRect)rectForFooterInSection:(NSInteger)section;
-//- (CGRect)rectForRowAtIndexPath:(NSIndexPath *)indexPath;
-- (CGRect)cellRectForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+//- (CGRect)rectForRowAtIndexPath:(MDIndexPath *)indexPath;
+- (CGRect)cellRectForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
-//- (NSIndexPath *)indexPathForRowAtPoint:(CGPoint)point;                         // returns nil if point is outside table
-//- (NSIndexPath *)indexPathForCell:(UITableViewCell *)cell;                      // returns nil if cell is not visible
+//- (MDIndexPath *)indexPathForRowAtPoint:(CGPoint)point;                         // returns nil if point is outside table
+//- (MDIndexPath *)indexPathForCell:(UITableViewCell *)cell;                      // returns nil if cell is not visible
 //- (NSArray *)indexPathsForRowsInRect:(CGRect)rect;                              // returns nil if rect not valid 
 
-//- (UITableViewCell *)cellForRowAtIndexPath:(NSIndexPath *)indexPath;            // returns nil if cell is not visible or index path is out of range
+//- (UITableViewCell *)cellForRowAtIndexPath:(MDIndexPath *)indexPath;            // returns nil if cell is not visible or index path is out of range
 //- (NSArray *)visibleCells;
 //- (NSArray *)indexPathsForVisibleRows;
 
-//- (void)scrollToRowAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
+//- (void)scrollToRowAtIndexPath:(MDIndexPath *)indexPath atScrollPosition:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
 //- (void)scrollToNearestSelectedRowAtScrollPosition:(UITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
 
 // Selection
@@ -183,17 +184,17 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic) BOOL allowsMultipleSelection __attribute__((unavailable));
 // default is NO. Controls whether multiple rows can be selected simultaneously
 
-- (NSIndexPath *)rowIndexPathForSelectedCell __attribute__((unavailable));
+- (MDIndexPath *)rowIndexPathForSelectedCell __attribute__((unavailable));
 // returns nil or index path representing section and row of selection.
 - (NSArray *)rowIndexPathsForSelectedCells __attribute__((unavailable));
 // returns nil or a set of index paths representing the sections and rows of the selection.
-- (NSIndexPath *)columnIndexPathForSelectedCell __attribute__((unavailable));
+- (MDIndexPath *)columnIndexPathForSelectedCell __attribute__((unavailable));
 // returns nil or index path representing section and row of selection.
 - (NSArray *)columnIndexPathsForSelectedCells __attribute__((unavailable));
 // returns nil or a set of index paths representing the sections and rows of the selection.
 
-- (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition __attribute__((unavailable));
-- (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated __attribute__((unavailable));
+- (void)selectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition __attribute__((unavailable));
+- (void)deselectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated __attribute__((unavailable));
 
 // Appearance
 
@@ -219,7 +220,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
 // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
 
-- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
 @optional
 
@@ -229,11 +230,26 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // Default is 1 if not implemented
 
 - (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath;
-- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
 @end
+
+@interface MDIndexPath : NSObject {
+    NSInteger section;
+    NSInteger row;
+}
+
++ (MDIndexPath *)indexPathForColumn:(NSInteger)column inSection:(NSInteger)section;
++ (MDIndexPath *)indexPathForRow:(NSInteger)row inSection:(NSInteger)section;
+
+@property (nonatomic,readonly) NSInteger section;
+@property (nonatomic,readonly) NSInteger row;
+@property (nonatomic,readonly) NSInteger column;
+
+@end
+

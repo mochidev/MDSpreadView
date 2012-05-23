@@ -30,13 +30,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class MDIndexPath;
+
 @interface NSIndexPath (MDSpreadView)
 
 + (NSIndexPath *)indexPathForColumn:(NSInteger)column inSection:(NSInteger)section;
 + (NSIndexPath *)indexPathForRow:(NSInteger)row inSection:(NSInteger)section;
++ (NSIndexPath *)indexPathFromMDIndexPath:(MDIndexPath *)path;
 
-@property(nonatomic,readonly) NSInteger section;
-@property(nonatomic,readonly) NSInteger row;
-@property(nonatomic,readonly) NSInteger column;
+@property (nonatomic,readonly) NSInteger section;
+@property (nonatomic,readonly) NSInteger row;
+@property (nonatomic,readonly) NSInteger column;
+@property (nonatomic,readonly) MDIndexPath *MDIndexPath;
 
 @end

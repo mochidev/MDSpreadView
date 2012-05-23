@@ -145,7 +145,7 @@
     return nil;
 }
 
-- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)setCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     return [self setCell:cell forColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
                                     rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
@@ -157,19 +157,19 @@
                                     rowIndex:[rowAxis linearIndexForHeaderAtIndex:rowSection]];
 }
 
-- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     return [self setCell:cell forColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
                                     rowIndex:[rowAxis linearIndexForHeaderAtIndex:section]];
 }
 
-- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath
+- (MDSpreadViewCell *)setHeaderCell:(MDSpreadViewCell *)cell forColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
 {
     return [self setCell:cell forColumnIndex:[columnAxis linearIndexForHeaderAtIndex:section]
                                     rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
-- (MDSpreadViewCell *)cellForRowAtIndexPath:(NSIndexPath *)rowPath forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     return [self cellForColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
                            rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
@@ -181,19 +181,19 @@
                            rowIndex:[rowAxis linearIndexForHeaderAtIndex:rowSection]];
 }
 
-- (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (MDSpreadViewCell *)cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     return [self cellForColumnIndex:[columnAxis linearIndexForCellAtIndexPath:columnPath]
                            rowIndex:[rowAxis linearIndexForHeaderAtIndex:section]];
 }
 
-- (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(NSIndexPath *)rowPath
+- (MDSpreadViewCell *)cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
 {
     return [self cellForColumnIndex:[columnAxis linearIndexForHeaderAtIndex:section]
                            rowIndex:[rowAxis linearIndexForCellAtIndexPath:rowPath]];
 }
 
-- (void)setHeight:(CGFloat)height forRowAtIndexPath:(NSIndexPath *)rowPath
+- (void)setHeight:(CGFloat)height forRowAtIndexPath:(MDIndexPath *)rowPath
 {
     [rowAxis setSize:height forCellAtIndexPath:rowPath];
 }
@@ -203,7 +203,7 @@
     [rowAxis setSize:height forHeaderCellAtIndex:rowSection];
 }
 
-- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(NSIndexPath *)columnPath
+- (void)setWidth:(CGFloat)width forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     [columnAxis setSize:width forCellAtIndexPath:columnPath];
 }
@@ -213,7 +213,7 @@
     [columnAxis setSize:width forHeaderCellAtIndex:columnSection];
 }
 
-- (CGFloat)heightForRowAtIndexPath:(NSIndexPath *)rowPath
+- (CGFloat)heightForRowAtIndexPath:(MDIndexPath *)rowPath
 {
     return [rowAxis sizeOfCellAtIndex:rowPath];
 }
@@ -223,7 +223,7 @@
     return [rowAxis sizeOfHeaderCellAtIndex:rowSection];
 }
 
-- (CGFloat)widthForColumnAtIndexPath:(NSIndexPath *)columnPath
+- (CGFloat)widthForColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     return [columnAxis sizeOfCellAtIndex:columnPath];
 }
@@ -303,7 +303,7 @@
     return [allCells autorelease];
 }
 
-- (NSArray *)allCellsForColumnAtIndexPath:(NSIndexPath *)columnPath
+- (NSArray *)allCellsForColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     NSMutableArray *allCells = [[NSMutableArray alloc] init];
     NSUInteger columnIndex = [columnAxis linearIndexForCellAtIndexPath:columnPath];
@@ -343,7 +343,7 @@
     return [allCells autorelease];
 }
 
-- (NSArray *)clearColumnAtIndexPath:(NSIndexPath *)columnPath
+- (NSArray *)clearColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     NSMutableArray *allCells = [[NSMutableArray alloc] init];
     NSUInteger columnIndex = [columnAxis linearIndexForCellAtIndexPath:columnPath];

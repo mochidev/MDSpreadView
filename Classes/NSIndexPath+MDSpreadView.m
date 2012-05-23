@@ -29,6 +29,7 @@
 //  
 
 #import "NSIndexPath+MDSpreadView.h"
+#import "MDSpreadView.h"
 
 @implementation NSIndexPath (MDSpreadView)
 
@@ -50,6 +51,15 @@
     return [NSIndexPath indexPathWithIndexes:indexes length:2];
 }
 
++ (NSIndexPath *)indexPathFromMDIndexPath:(MDIndexPath *)path
+{
+    NSUInteger indexes[2];
+    indexes[0] = path.section;
+    indexes[1] = path.row;
+    
+    return [NSIndexPath indexPathWithIndexes:indexes length:2];
+}
+
 - (NSInteger)row
 {
     return [self indexAtPosition:1];
@@ -63,6 +73,11 @@
 - (NSInteger)section
 {
     return [self indexAtPosition:0];
+}
+
+- (MDIndexPath *)MDIndexPath
+{
+    return [MDIndexPath indexPathForRow:[self indexAtPosition:1] inSection:[self indexAtPosition:0]];
 }
 
 @end
