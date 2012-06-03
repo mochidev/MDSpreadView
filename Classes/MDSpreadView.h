@@ -251,5 +251,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic,readonly) NSInteger row;
 @property (nonatomic,readonly) NSInteger column;
 
+- (BOOL)isEqualToIndexPath:(MDIndexPath *)object;
+
 @end
 

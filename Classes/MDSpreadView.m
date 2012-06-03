@@ -68,6 +68,11 @@
     return [NSString stringWithFormat:@"[%d, %d]", section, row];
 }
 
+- (BOOL)isEqualToIndexPath:(MDIndexPath *)object
+{
+    return (object->section == self->section && object->row == self->row);
+}
+
 @end
 
 @interface MDSpreadView ()
@@ -404,12 +409,16 @@
     CGPoint offset = self.contentOffset;
     CGSize boundsSize = self.bounds.size;
     
+    if (boundsSize.width == 0 || boundsSize.height == 0) return;
+    
     NSUInteger numberOfColumnSections = [self _numberOfColumnSections];
     NSUInteger numberOfRowSections = [self _numberOfRowSections];
     
     CGFloat width;
     CGFloat height;
     MDIndexPath *lastIndexPath;
+    MDIndexPath *nextIndexPath;
+    BOOL shouldRepeat;
     
 //    NSLog(@"--");
 //    NSLog(@"Current Visible Bounds: %@ in actual bounds: %@ offset: %@", NSStringFromCGRect(visibleBounds), NSStringFromCGSize(boundsSize), NSStringFromCGPoint(offset));
@@ -527,8 +536,8 @@
         }
     }
     
-    @autoreleasepool {
-        while (visibleBounds.origin.y > offset.y) { // add rows before
+    while (visibleBounds.origin.y > offset.y) { // add rows before
+        @autoreleasepool {
             NSInteger rowSection = self._visibleRowIndexPath.section;
             NSInteger row = self._visibleRowIndexPath.row - 1;
             NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
@@ -562,6 +571,30 @@
             
 //            NSLog(@"Adding cell %d,%d to the top (%d rows)", rowSection, row, [[visibleCells objectAtIndex:0] count]);
 //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+            
+            if (visibleCells.count && [[visibleCells objectAtIndex:0] count] > 1) {
+                @autoreleasepool {
+                    lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+                    height = [self _heightForRowAtIndexPath:lastIndexPath];
+                    
+                    while (visibleBounds.origin.y+visibleBounds.size.height-height > offset.y+boundsSize.height && [[visibleCells objectAtIndex:0] count] > 1) { // delete bottom most row
+                        if (lastIndexPath.section == 0 && lastIndexPath.row < -1) break;
+                        
+                        visibleBounds.size.height -= height;
+                        if (visibleBounds.size.height < 0) visibleBounds.size.height = 0;
+                        
+                        [self _clearCellsForRowAtIndexPath:lastIndexPath];
+                        
+//                        NSLog(@"- Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
+//                        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+                        
+                        nextIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+                        if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+                        lastIndexPath = nextIndexPath;
+                        height = [self _heightForRowAtIndexPath:lastIndexPath];
+                    }
+                }
+            }
         }
     }
     
@@ -591,6 +624,11 @@
             lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
             
             while (visibleBounds.origin.y+visibleBounds.size.height < offset.y+boundsSize.height) { // add rows after
+//                if (visibleBounds.size.height > boundsSize.height*2) {
+//                    shouldRepeat = YES;
+//                    break;
+//                }
+                
                 NSInteger rowSection = lastIndexPath.section;
                 NSInteger row = lastIndexPath.row + 1;
                 NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
@@ -642,7 +680,9 @@
 //                NSLog(@"Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
 //                NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
                 
-                lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+                nextIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+                if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+                lastIndexPath = nextIndexPath;
                 height = [self _heightForRowAtIndexPath:lastIndexPath];
             }
         }
@@ -658,7 +698,7 @@
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
     
     CGFloat constructedHeight = 0;
-    UIView *anchor = anchorCell;
+    UIView *anchor;
     
     while (constructedHeight < visibleBounds.size.height) {
         MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
@@ -703,7 +743,7 @@
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
     
     CGFloat constructedHeight = 0;
-    UIView *anchor = anchorColumnHeaderCell;
+    UIView *anchor;
     MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:-1 inSection:columnSection];
     
     while (constructedHeight < visibleBounds.size.height) {
@@ -749,7 +789,7 @@
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
     
     CGFloat constructedHeight = 0;
-    UIView *anchor = anchorColumnHeaderCell;
+    UIView *anchor;
     MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:[self _numberOfColumnsInSection:columnSection] inSection:columnSection];
     
     while (constructedHeight < visibleBounds.size.height) {
@@ -795,7 +835,7 @@
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
     
     CGFloat constructedWidth = 0;
-    UIView *anchor = anchorCell;
+    UIView *anchor;
     
     while (constructedWidth < visibleBounds.size.width) {
         MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:column inSection:columnSection];
@@ -840,7 +880,7 @@
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
     
     CGFloat constructedWidth = 0;
-    UIView *anchor = anchorColumnHeaderCell;
+    UIView *anchor;
     MDIndexPath *rowPath = [MDIndexPath indexPathForRow:-1 inSection:rowSection];
     
     while (constructedWidth < visibleBounds.size.width) {
@@ -885,7 +925,7 @@
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
     
     CGFloat constructedWidth = 0;
-    UIView *anchor = anchorColumnHeaderCell;
+    UIView *anchor;
     MDIndexPath *rowPath = [MDIndexPath indexPathForRow:[self _numberOfRowsInSection:rowSection] inSection:rowSection];
     
     while (constructedWidth < visibleBounds.size.width) {
@@ -1163,10 +1203,10 @@
         
         if (yIndex < 0) {
             NSUInteger count = -yIndex;
-            for (int i = 0; i < count; i++) {
-                NSNull *null = [NSNull null];
-                [column insertObject:null atIndex:0];
-                [null release];
+            for (NSMutableArray *column in visibleCells) {
+                for (int i = 0; i < count; i++) {
+                    [column insertObject:[NSNull null] atIndex:0];
+                }
             }
             self._visibleRowIndexPath = rowPath;
             yIndex = 0;
@@ -1175,7 +1215,6 @@
             for (int i = 0; i < count; i++) {
                 NSNull *null = [NSNull null];
                 [column addObject:null];
-                [null release];
             }
         }
         
@@ -1194,7 +1233,6 @@
         } else {
             NSNull *null = [NSNull null];
             [column replaceObjectAtIndex:yIndex withObject:null];
-            [null release];
         }
         
         if (xIndex == 0 || xIndex == visibleCells.count-1) {
