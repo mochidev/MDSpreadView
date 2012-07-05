@@ -34,6 +34,9 @@
 #import "MDSpreadViewHeaderCell.h"
 #import "MDSpreadViewDescriptor.h"
 
+#define MAX_NUMBER_OF_PASSES 20
+// so we don't delete cells too often when scrolling really fast
+
 @implementation MDIndexPath
 
 @synthesize section, row;
@@ -418,13 +421,14 @@
     CGFloat height;
     MDIndexPath *lastIndexPath;
     MDIndexPath *nextIndexPath;
-    BOOL shouldRepeat;
+    int numberOfPasses;
     
 //    NSLog(@"--");
 //    NSLog(@"Current Visible Bounds: %@ in actual bounds: %@ offset: %@", NSStringFromCGRect(visibleBounds), NSStringFromCGSize(boundsSize), NSStringFromCGPoint(offset));
     
-    @autoreleasepool {
-        while (visibleBounds.origin.x > offset.x) { // add columns before
+    numberOfPasses = 0;
+    while (visibleBounds.origin.x > offset.x) { // add columns before
+        @autoreleasepool {
             NSInteger columnSection = self._visibleColumnIndexPath.section;
             NSInteger column = self._visibleColumnIndexPath.column - 1;
             NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
@@ -455,6 +459,27 @@
             
 //            NSLog(@"Adding cell %d,%d to the left (%d columns)", columnSection, column, visibleCells.count);
 //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+            
+            numberOfPasses++;
+            if (numberOfPasses > MAX_NUMBER_OF_PASSES) @autoreleasepool {
+                numberOfPasses = 0;
+                lastIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
+                width = [self _widthForColumnAtIndexPath:lastIndexPath];
+                
+                while (visibleBounds.origin.x+visibleBounds.size.width-width > offset.x+boundsSize.width && visibleCells.count > 1) { // delete right most column
+                    if (lastIndexPath.section == 0 && lastIndexPath.column < -1) break;
+                    
+                    visibleBounds.size.width -= width;
+                    if (visibleBounds.size.width < 0) visibleBounds.size.width = 0;
+                    
+                    [self _clearCellsForColumnAtIndexPath:lastIndexPath];
+                    
+                    nextIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
+                    if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+                    lastIndexPath = nextIndexPath;
+                    width = [self _widthForColumnAtIndexPath:lastIndexPath];
+                }
+            }
         }
     }
     
@@ -462,12 +487,12 @@
         lastIndexPath = self._visibleColumnIndexPath;
         width = [self _widthForColumnAtIndexPath:lastIndexPath];
         
-        while (visibleBounds.origin.x+width < offset.x) { // delete left most column
+        while (visibleBounds.origin.x+width < offset.x && visibleCells.count > 1) { // delete left most column
             visibleBounds.size.width -= width;
             if (visibleBounds.size.width < 0) visibleBounds.size.width = 0;
             visibleBounds.origin.x += width;
             
-//            MDIndexPath *firstIndexPath = self._visibleColumnIndexPath;
+            MDIndexPath *firstIndexPath = self._visibleColumnIndexPath;
             [self _clearCellsForColumnAtIndexPath:lastIndexPath];
             
 //            NSLog(@"Removing cell %d,%d from the left (%d columns)", firstIndexPath.section, firstIndexPath.column, visibleCells.count);
@@ -479,6 +504,7 @@
         }
     }
     
+    numberOfPasses = 0;
     @autoreleasepool {
         lastIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
         
@@ -512,15 +538,37 @@
             
 //            NSLog(@"Adding cell %d,%d to the right (%d columns)", columnSection, column, visibleCells.count);
 //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+            
+            numberOfPasses++;
+            if (numberOfPasses > MAX_NUMBER_OF_PASSES) @autoreleasepool {
+                numberOfPasses = 0;
+                MDIndexPath *lastIndexPath = self._visibleColumnIndexPath;
+                width = [self _widthForColumnAtIndexPath:lastIndexPath];
+                
+                while (visibleBounds.origin.x+width < offset.x && visibleCells.count > 1) { // delete left most column
+                    visibleBounds.size.width -= width;
+                    if (visibleBounds.size.width < 0) visibleBounds.size.width = 0;
+                    visibleBounds.origin.x += width;
+                    
+//            MDIndexPath *firstIndexPath = self._visibleColumnIndexPath;
+                    [self _clearCellsForColumnAtIndexPath:lastIndexPath];
+                    
+//            NSLog(@"Removing cell %d,%d from the left repeat (%d columns)", firstIndexPath.section, firstIndexPath.column, visibleCells.count);
+//            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+                    
+                    if (lastIndexPath == self._visibleColumnIndexPath) break;
+                    lastIndexPath = self._visibleColumnIndexPath;
+                    width = [self _widthForColumnAtIndexPath:lastIndexPath];
+                }
+            }
         }
     }
-    
     
     @autoreleasepool {
         lastIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
         width = [self _widthForColumnAtIndexPath:lastIndexPath];
         
-        while (visibleBounds.origin.x+visibleBounds.size.width-width > offset.x+boundsSize.width) { // delete right most column
+        while (visibleBounds.origin.x+visibleBounds.size.width-width > offset.x+boundsSize.width && visibleCells.count > 1) { // delete right most column
             if (lastIndexPath.section == 0 && lastIndexPath.column < -1) break;
             
             visibleBounds.size.width -= width;
@@ -531,11 +579,14 @@
 //            NSLog(@"Removing cell %d,%d from the right (%d columns)", lastIndexPath.section, lastIndexPath.column, visibleCells.count);
 //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
             
-            lastIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
+            nextIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
+            if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+            lastIndexPath = nextIndexPath;
             width = [self _widthForColumnAtIndexPath:lastIndexPath];
         }
     }
     
+    numberOfPasses = 0;
     while (visibleBounds.origin.y > offset.y) { // add rows before
         @autoreleasepool {
             NSInteger rowSection = self._visibleRowIndexPath.section;
@@ -572,7 +623,9 @@
 //            NSLog(@"Adding cell %d,%d to the top (%d rows)", rowSection, row, [[visibleCells objectAtIndex:0] count]);
 //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
             
-            if (visibleCells.count && [[visibleCells objectAtIndex:0] count] > 1) {
+            numberOfPasses++;
+            if (numberOfPasses > MAX_NUMBER_OF_PASSES && visibleCells.count && [[visibleCells objectAtIndex:0] count] > 1) {
+                numberOfPasses = 0;
                 @autoreleasepool {
                     lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
                     height = [self _heightForRowAtIndexPath:lastIndexPath];
@@ -584,9 +637,6 @@
                         if (visibleBounds.size.height < 0) visibleBounds.size.height = 0;
                         
                         [self _clearCellsForRowAtIndexPath:lastIndexPath];
-                        
-//                        NSLog(@"- Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
-//                        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
                         
                         nextIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
                         if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
@@ -619,16 +669,12 @@
         }
     }
     
+    numberOfPasses = 0;
     if (visibleCells.count) {
         @autoreleasepool {
             lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
             
             while (visibleBounds.origin.y+visibleBounds.size.height < offset.y+boundsSize.height) { // add rows after
-//                if (visibleBounds.size.height > boundsSize.height*2) {
-//                    shouldRepeat = YES;
-//                    break;
-//                }
-                
                 NSInteger rowSection = lastIndexPath.section;
                 NSInteger row = lastIndexPath.row + 1;
                 NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
@@ -662,6 +708,25 @@
             
 //                NSLog(@"Adding cell %d,%d to the bottom (%d rows)", rowSection, row, [[visibleCells objectAtIndex:0] count]);
 //                NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+                
+                numberOfPasses++;
+                if (numberOfPasses > MAX_NUMBER_OF_PASSES) @autoreleasepool {
+                    numberOfPasses = 0;
+                    MDIndexPath *lastIndexPath = self._visibleRowIndexPath;
+                    height = [self _heightForRowAtIndexPath:lastIndexPath];
+                    
+                    while (visibleBounds.origin.y+height < offset.y && [[visibleCells objectAtIndex:0] count] > 1) { // delete top most row
+                        visibleBounds.size.height -= height;
+                        if (visibleBounds.size.height < 0) visibleBounds.size.height = 0;
+                        visibleBounds.origin.y += height;
+                        
+                        [self _clearCellsForRowAtIndexPath:lastIndexPath];
+                        
+                        if (lastIndexPath == self._visibleRowIndexPath) break;
+                        lastIndexPath = self._visibleRowIndexPath;
+                        height = [self _heightForRowAtIndexPath:lastIndexPath];
+                    }
+                }
             }
         }
     
@@ -1304,7 +1369,7 @@
 
 - (void)_clearCell:(MDSpreadViewCell *)cell
 {
-    [cell removeFromSuperview];
+//    [cell removeFromSuperview];
     cell.hidden = YES;
     [dequeuedCells addObject:cell];
 }
@@ -1321,7 +1386,7 @@
     
     for (MDSpreadViewCell *cell in column) {
         if ((NSNull *)cell != [NSNull null]) {
-            [cell removeFromSuperview];
+//            [cell removeFromSuperview];
             cell.hidden = YES;
             [dequeuedCells addObject:cell];
         }
@@ -1329,36 +1394,21 @@
     
     [column removeAllObjects];
     
-    if (xIndex == 0 || xIndex == visibleCells.count-1) {
-        BOOL foundCell = NO;
+    if (xIndex == visibleCells.count-1) {
+        [visibleCells removeLastObject];
+    } else if (xIndex == 0) {
+        [visibleCells removeObjectAtIndex:0];
         
-        // non recursive, so we don't go deleting too much
-        NSMutableArray *columnToCheck = [visibleCells objectAtIndex:xIndex];
-        if (xIndex > 0) xIndex--; // prepare for next run through
+        NSInteger section = self._visibleColumnIndexPath.section;
+        NSInteger column = self._visibleColumnIndexPath.column + 1;
+        NSInteger totalInSection = [self _numberOfColumnsInSection:section];
         
-        for (id cell in columnToCheck) {
-            if ((NSNull *)cell != [NSNull null]) {
-                foundCell = YES;
-                break;
-            }
+        if (column >= totalInSection+1) { // +1 for eventual footer
+            section++;
+            column = -1; // -1 for header
         }
         
-        if (!foundCell) {
-            [visibleCells removeObjectIdenticalTo:columnToCheck];
-            
-            if (xIndex == 0) {
-                NSInteger section = self._visibleColumnIndexPath.section;
-                NSInteger column = self._visibleColumnIndexPath.column + 1;
-                NSInteger totalInSection = [self _numberOfColumnsInSection:section];
-                
-                if (column >= totalInSection+1) { // +1 for eventual footer
-                    section++;
-                    column = -1; // -1 for header
-                }
-                
-                self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:column inSection:section];
-            }
-        }
+        self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:column inSection:section];
     }
 }
 
@@ -1377,7 +1427,7 @@
             MDSpreadViewCell *cell = [column objectAtIndex:yIndex];
             
             if ((NSNull *)cell != [NSNull null]) {
-                [cell removeFromSuperview];
+//                [cell removeFromSuperview];
                 cell.hidden = YES;
                 [dequeuedCells addObject:cell];
             }
@@ -1387,7 +1437,7 @@
             MDSpreadViewCell *cell = [column objectAtIndex:yIndex];
             
             if ((NSNull *)cell != [NSNull null]) {
-                [cell removeFromSuperview];
+//                [cell removeFromSuperview];
                 cell.hidden = YES;
                 [dequeuedCells addObject:cell];
             }
@@ -1434,7 +1484,7 @@
 {
     MDSpreadViewCell *cell = [self _visibleCellForRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
     
-    [cell removeFromSuperview];
+//    [cell removeFromSuperview];
     cell.hidden = YES;
     [dequeuedCells addObject:cell];
 }
@@ -1444,7 +1494,7 @@
     for (NSMutableArray *array in visibleCells) {
         for (MDSpreadViewCell *cell in array) {
             if ((NSNull *)cell != [NSNull null]) {
-                [cell removeFromSuperview];
+//                [cell removeFromSuperview];
                 cell.hidden = YES;
                 [dequeuedCells addObject:cell];
             }
