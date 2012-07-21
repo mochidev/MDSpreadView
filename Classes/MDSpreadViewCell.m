@@ -38,12 +38,14 @@
 
 @property (nonatomic, readwrite, copy) NSString *reuseIdentifier;
 @property (nonatomic, readwrite, assign) MDSpreadView *spreadView;
+@property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
+@property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 
 @end
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture, spreadView;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -223,6 +225,7 @@
 
 - (void)dealloc
 {
+    [sortDescriptorPrototype release];
     [spreadView release];
     [objectValue release];
     [backgroundView release];

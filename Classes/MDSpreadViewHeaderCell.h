@@ -32,6 +32,7 @@
 //  
 
 #import "MDSpreadViewCell.h"
+#import "MDSpreadView.h"
 
 typedef enum {
     MDSpreadViewHeaderCellStyleCorner,
@@ -42,5 +43,10 @@ typedef enum {
 @interface MDSpreadViewHeaderCell : MDSpreadViewCell
 
 - (id)initWithStyle:(MDSpreadViewHeaderCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
+
+@property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
+// This needs to be set if you want to support sorting for this column/row.
+@property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
+// Which direction will a orner header sort in?
 
 @end

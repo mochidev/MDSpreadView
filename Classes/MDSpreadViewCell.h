@@ -33,7 +33,7 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/CoreAnimation.h>
-@class MDSpreadView;
+@class MDSpreadView, MDSortDescriptor;
 
 typedef enum {
     MDSpreadViewCellStyleDefault
@@ -56,6 +56,11 @@ typedef enum {
     MDSpreadViewCellAccessoryDisclosureIndicator
 } MDSpreadViewCellAccessoryType;
 
+typedef enum {
+    MDSpreadViewSortRows,
+    MDSpreadViewSortColumns
+} MDSpreadViewSortAxis;
+
 @interface MDSpreadViewCell : UIView {
   @private
     MDSpreadView *spreadView;
@@ -72,6 +77,8 @@ typedef enum {
 	NSArray *indexes;
 
     UITapGestureRecognizer *tapGesture;
+    MDSortDescriptor *sortDescriptorPrototype;
+    MDSpreadViewSortAxis defaultSortAxis;
 }
 
 // Designated initializer.  If the cell can be reused, you must pass in a reuse identifier.  You should use the same reuse identifier for all cells of the same form.

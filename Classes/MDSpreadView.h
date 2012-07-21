@@ -85,12 +85,12 @@ typedef enum {
 // Selection
 
 // Called before the user changes the selection. Return a new indexPath, or nil, to change the proposed selection.
-- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
-- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willDeselectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Called after the user changes the selection.
-- (void)spreadView:(MDSpreadView *)aSpreadView didSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
-- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 - (MDSpreadViewSelectionMode)spreadView:(MDSpreadView *)aSpreadView selectionModeForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
@@ -142,6 +142,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     BOOL implementsRowHeaderHeight;
     BOOL implementsColumnWidth;
     BOOL implementsColumnHeaderWidth;
+    
+    MDSpreadViewSelectionMode selectionMode;
+    NSMutableArray *sortDescriptors;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
@@ -187,6 +190,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 // Selection
 
+@property (nonatomic) MDSpreadViewSelectionMode selectionMode __attribute__((unavailable));
+// the default selection mode. defaults to MDSpreadViewSelectionModeNone
 @property (nonatomic) BOOL allowsSelection __attribute__((unavailable));
 // default is YES. Controls whether rows can be selected when not in editing mode
 @property (nonatomic) BOOL allowsMultipleSelection __attribute__((unavailable));
@@ -213,6 +218,11 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 // Used by the delegate to acquire an already allocated cell, in lieu of allocating a new one.
+
+// Sorting
+
+@property (nonatomic, copy) NSArray *sortDescriptors;
+// Calling -setSortDescriptors: may have the side effect of calling -spreadView:sortDescriptorsDidChange: on the -dataSource/
 
 @end
 
@@ -245,6 +255,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
+- (void)spreadView:(MDSpreadView *)aSpreadView sortDescriptorsDidChange:(NSArray *)oldDescriptors;
+// This is the indication that sorting needs to be done.  Typically the data source will sort its data, reload, and adjust selections.
+
 @end
 
 @interface MDIndexPath : NSObject {
@@ -260,6 +273,32 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic,readonly) NSInteger column;
 
 - (BOOL)isEqualToIndexPath:(MDIndexPath *)object;
+
+@end
+
+enum {MDSpreadViewSelectWholeSpreadView = -1};
+
+@interface MDSortDescriptor : NSSortDescriptor {
+    MDIndexPath *indexPath;
+    NSInteger section;
+    MDSpreadViewSortAxis sortAxis;
+}
+
+@property (nonatomic, readonly, retain) MDIndexPath *indexPath;
+// index path for sort header
+@property (nonatomic, readonly) NSInteger section;
+// the section to sort, or MDSpreadViewSelectWholeSpreadView to sort the whole spread view
+@property (nonatomic, readonly) MDSpreadViewSortAxis sortAxis;
+// which direction this sort applies to.
+
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView;
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView;
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView;
+
+// keys may be key paths
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView;
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView;
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView;
 
 @end
 

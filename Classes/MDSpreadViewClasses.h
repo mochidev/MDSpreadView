@@ -35,7 +35,6 @@
 #define MDSpreadViewDemo_MDSpreadViewClasses_h
 
 #import "MDSpreadView.h"
-#import "NSIndexPath+MDSpreadView.h"
 #import "MDSpreadViewCell.h"
 #import "MDSpreadViewHeaderCell.h"
 

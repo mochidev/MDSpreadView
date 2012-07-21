@@ -39,6 +39,8 @@
 
 @implementation MDSpreadViewHeaderCell
 
+@dynamic sortDescriptorPrototype, defaultSortAxis;
+
 - (id)initWithStyle:(MDSpreadViewHeaderCellStyle)aStyle reuseIdentifier:(NSString *)reuseIdentifier
 {
     if (!reuseIdentifier) {

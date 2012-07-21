@@ -32,7 +32,6 @@
 //  
 
 #import "MDSpreadView.h"
-#import "NSIndexPath+MDSpreadView.h"
 #import "MDSpreadViewCell.h"
 #import "MDSpreadViewHeaderCell.h"
 
@@ -76,6 +75,65 @@
 - (BOOL)isEqualToIndexPath:(MDIndexPath *)object
 {
     return (object->section == self->section && object->row == self->row);
+}
+
+@end
+
+@interface MDSortDescriptor ()
+
+@property (nonatomic, readwrite, retain) MDIndexPath *indexPath;
+@property (nonatomic, readwrite) NSInteger section;
+@property (nonatomic, readwrite) MDSpreadViewSortAxis sortAxis;
+
+@end
+
+@implementation MDSortDescriptor
+
+@synthesize indexPath, section, sortAxis;
+
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView
+{
+    return [[[self alloc] initWithKey:key ascending:ascending selectsWholeSpreadView:wholeView] autorelease];
+}
+
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView
+{
+    return [[[self alloc] initWithKey:key ascending:ascending selector:selector selectsWholeSpreadView:wholeView] autorelease];
+}
+
++ (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView
+{
+    return [[[self alloc] initWithKey:key ascending:ascending comparator:cmptr selectsWholeSpreadView:wholeView] autorelease];
+}
+
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView
+{
+    if (self = [super initWithKey:key ascending:ascending]) {
+        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+    }
+    return self;
+}
+
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView
+{
+    if (self = [super initWithKey:key ascending:ascending selector:selector]) {
+        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+    }
+    return self;
+}
+
+- (id)initWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView
+{
+    if (self = [super initWithKey:key ascending:ascending comparator:cmptr]) {
+        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [indexPath release];
+    [super dealloc];
 }
 
 @end
@@ -148,7 +206,7 @@
 - (void)_setVisibleCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
 -(void)_selectedRow:(id)sender;
--(void)_didSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath;
+-(void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath;
 
 @end
 
@@ -156,7 +214,7 @@
 
 #pragma mark - Setup
 
-@synthesize dataSource=_dataSource, rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell;
+@synthesize dataSource=_dataSource, rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell, sortDescriptors, selectionMode;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -229,6 +287,7 @@
 
 - (void)dealloc
 {
+    [sortDescriptors release];
     [_headerColumnCells release];
     [_headerRowCells release];
 //    [_headerColumnIndexPath release];
@@ -2041,8 +2100,8 @@
 {
 	MDSpreadViewCell *cell = (MDSpreadViewCell *)[sender view];
 	if ([[cell indexes] count] > 1) {
-        [self _didSelectRowAtIndexPath:[[cell indexes] objectAtIndex:0]
-                        forColumnIndex:[[cell indexes] objectAtIndex:1]];
+        [self _didSelectCellForRowAtIndexPath:[[cell indexes] objectAtIndex:0]
+                               forColumnIndex:[[cell indexes] objectAtIndex:1]];
 	}
 }
 
@@ -2056,10 +2115,10 @@
 
 #pragma mark - Selection
 
-- (void)_didSelectRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
+- (void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
 {
 	if (self.delegate && [self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnAtIndexPath:)])
-		[self.delegate spreadView:self didSelectRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
+		[self.delegate spreadView:self didSelectCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
 	
 }
 
