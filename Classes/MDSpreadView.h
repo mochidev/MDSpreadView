@@ -55,7 +55,6 @@ typedef enum {
 @class MDSpreadView;
 @protocol MDSpreadViewDataSource;
 @class MDSpreadViewCell;
-@class MDSpreadViewDescriptor;
 @class MDIndexPath;
 
 #pragma mark - MDSpreadViewDelegate
@@ -120,7 +119,13 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDIndexPath *_visibleColumnIndexPath;
     CGRect visibleBounds;
     
-    MDSpreadViewDescriptor *descriptor;
+    NSMutableArray *_headerRowCells;
+    NSMutableArray *_headerColumnCells;
+    MDSpreadViewCell *_headerCornerCell;
+//    CGRect _headerBounds;
+//    
+//    MDIndexPath *_headerRowIndexPath;
+//    MDIndexPath *_headerColumnIndexPath;
     
     NSUInteger selectedRow;
     NSUInteger selectedSection;
