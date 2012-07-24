@@ -1883,6 +1883,8 @@
 #pragma Sizes
 - (CGFloat)_widthForColumnHeaderInSection:(NSInteger)columnSection
 {
+    if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
+    
     if (implementsColumnHeaderWidth && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnHeaderInSection:)]) {
         return [self.delegate spreadView:self widthForColumnHeaderInSection:columnSection];
     } else {
@@ -1894,8 +1896,8 @@
 
 - (CGFloat)_widthForColumnAtIndexPath:(MDIndexPath *)columnPath
 {
-    if (columnPath.column == -1) return [self _widthForColumnHeaderInSection:columnPath.section];
-    else if (columnPath.column == [self _numberOfColumnsInSection:columnPath.section]) return [self _widthForColumnFooterInSection:columnPath.section];
+    if (columnPath.column < 0) return [self _widthForColumnHeaderInSection:columnPath.section];
+    else if (columnPath.column >= [self _numberOfColumnsInSection:columnPath.section]) return [self _widthForColumnFooterInSection:columnPath.section];
     
     if (implementsColumnWidth && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnAtIndexPath:)]) {
         return [self.delegate spreadView:self widthForColumnAtIndexPath:columnPath];
@@ -1908,11 +1910,15 @@
 
 - (CGFloat)_widthForColumnFooterInSection:(NSInteger)columnSection
 {
+    if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
+    
     return 0;
 }
 
 - (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection
 {
+    if (rowSection < 0 || rowSection >= [self _numberOfColumnSections]) return 0;
+    
     if (implementsRowHeaderHeight && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:heightForRowHeaderInSection:)]) {
         return [self.delegate spreadView:self heightForRowHeaderInSection:rowSection];
     } else {
@@ -1924,8 +1930,8 @@
 
 - (CGFloat)_heightForRowAtIndexPath:(MDIndexPath *)rowPath
 {
-    if (rowPath.row == -1) return [self _heightForRowHeaderInSection:rowPath.section];
-    else if (rowPath.row == [self _numberOfRowsInSection:rowPath.section]) return [self _heightForRowFooterInSection:rowPath.section];
+    if (rowPath.row < 0) return [self _heightForRowHeaderInSection:rowPath.section];
+    else if (rowPath.row >= [self _numberOfRowsInSection:rowPath.section]) return [self _heightForRowFooterInSection:rowPath.section];
     
     if (implementsRowHeight && self.delegate && [self.delegate respondsToSelector:@selector(spreadView:heightForRowAtIndexPath:)]) {
         return [self.delegate spreadView:self heightForRowAtIndexPath:rowPath];
@@ -1938,12 +1944,16 @@
 
 - (CGFloat)_heightForRowFooterInSection:(NSInteger)rowSection
 {
+    if (rowSection < 0 || rowSection >= [self _numberOfColumnSections]) return 0;
+    
     return 0;
 }
 
 #pragma Counts
 - (NSInteger)_numberOfColumnsInSection:(NSInteger)section
 {
+    if (section < 0 || section >= [self _numberOfColumnSections]) return 0;
+    
     NSInteger returnValue = 0;
     
     if (_dataSource && [_dataSource respondsToSelector:@selector(spreadView:numberOfColumnsInSection:)])
@@ -1954,6 +1964,8 @@
 
 - (NSInteger)_numberOfRowsInSection:(NSInteger)section
 {
+    if (section < 0 || section >= [self _numberOfRowSections]) return 0;
+    
     NSInteger returnValue = 0;
     
     if (_dataSource && [_dataSource respondsToSelector:@selector(spreadView:numberOfRowsInSection:)])
