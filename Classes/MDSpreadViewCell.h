@@ -77,6 +77,7 @@ typedef enum {
 	NSArray *indexes;
 
     UITapGestureRecognizer *tapGesture;
+    
     MDSortDescriptor *sortDescriptorPrototype;
     MDSpreadViewSortAxis defaultSortAxis;
 }
@@ -127,6 +128,9 @@ typedef enum {
 // if set, use custom view. ignore accessoryType. tracks if enabled can calls accessory action
 
 @property (nonatomic, retain) id objectValue;
+// default gets [objectValue description] and sets it on the title.
+// subclass -(void)setObjectValue:(id)anObject; calling supper to customize;
+
 @property (nonatomic, retain) NSArray *indexes;
 @property (nonatomic, readonly) UITapGestureRecognizer *tapGesture;
 

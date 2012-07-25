@@ -68,7 +68,10 @@ typedef enum {
 
 // Display customization
 
-- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
+- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView willDisplayCell:(MDSpreadViewCell *)cell forHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
 
 // Variable height support
 
@@ -145,6 +148,13 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     MDSpreadViewSelectionMode selectionMode;
     NSMutableArray *sortDescriptors;
+    
+    Class _defaultHeaderCornerCellClass;
+    Class _defaultHeaderColumnCellClass;
+    Class _defaultHeaderRowCellClass;
+    Class _defaultCellClass;
+    
+    BOOL _didSetReloadData;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
@@ -155,6 +165,12 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic) CGFloat sectionRowHeaderHeight;
 @property (nonatomic) CGFloat columnWidth;
 @property (nonatomic) CGFloat sectionColumnHeaderWidth;
+
+// default cell setters. must be subclasses of MDSpreadViewCell;
+@property (nonatomic) Class defaultHeaderCornerCellClass;
+@property (nonatomic) Class defaultHeaderColumnCellClass;
+@property (nonatomic) Class defaultHeaderRowCellClass;
+@property (nonatomic) Class defaultCellClass;
 
 @property (nonatomic, readwrite, retain) UIView *backgroundView __attribute__((unavailable)); // the background view will be automatically resized to track the size of the table view.  this will be placed as a subview of the table view behind all cells and headers/footers.  default may be non-nil for some devices.
 
@@ -235,22 +251,27 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 - (NSInteger)spreadView:(MDSpreadView *)aSpreadView numberOfColumnsInSection:(NSInteger)section;
 - (NSInteger)spreadView:(MDSpreadView *)aSpreadView numberOfRowsInSection:(NSInteger)section;
 
+@optional
+
 // Row display. Implementers should *always* try to reuse cells by setting each cell's reuseIdentifier and querying for available reusable cells with dequeueReusableCellWithIdentifier:
 // Cell gets various attributes set automatically based on table (separators) and data source (accessory views, editing controls)
-
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
-
-@optional
 
 - (NSInteger)numberOfColumnSectionsInSpreadView:(MDSpreadView *)aSpreadView;
 // Default is 1 if not implemented
 - (NSInteger)numberOfRowSectionsInSpreadView:(MDSpreadView *)aSpreadView;
 // Default is 1 if not implemented
 
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
-- (NSString *)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
+// shorthands for fast cell generation
+// not called if cells are manually geneated
+// renerally, return an NSString, but just about anything that returns description can be used,
+// or can also be something that a custom cell defines
+- (id)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
+- (id)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (id)spreadView:(MDSpreadView *)aSpreadView titleForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;
+- (id)spreadView:(MDSpreadView *)aSpreadView objectValueForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
+// manual cell generation. returning nil creates one for you
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection;
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (MDSpreadViewCell *)spreadView:(MDSpreadView *)aSpreadView cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath;

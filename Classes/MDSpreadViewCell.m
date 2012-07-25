@@ -218,8 +218,8 @@
     [objectValue release];
     objectValue = anObject;
     
-    if ([objectValue isKindOfClass:[NSString class]]) {
-        self.textLabel.text = objectValue;
+    if ([objectValue respondsToSelector:@selector(description)]) {
+        self.textLabel.text = [objectValue description];
     }
 }
 
