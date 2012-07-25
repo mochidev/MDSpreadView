@@ -38,6 +38,24 @@
 #define MAX_NUMBER_OF_PASSES 20
 // so we don't delete cells too often when scrolling really fast
 
+@interface MDSpreadViewSection : NSObject {
+    NSInteger numberOfCells;
+    CGFloat offset;
+    CGFloat size;
+}
+
+@property (nonatomic) NSInteger numberOfCells;
+@property (nonatomic) CGFloat offset;
+@property (nonatomic) CGFloat size;
+
+@end
+
+@implementation MDSpreadViewSection
+
+@synthesize numberOfCells, offset, size;
+
+@end
+
 @implementation MDIndexPath
 
 @synthesize section, row;
@@ -206,6 +224,9 @@
 
 @property (nonatomic, retain) MDSpreadViewCell *_headerCornerCell;
 
+@property (nonatomic, retain) NSMutableArray *_rowSections;
+@property (nonatomic, retain) NSMutableArray *_columnSections;
+
 - (MDSpreadViewCell *)_visibleCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (void)_setVisibleCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
@@ -219,7 +240,7 @@
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell, sortDescriptors, selectionMode;
+@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections;
 @synthesize defaultCellClass=_defaultCellClass;
 @synthesize defaultHeaderColumnCellClass=_defaultHeaderColumnCellClass;
 @synthesize defaultHeaderRowCellClass=_defaultHeaderRowCellClass;
@@ -227,8 +248,7 @@
 
 - (id)initWithFrame:(CGRect)frame
 {
-    self = [super initWithFrame:frame];
-    if (self) {
+    if (self = [super initWithFrame:frame]) {
         [self _performInit];
     }
     return self;
@@ -301,6 +321,8 @@
 - (void)dealloc
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [_rowSections release];
+    [_columnSections release];
     [sortDescriptors release];
     [_headerColumnCells release];
     [_headerRowCells release];
@@ -425,8 +447,16 @@
     self._visibleColumnIndexPath = nil;
     self._visibleRowIndexPath = nil;
     
+    NSMutableArray *newColumnSections = [[NSMutableArray alloc] init];
+    
     for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
+        MDSpreadViewSection *sectionDescriptor = [[MDSpreadViewSection alloc] init];
+        [newColumnSections addObject:sectionDescriptor];
+        [sectionDescriptor release];
+        
         NSUInteger numberOfColumns = [self _numberOfColumnsInSection:i];
+        sectionDescriptor.numberOfCells = numberOfColumns;
+        sectionDescriptor.offset = totalWidth;
         
         totalWidth += [self _widthForColumnHeaderInSection:i];
         
@@ -441,25 +471,44 @@
                 self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:j inSection:i];
             }
         }
+        
+        sectionDescriptor.size = totalWidth - sectionDescriptor.offset;
     }
     
+    // actually compare it at some point or something
+    self._columnSections = newColumnSections;
+    [newColumnSections release];
+    
+    NSMutableArray *newRowSections = [[NSMutableArray alloc] init];
+    
     for (NSUInteger i = 0; i < numberOfRowSections; i++) {
+        MDSpreadViewSection *sectionDescriptor = [[MDSpreadViewSection alloc] init];
+        [newRowSections addObject:sectionDescriptor];
+        [sectionDescriptor release];
+        
         NSUInteger numberOfRows = [self _numberOfRowsInSection:i];
+        sectionDescriptor.numberOfCells = numberOfRows;
+        sectionDescriptor.offset = totalHeight;
         
         totalHeight += [self _heightForRowHeaderInSection:i];
         
-        if (!_visibleRowIndexPath && totalWidth > visibleBounds.origin.y) {
+        if (!_visibleRowIndexPath && totalHeight > visibleBounds.origin.y) {
             self._visibleRowIndexPath = [MDIndexPath indexPathForRow:-1 inSection:i];
         }
         
         for (NSUInteger j = 0; j < numberOfRows; j++) {
             totalHeight += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
             
-            if (!_visibleRowIndexPath && totalWidth > visibleBounds.origin.y) {
+            if (!_visibleRowIndexPath && totalHeight > visibleBounds.origin.y) {
                 self._visibleRowIndexPath = [MDIndexPath indexPathForRow:j inSection:i];
             }
         }
+        
+        sectionDescriptor.size = totalHeight - sectionDescriptor.offset;
     }
+    
+    self._rowSections = newRowSections;
+    [newRowSections release];
     
     if (!self._visibleColumnIndexPath) {
         visibleBounds.origin.x = 0;
@@ -1473,54 +1522,47 @@
     }
 }
 
+- (CGRect)rectForRowSection:(NSInteger)rowSection columnSection:(NSInteger)columnSection
+{
+    if (!_rowSections || !_columnSections ||
+        rowSection < 0 || rowSection >= [self numberOfRowSections] ||
+        columnSection < 0 || columnSection >= [self numberOfColumnSections]) return CGRectNull;
+    
+    MDSpreadViewSection *column = [_columnSections objectAtIndex:columnSection];
+    MDSpreadViewSection *row = [_rowSections objectAtIndex:rowSection];
+    
+    return CGRectMake(column.offset, row.offset, column.size, row.size);
+}
+
 - (CGRect)cellRectForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
-//    NSUInteger numberOfColumnSections = [descriptor columnSectionCount];
-//    NSUInteger numberOfRowSections = [descriptor rowSectionCount];
-//    
-//    CGRect cellFrame = CGRectZero;
-//    
-//    for (int columnSection = 0; columnSection < numberOfColumnSections; columnSection++) {
-//        NSUInteger numberOfColumns = [descriptor columnCountForSection:columnSection];
-//        
-//        if (columnSection < columnPath.section) {
-//            cellFrame.origin.x += [descriptor widthForEntireColumnSection:columnSection];
-//        } else {
-//            cellFrame.origin.x += [descriptor widthForHeaderColumnInSection:columnSection];
-//            for (int column = 0; column < numberOfColumns; column++) {
-//                if (column < columnPath.column) {
-//                    cellFrame.origin.x += [descriptor widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:column inSection:columnSection]];
-//                } else {
-//                    cellFrame.size.width = [descriptor widthForColumnAtIndexPath:columnPath];
-//                    break;
-//                }
-//            }
-//            break;
-//        }
-//    }
-//    
-//    for (int rowSection = 0; rowSection < numberOfRowSections; rowSection++) {
-//        NSUInteger numberOfRows = [descriptor rowCountForSection:rowSection];
-//        
-//        if (rowSection < rowPath.section) {
-//            cellFrame.origin.y += [descriptor heightForEntireRowSection:rowSection];
-//        } else {
-//            cellFrame.origin.y += [descriptor heightForHeaderRowInSection:rowSection];
-//            for (int row = 0; row < numberOfRows; row++) {
-//                if (row < rowPath.row) {
-//                    cellFrame.origin.y += [descriptor heightForRowAtIndexPath:[MDIndexPath indexPathForRow:row inSection:rowSection]];
-//                } else {
-//                    cellFrame.size.height = [descriptor heightForRowAtIndexPath:rowPath];
-//                    break;
-//                }
-//            }
-//            break;
-//        }
-//    }
-//    
-//    return cellFrame;
+    if (!_rowSections || !_columnSections ||
+        rowPath.section < 0 || rowPath.section >= [self numberOfRowSections] ||
+        columnPath.section < 0 || columnPath.section >= [self numberOfColumnSections]) return CGRectNull;
     
-    return CGRectZero;
+    MDSpreadViewSection *columnSection = [_columnSections objectAtIndex:columnPath.section];
+    MDSpreadViewSection *rowSection = [_rowSections objectAtIndex:rowPath.section];
+    
+    if (rowPath.row < -1 || rowPath.row > rowSection.numberOfCells ||
+        columnPath.column < -1 || columnPath.column > columnSection.numberOfCells) return CGRectNull;
+    
+    CGRect rect = CGRectMake(columnSection.offset, rowSection.offset, [self _widthForColumnAtIndexPath:columnPath], [self _heightForRowAtIndexPath:rowPath]);
+    
+    if (columnPath.column >= 0)
+        rect.origin.x += [self _widthForColumnHeaderInSection:columnPath.section];
+    
+    for (int i = 0; i < columnPath.column; i++) {
+        rect.origin.x += [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:i inSection:columnPath.section]];
+    }
+    
+    if (rowPath.row >= 0)
+        rect.origin.y += [self _heightForRowHeaderInSection:rowPath.row];
+    
+    for (int i = 0; i < rowPath.row; i++) {
+        rect.origin.y += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:i inSection:rowPath.row]];
+    }
+    
+    return rect;
 }
 
 #pragma mark - Cell Management
@@ -2036,6 +2078,30 @@
 }
 
 #pragma Counts
+- (NSInteger)numberOfRowSections
+{
+    if (_rowSections) return [_rowSections count];
+    else return [self _numberOfRowSections];
+}
+
+- (NSInteger)numberOfRowsInRowSection:(NSInteger)section
+{
+    if (_rowSections) return [[_rowSections objectAtIndex:section] numberOfCells];
+    else return [self _numberOfRowsInSection:section];
+}
+
+- (NSInteger)numberOfColumnSections
+{
+    if (_columnSections) return [_columnSections count];
+    else return [self _numberOfColumnSections];
+}
+
+- (NSInteger)numberOfColumnsInColumnSection:(NSInteger)section
+{
+    if (_columnSections) return [[_columnSections objectAtIndex:section] numberOfCells];
+    else return [self _numberOfColumnsInSection:section];
+}
+
 - (NSInteger)_numberOfColumnsInSection:(NSInteger)section
 {
     if (section < 0 || section >= [self _numberOfColumnSections]) return 0;

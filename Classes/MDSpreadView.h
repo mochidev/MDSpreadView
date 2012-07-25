@@ -136,6 +136,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSUInteger selectedRow;
     NSUInteger selectedSection;
     
+    NSMutableArray *_rowSections;
+    NSMutableArray *_columnSections;
+    
     UIView *anchorCell;
     UIView *anchorRowHeaderCell;
     UIView *anchorColumnHeaderCell;
@@ -181,12 +184,12 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 // Info
 
-- (NSInteger)numberOfRowSections __attribute__((unavailable));
-- (NSInteger)numberOfRowsInRowSection:(NSInteger)section __attribute__((unavailable));
-- (NSInteger)numberOfColumnSections __attribute__((unavailable));
-- (NSInteger)numberOfColumnsInColumnSection:(NSInteger)section __attribute__((unavailable));
+- (NSInteger)numberOfRowSections;
+- (NSInteger)numberOfRowsInRowSection:(NSInteger)section;
+- (NSInteger)numberOfColumnSections;
+- (NSInteger)numberOfColumnsInColumnSection:(NSInteger)section;
 
-- (CGRect)rectForRowSection:(NSInteger)rowSection columnSection:(NSInteger)columnSection __attribute__((unavailable));
+- (CGRect)rectForRowSection:(NSInteger)rowSection columnSection:(NSInteger)columnSection;
 // includes header, footer and all rows
 //- (CGRect)rectForHeaderInSection:(NSInteger)section;
 //- (CGRect)rectForFooterInSection:(NSInteger)section;
