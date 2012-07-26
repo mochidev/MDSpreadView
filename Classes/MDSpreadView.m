@@ -860,6 +860,36 @@
         [self insertSubview:self._headerCornerCell belowSubview:anchorCornerHeaderCell];
     }
     
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
+    [allVisibleCells addObjectsFromArray:_headerColumnCells];
+    [allVisibleCells addObjectsFromArray:_headerRowCells];
+    [allVisibleCells addObject:self._headerCornerCell];
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        cell.highlighted = NO;
+        for (MDSpreadViewSelection *selection in _selectedCells) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+            
+            if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+            }
+            
+            if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+                
+                if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
+                    cell.highlighted = YES;
+                }
+            }
+        }
+    }
+    
 //    if (_headerColumnSection != _visibleColumnIndexPath.section) {
 //        if (_visibleColumnIndexPath.column == -1 && [visibleCells count] > 0) {
 //            for (MDSpreadViewCell *cell in _headerColumnCells) {
@@ -2375,8 +2405,6 @@
     self._currentSelection = [self _willSelectCellForSelection:selection];
     
     if (self._currentSelection) {
-//        [cell setHighlighted:YES animated:NO];
-        
         [self _addSelection:self._currentSelection];
         return YES;
     } else {
@@ -2387,15 +2415,14 @@
 - (void)_touchesEndedInCell:(MDSpreadViewCell *)cell
 {
     [self _addSelection:[MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
-                                                             column:self._currentSelection.columnPath
-                                                               mode:self._currentSelection.selectionMode]];
+                                                         column:self._currentSelection.columnPath
+                                                           mode:self._currentSelection.selectionMode]];
     [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     self._currentSelection = nil;
 }
 
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
 {
-//    [cell setHighlighted:NO animated:NO];
     [self _removeSelection:self._currentSelection];
     self._currentSelection = nil;
 }
@@ -2427,10 +2454,15 @@
         [bucket release];
     }
     
+    
     NSArray *allSelections = [_selectedCells arrayByAddingObject:_currentSelection];
-    NSSet *allVisibleCells = [self _allVisibleCells];
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
+    [allVisibleCells addObjectsFromArray:_headerColumnCells];
+    [allVisibleCells addObjectsFromArray:_headerRowCells];
+    [allVisibleCells addObject:self._headerCornerCell];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
+        cell.highlighted = NO;
         for (MDSpreadViewSelection *selection in allSelections) {
             if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
             
@@ -2459,7 +2491,10 @@
 {
     [_selectedCells removeObject:selection];
     
-    NSSet *allVisibleCells = [self _allVisibleCells];
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
+    [allVisibleCells addObjectsFromArray:_headerColumnCells];
+    [allVisibleCells addObjectsFromArray:_headerRowCells];
+    [allVisibleCells addObject:self._headerCornerCell];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;

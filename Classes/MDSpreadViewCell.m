@@ -72,7 +72,6 @@
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [super touchesCancelled:touches withEvent:event];
-    if (self.state == UIGestureRecognizerStateFailed) return;
     self.state = UIGestureRecognizerStateCancelled;
 }
 
@@ -178,7 +177,8 @@
             [spreadView _touchesEndedInCell:self];
         
         _shouldCancelTouches = NO;
-    } else if (gesture.state == UIGestureRecognizerStateCancelled) {
+    } else if (gesture.state == UIGestureRecognizerStateCancelled ||
+               gesture.state == UIGestureRecognizerStateFailed) {
         if (!_shouldCancelTouches)
             [spreadView _touchesCancelledInCell:self];
         
