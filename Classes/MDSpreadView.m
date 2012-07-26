@@ -1626,10 +1626,10 @@
     }
     
     if (rowPath.row >= 0)
-        rect.origin.y += [self _heightForRowHeaderInSection:rowPath.row];
+        rect.origin.y += [self _heightForRowHeaderInSection:rowPath.section];
     
     for (int i = 0; i < rowPath.row; i++) {
-        rect.origin.y += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:i inSection:rowPath.row]];
+        rect.origin.y += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:i inSection:rowPath.section]];
     }
     
     return rect;
