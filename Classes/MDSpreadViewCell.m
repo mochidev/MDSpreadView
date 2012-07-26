@@ -33,6 +33,60 @@
 
 #import "MDSpreadViewCell.h"
 #import "MDSpreadView.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
+
+@interface MDSpreadViewCellTapGestureRecognizer : UIGestureRecognizer {
+    CGPoint touchDown;
+}
+
+@end
+
+@implementation MDSpreadViewCellTapGestureRecognizer
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesBegan:touches withEvent:event];
+    self.state = UIGestureRecognizerStateBegan;
+    touchDown = [[touches anyObject] locationInView:self.view.window];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesMoved:touches withEvent:event];
+    if (self.state == UIGestureRecognizerStateFailed) return;
+    CGPoint newPoint = [[touches anyObject] locationInView:self.view.window];
+    if (fabs(touchDown.x - newPoint.x) > 5 || fabs(touchDown.y - newPoint.y) > 5) {
+        self.state = UIGestureRecognizerStateFailed;
+        return;
+    }
+    self.state = UIGestureRecognizerStateChanged;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesEnded:touches withEvent:event];
+    if (self.state == UIGestureRecognizerStateFailed) return;
+    self.state = UIGestureRecognizerStateRecognized;
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesCancelled:touches withEvent:event];
+    if (self.state == UIGestureRecognizerStateFailed) return;
+    self.state = UIGestureRecognizerStateCancelled;
+}
+
+- (BOOL)canBePreventedByGestureRecognizer:(UIGestureRecognizer *)preventingGestureRecognizer
+{
+    return YES;
+}
+
+- (BOOL)canPreventGestureRecognizer:(UIGestureRecognizer *)preventedGestureRecognizer
+{
+    return NO;
+}
+
+@end
 
 @interface MDSpreadViewCell ()
 
@@ -41,7 +95,7 @@
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 
-@property (nonatomic, readonly) UILongPressGestureRecognizer *_tapGesture;
+@property (nonatomic, readonly) UIGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
 @property (nonatomic, retain) MDIndexPath *_columnPath;
 
@@ -71,6 +125,7 @@
         self.opaque = YES;
         self.backgroundColor = [UIColor whiteColor];
         self.reuseIdentifier = aReuseIdentifier;
+        self.multipleTouchEnabled = YES;
 //        self.layer.shouldRasterize = YES;
 //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
@@ -103,36 +158,32 @@
         self.detailTextLabel = label;
         [label release];
         
-//        _tapGesture = [[UILongPressGestureRecognizer alloc] init];
-//        _tapGesture.cancelsTouchesInView = NO;
-//        _tapGesture.delaysTouchesEnded = NO;
-//        _tapGesture.delegate = self;
-//        _tapGesture.minimumPressDuration = 0;
-//        [self addGestureRecognizer:_tapGesture];
-//        [_tapGesture release];
+        _tapGesture = [[MDSpreadViewCellTapGestureRecognizer alloc] init];
+        _tapGesture.cancelsTouchesInView = NO;
+        _tapGesture.delaysTouchesEnded = NO;
+        _tapGesture.delegate = self;
+        [_tapGesture addTarget:self action:@selector(_handleTap:)];
+        [self addGestureRecognizer:_tapGesture];
+        [_tapGesture release];
     }
     return self;
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)_handleTap:(UIGestureRecognizer *)gesture
 {
-    _shouldCancelTouches = ![spreadView _touchesBeganInCell:self];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (!_shouldCancelTouches)
-        [spreadView _touchesEndedInCell:self];
-    
-    _shouldCancelTouches = NO;
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (!_shouldCancelTouches)
-        [spreadView _touchesCancelledInCell:self];
-    
-    _shouldCancelTouches = NO;
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        _shouldCancelTouches = ![spreadView _touchesBeganInCell:self];
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        if (!_shouldCancelTouches)
+            [spreadView _touchesEndedInCell:self];
+        
+        _shouldCancelTouches = NO;
+    } else if (gesture.state == UIGestureRecognizerStateCancelled) {
+        if (!_shouldCancelTouches)
+            [spreadView _touchesCancelledInCell:self];
+        
+        _shouldCancelTouches = NO;
+    }
 }
 
 - (void)setBackgroundView:(UIView *)aBackgroundView

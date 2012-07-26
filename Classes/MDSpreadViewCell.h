@@ -61,7 +61,7 @@ typedef enum {
     MDSpreadViewSortColumns
 } MDSpreadViewSortAxis;
 
-@interface MDSpreadViewCell : UIView {
+@interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {
   @private
     MDSpreadView *spreadView;
     
@@ -77,7 +77,7 @@ typedef enum {
 
     MDIndexPath *_rowPath;
     MDIndexPath *_columnPath;
-    UILongPressGestureRecognizer *_tapGesture;
+    UIGestureRecognizer *_tapGesture;
     BOOL _shouldCancelTouches;
     
     MDSortDescriptor *sortDescriptorPrototype;

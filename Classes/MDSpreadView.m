@@ -346,6 +346,7 @@
     sectionColumnHeaderWidth = 110;
     
     _selectedCells = [[NSMutableArray alloc] init];
+    selectionMode = MDSpreadViewSelectionModeCell;
     allowsSelection = YES;
     
     _defaultCellClass = [MDSpreadViewCell class];
@@ -2425,11 +2426,65 @@
         
         [bucket release];
     }
+    
+    NSArray *allSelections = [_selectedCells arrayByAddingObject:_currentSelection];
+    NSSet *allVisibleCells = [self _allVisibleCells];
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        for (MDSpreadViewSelection *selection in allSelections) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+            
+            if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+            }
+            
+            if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+                
+                if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
+                    cell.highlighted = YES;
+                }
+            }
+        }
+    }
 }
 
 - (void)_removeSelection:(MDSpreadViewSection *)selection
 {
     [_selectedCells removeObject:selection];
+    
+    NSSet *allVisibleCells = [self _allVisibleCells];
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        cell.highlighted = NO;
+        for (MDSpreadViewSelection *selection in _selectedCells) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+            
+            if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+            }
+            
+            if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
+                if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                    selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                    cell.highlighted = YES;
+                }
+                
+                if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
+                    cell.highlighted = YES;
+                }
+            }
+        }
+    }
 }
 
 - (void)selectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSelectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition
