@@ -41,11 +41,23 @@
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 
+@property (nonatomic, readonly) UILongPressGestureRecognizer *_tapGesture;
+@property (nonatomic, retain) MDIndexPath *_rowPath;
+@property (nonatomic, retain) MDIndexPath *_columnPath;
+
+@end
+
+@interface MDSpreadView ()
+
+- (BOOL)_touchesBeganInCell:(MDSpreadViewCell *)cell;
+- (void)_touchesEndedInCell:(MDSpreadViewCell *)cell;
+- (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell;
+
 @end
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, indexes, tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, _tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis, _rowPath, _columnPath;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -91,11 +103,36 @@
         self.detailTextLabel = label;
         [label release];
         
-        tapGesture = [[UITapGestureRecognizer alloc] init];
-        [self addGestureRecognizer:tapGesture];
-        [tapGesture release];
+//        _tapGesture = [[UILongPressGestureRecognizer alloc] init];
+//        _tapGesture.cancelsTouchesInView = NO;
+//        _tapGesture.delaysTouchesEnded = NO;
+//        _tapGesture.delegate = self;
+//        _tapGesture.minimumPressDuration = 0;
+//        [self addGestureRecognizer:_tapGesture];
+//        [_tapGesture release];
     }
     return self;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    _shouldCancelTouches = ![spreadView _touchesBeganInCell:self];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (!_shouldCancelTouches)
+        [spreadView _touchesEndedInCell:self];
+    
+    _shouldCancelTouches = NO;
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if (!_shouldCancelTouches)
+        [spreadView _touchesCancelledInCell:self];
+    
+    _shouldCancelTouches = NO;
 }
 
 - (void)setBackgroundView:(UIView *)aBackgroundView
@@ -229,7 +266,8 @@
     [spreadView release];
     [objectValue release];
     [backgroundView release];
-	[indexes release];
+	[_rowPath release];
+    [_columnPath release];
     [highlightedBackgroundView release];
     [textLabel release];
     [reuseIdentifier release];

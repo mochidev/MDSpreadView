@@ -33,7 +33,7 @@
 
 #import <UIKit/UIKit.h>
 #import <QuartzCore/CoreAnimation.h>
-@class MDSpreadView, MDSortDescriptor;
+@class MDSpreadView, MDSortDescriptor, MDIndexPath;
 
 typedef enum {
     MDSpreadViewCellStyleDefault
@@ -74,9 +74,11 @@ typedef enum {
     NSInteger style;
 	
     id objectValue;
-	NSArray *indexes;
 
-    UITapGestureRecognizer *tapGesture;
+    MDIndexPath *_rowPath;
+    MDIndexPath *_columnPath;
+    UILongPressGestureRecognizer *_tapGesture;
+    BOOL _shouldCancelTouches;
     
     MDSortDescriptor *sortDescriptorPrototype;
     MDSpreadViewSortAxis defaultSortAxis;
@@ -130,10 +132,6 @@ typedef enum {
 @property (nonatomic, retain) id objectValue;
 // default gets [objectValue description] and sets it on the title.
 // subclass -(void)setObjectValue:(id)anObject; calling supper to customize;
-
-@property (nonatomic, retain) NSArray *indexes;
-@property (nonatomic, readonly) UITapGestureRecognizer *tapGesture;
-
   
 
 @end

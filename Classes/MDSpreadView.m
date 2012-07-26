@@ -38,6 +38,19 @@
 #define MAX_NUMBER_OF_PASSES 20
 // so we don't delete cells too often when scrolling really fast
 
+@interface MDSpreadViewCell ()
+
+@property (nonatomic, readwrite, copy) NSString *reuseIdentifier;
+@property (nonatomic, readwrite, assign) MDSpreadView *spreadView;
+@property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
+@property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
+
+@property (nonatomic, readonly) UILongPressGestureRecognizer *_tapGesture;
+@property (nonatomic, retain) MDIndexPath *_rowPath;
+@property (nonatomic, retain) MDIndexPath *_columnPath;
+
+@end
+
 @interface MDSpreadViewSection : NSObject {
     NSInteger numberOfCells;
     CGFloat offset;
@@ -53,6 +66,50 @@
 @implementation MDSpreadViewSection
 
 @synthesize numberOfCells, offset, size;
+
+@end
+
+@interface MDSpreadViewSelection ()
+
+@property (nonatomic, retain, readwrite) MDIndexPath *rowPath;
+@property (nonatomic, retain, readwrite) MDIndexPath *columnPath;
+@property (nonatomic, readwrite) MDSpreadViewSelectionMode selectionMode;
+
+@end
+
+@implementation MDSpreadViewSelection
+
+@synthesize rowPath, columnPath, selectionMode;
+
++ (id)selectionWithRow:(MDIndexPath *)row column:(MDIndexPath *)column mode:(MDSpreadViewSelectionMode)mode
+{
+    MDSpreadViewSelection *pair = [[self alloc] init];
+    
+    pair.rowPath = row;
+    pair.columnPath = column;
+    pair.selectionMode = mode;
+    
+    return [pair autorelease];
+}
+
+- (BOOL)isEqual:(MDSpreadViewSelection *)object
+{
+    if ([object isKindOfClass:[MDSpreadViewSelection class]]) {
+        if (self == object) return YES;
+        return (self.rowPath.row == object.rowPath.row &&
+                self.rowPath.section == object.rowPath.section &&
+                self.columnPath.column == object.columnPath.column &&
+                self.columnPath.section == object.columnPath.section);
+    }
+    return NO;
+}
+
+- (void)dealloc
+{
+    [rowPath release];
+    [columnPath release];
+    [super dealloc];
+}
 
 @end
 
@@ -227,11 +284,20 @@
 @property (nonatomic, retain) NSMutableArray *_rowSections;
 @property (nonatomic, retain) NSMutableArray *_columnSections;
 
+@property (nonatomic, retain) MDSpreadViewSelection *_currentSelection;
+
 - (MDSpreadViewCell *)_visibleCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 - (void)_setVisibleCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
--(void)_selectedRow:(id)sender;
--(void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath;
+- (BOOL)_touchesBeganInCell:(MDSpreadViewCell *)cell;
+- (void)_touchesEndedInCell:(MDSpreadViewCell *)cell;
+- (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell;
+
+- (void)_addSelection:(MDSpreadViewSelection *)selection;
+- (void)_removeSelection:(MDSpreadViewSelection *)selection;
+
+- (MDSpreadViewSelection *)_willSelectCellForSelection:(MDSpreadViewSelection *)selection;
+- (void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath;
 
 @end
 
@@ -240,7 +306,7 @@
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections;
+@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, /*_headerRowIndexPath, _headerColumnIndexPath,*/ _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections, _currentSelection, allowsMultipleSelection, allowsSelection;
 @synthesize defaultCellClass=_defaultCellClass;
 @synthesize defaultHeaderColumnCellClass=_defaultHeaderColumnCellClass;
 @synthesize defaultHeaderRowCellClass=_defaultHeaderRowCellClass;
@@ -279,8 +345,8 @@
     columnWidth = 220;
     sectionColumnHeaderWidth = 110;
     
-    selectedRow = NSNotFound;
-    selectedSection = NSNotFound;
+    _selectedCells = [[NSMutableArray alloc] init];
+    allowsSelection = YES;
     
     _defaultCellClass = [MDSpreadViewCell class];
     _defaultHeaderColumnCellClass = [MDSpreadViewHeaderCell class];
@@ -326,6 +392,8 @@
     [sortDescriptors release];
     [_headerColumnCells release];
     [_headerRowCells release];
+    [_selectedCells release];
+    [_currentSelection release];
 //    [_headerColumnIndexPath release];
 //    [_headerRowIndexPath release];
     [_headerCornerCell release];
@@ -2008,7 +2076,7 @@
 
 #pragma mark - Fetchers
 
-#pragma Sizes
+#pragma mark — Sizes
 - (CGFloat)_widthForColumnHeaderInSection:(NSInteger)columnSection
 {
     if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
@@ -2077,7 +2145,7 @@
     return 0;
 }
 
-#pragma Counts
+#pragma mark — Counts
 - (NSInteger)numberOfRowSections
 {
     if (_rowSections) return [_rowSections count];
@@ -2146,7 +2214,7 @@
     return returnValue;
 }
 
-#pragma Cells
+#pragma mark — Cells
 - (void)_willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
     if (rowPath.row <= 0 && columnPath.column <= 0) {
@@ -2185,6 +2253,12 @@
         
         returnValue = cell;
     }
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:-1 inSection:rowSection];
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:-1 inSection:columnSection];
+//    [returnValue._tapGesture removeTarget:nil action:NULL];
+//    [returnValue._tapGesture addTarget:self action:@selector(_selectCell:)];
     
     [returnValue setNeedsLayout];
     
@@ -2212,6 +2286,12 @@
         
         returnValue = cell;
     }
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = rowPath;
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:-1 inSection:section];
+//    [returnValue._tapGesture removeTarget:nil action:NULL];
+//    [returnValue._tapGesture addTarget:self action:@selector(_selectCell:)];
     
     [returnValue setNeedsLayout];
     
@@ -2239,6 +2319,12 @@
         
         returnValue = cell;
     }
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:-1 inSection:section];
+    returnValue._columnPath = columnPath;
+//    [returnValue._tapGesture removeTarget:nil action:NULL];
+//    [returnValue._tapGesture addTarget:self action:@selector(_selectCell:)];
     
     [returnValue setNeedsLayout];
     
@@ -2266,57 +2352,111 @@
         
         returnValue = cell;
     }
-	
-	[returnValue setIndexes:[NSArray arrayWithObjects:rowPath, columnPath, nil]];
     
-    [returnValue.tapGesture removeTarget:nil action:NULL];
-    [returnValue.tapGesture addTarget:self action:@selector(_selectedRow:)];
+    returnValue.spreadView = self;
+	returnValue._rowPath = rowPath;
+    returnValue._columnPath = columnPath;
 	
     [returnValue setNeedsLayout];
     
     return returnValue;
 }
 
-- (void)_selectedRow:(id)sender
+#pragma mark - Selection
+
+- (BOOL)_touchesBeganInCell:(MDSpreadViewCell *)cell
 {
-	MDSpreadViewCell *cell = (MDSpreadViewCell *)[sender view];
-	if ([[cell indexes] count] > 1) {
-        [self _didSelectCellForRowAtIndexPath:[[cell indexes] objectAtIndex:0]
-                               forColumnIndex:[[cell indexes] objectAtIndex:1]];
-	}
+    if (!allowsSelection) return NO;
+    
+    MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:cell._rowPath column:cell._columnPath mode:self.selectionMode];
+    self._currentSelection = [self _willSelectCellForSelection:selection];
+    
+    if (self._currentSelection) {
+//        [cell setHighlighted:YES animated:NO];
+        
+        [self _addSelection:self._currentSelection];
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
+- (void)_touchesEndedInCell:(MDSpreadViewCell *)cell
+{
+    [self _addSelection:[MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
+                                                             column:self._currentSelection.columnPath
+                                                               mode:self._currentSelection.selectionMode]];
+    [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
+    self._currentSelection = nil;
+}
 
-//
-//- (void)tableView:(MDSectionedTableView *)tableView didSelectRow:(NSUInteger)row inSection:(NSUInteger)section
-//{
-//    if (delegate && [delegate respondsToSelector:@selector(tableView:didSelectRow:inSection:)])
-//        [delegate tableView:tableView didSelectRow:row inSection:section];
-//}
+- (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
+{
+//    [cell setHighlighted:NO animated:NO];
+    [self _removeSelection:self._currentSelection];
+    self._currentSelection = nil;
+}
 
-#pragma mark - Selection
+- (void)_addSelection:(MDSpreadViewSelection *)selection
+{
+    if (selection != _currentSelection) {
+        NSUInteger index = [_selectedCells indexOfObject:selection];
+        if (index != NSNotFound) {
+            [_selectedCells replaceObjectAtIndex:index withObject:selection];
+        } else {
+            [_selectedCells addObject:selection];
+        }
+    }
+    
+    if (!allowsMultipleSelection) {
+        NSMutableArray *bucket = [[NSMutableArray alloc] initWithCapacity:_selectedCells.count];
+        
+        for (MDSpreadViewSelection *oldSelection in _selectedCells) {
+            if (oldSelection != selection) {
+                [bucket addObject:oldSelection];
+            }
+        }
+        
+        for (MDSpreadViewSelection *oldSelection in bucket) {
+            [self _removeSelection:oldSelection];
+        }
+        
+        [bucket release];
+    }
+}
+
+- (void)_removeSelection:(MDSpreadViewSection *)selection
+{
+    [_selectedCells removeObject:selection];
+}
+
+- (void)selectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSelectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition
+{
+    [self _addSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:mode]];
+    
+//    if (mode != MDSpreadViewScrollPositionNone) {
+//        [self scrollToCell...];
+//    }
+}
+
+- (void)deselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath animated:(BOOL)animated
+{
+    [self _removeSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:MDSpreadViewSelectionModeNone]];
+}
+
+- (MDSpreadViewSelection *)_willSelectCellForSelection:(MDSpreadViewSelection *)selection
+{
+    if ([self.delegate respondsToSelector:@selector(spreadView:willSelectCellForSelection:)])
+        selection = [self.delegate spreadView:self willSelectCellForSelection:selection];
+    
+    return selection;
+}
 
 - (void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
 {
-	if ([self.delegate respondsToSelector:@selector(spreadView:didSelectRowAtIndexPath:forColumnAtIndexPath:)])
+	if ([self.delegate respondsToSelector:@selector(spreadView:didSelectCellForRowAtIndexPath:forColumnAtIndexPath:)])
 		[self.delegate spreadView:self didSelectCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
-	
 }
 
-
-- (MDIndexPath *)indexPathForSelectedRow
-{
-    return [MDIndexPath indexPathForRow:selectedRow inSection:selectedSection];
-}
-
-//- (void)selectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(UITableViewScrollPosition)scrollPosition
-//{
-//    
-//}
-//
-//- (void)deselectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated
-//{
-//    
-//}
 
 @end

@@ -83,6 +83,7 @@
 		self.textLabel.textColor = [UIColor whiteColor];
 		self.textLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
 		self.textLabel.shadowOffset = CGSizeMake(0, 1);
+        self.textLabel.highlightedTextColor = [UIColor whiteColor];
     }
     return self;
 }

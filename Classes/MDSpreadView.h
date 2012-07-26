@@ -59,6 +59,7 @@ typedef enum {
 @protocol MDSpreadViewDataSource;
 @class MDSpreadViewCell;
 @class MDIndexPath;
+@class MDSpreadViewSelection;
 
 #pragma mark - MDSpreadViewDelegate
 
@@ -87,15 +88,13 @@ typedef enum {
 
 // Selection
 
-// Called before the user changes the selection. Return a new indexPath, or nil, to change the proposed selection.
-- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
-- (MDIndexPath *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+// Called before the user changes the selection. Return an array, or nil, to change the proposed selection.
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willSelectCellForSelection:(MDSpreadViewSelection *)selection;
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellForSelection:(MDSpreadViewSelection *)selection __attribute__((unavailable));
 
 // Called after the user changes the selection.
-- (void)spreadView:(MDSpreadView *)aSpreadView didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
-- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
-
-- (MDSpreadViewSelectionMode)spreadView:(MDSpreadView *)aSpreadView selectionModeForRowAtIndexPath:(MDIndexPath *)indexPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView didSelectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
 
 // Copy/Paste.  All three methods must be implemented by the delegate.
 
@@ -133,9 +132,6 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 //    MDIndexPath *_headerRowIndexPath;
 //    MDIndexPath *_headerColumnIndexPath;
     
-    NSUInteger selectedRow;
-    NSUInteger selectedSection;
-    
     NSMutableArray *_rowSections;
     NSMutableArray *_columnSections;
     
@@ -149,6 +145,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     BOOL implementsColumnWidth;
     BOOL implementsColumnHeaderWidth;
     
+    NSMutableArray *_selectedCells;
+    MDSpreadViewSelection *_currentSelection;
+    
     MDSpreadViewSelectionMode selectionMode;
     NSMutableArray *sortDescriptors;
     
@@ -158,6 +157,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     Class _defaultCellClass;
     
     BOOL _didSetReloadData;
+    
+    BOOL allowsSelection;
+    BOOL allowsMultipleSelection;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
@@ -209,11 +211,11 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 // Selection
 
-@property (nonatomic) MDSpreadViewSelectionMode selectionMode __attribute__((unavailable));
+@property (nonatomic) MDSpreadViewSelectionMode selectionMode;
 // the default selection mode. defaults to MDSpreadViewSelectionModeNone
-@property (nonatomic) BOOL allowsSelection __attribute__((unavailable));
+@property (nonatomic) BOOL allowsSelection;
 // default is YES. Controls whether rows can be selected when not in editing mode
-@property (nonatomic) BOOL allowsMultipleSelection __attribute__((unavailable));
+@property (nonatomic) BOOL allowsMultipleSelection;
 // default is NO. Controls whether multiple rows can be selected simultaneously
 
 - (MDIndexPath *)rowIndexPathForSelectedCell __attribute__((unavailable));
@@ -225,8 +227,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 - (NSArray *)columnIndexPathsForSelectedCells __attribute__((unavailable));
 // returns nil or a set of index paths representing the sections and rows of the selection.
 
-- (void)selectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition __attribute__((unavailable));
-- (void)deselectRowAtIndexPath:(MDIndexPath *)indexPath animated:(BOOL)animated __attribute__((unavailable));
+- (void)selectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSelectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition;
+// scroll position only works with MDSpreadViewScrollPositionNone for now
+- (void)deselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath animated:(BOOL)animated;
 
 // Appearance
 
@@ -323,6 +326,20 @@ enum {MDSpreadViewSelectWholeSpreadView = -1};
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView;
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView;
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView;
+
+@end
+
+@interface MDSpreadViewSelection : NSObject {
+    MDIndexPath *rowPath;
+    MDIndexPath *columnPath;
+    MDSpreadViewSelectionMode selectionMode;
+}
+
+@property (nonatomic, retain, readonly) MDIndexPath *rowPath;
+@property (nonatomic, retain, readonly) MDIndexPath *columnPath;
+@property (nonatomic, readonly) MDSpreadViewSelectionMode selectionMode;
+
++ (id)selectionWithRow:(MDIndexPath *)row column:(MDIndexPath *)column mode:(MDSpreadViewSelectionMode)mode;
 
 @end
 
