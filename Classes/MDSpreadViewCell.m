@@ -263,7 +263,7 @@
 - (void)dealloc
 {
     [sortDescriptorPrototype release];
-    [spreadView release];
+    spreadView = nil;
     [objectValue release];
     [backgroundView release];
 	[_rowPath release];

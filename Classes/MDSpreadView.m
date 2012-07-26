@@ -768,6 +768,7 @@
         column++;
         if (column >= totalInColumnSection+1) { // +1 for eventual footer
             columnSection++;
+            if (columnSection >= [self numberOfColumnSections]) break;
             totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
             column = -1; // -1 for header
         }
@@ -838,6 +839,7 @@
         row++;
         if (row >= totalInRowSection+1) { // +1 for eventual footer
             rowSection++;
+            if (rowSection >= [self numberOfRowSections]) break;
             totalInRowSection = [self _numberOfRowsInSection:rowSection];
             row = -1; // -1 for header
         }
@@ -2113,7 +2115,7 @@
 
 - (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection
 {
-    if (rowSection < 0 || rowSection >= [self _numberOfColumnSections]) return 0;
+    if (rowSection < 0 || rowSection >= [self _numberOfRowSections]) return 0;
     
     if (implementsRowHeaderHeight && [self.delegate respondsToSelector:@selector(spreadView:heightForRowHeaderInSection:)]) {
         return [self.delegate spreadView:self heightForRowHeaderInSection:rowSection];
@@ -2140,7 +2142,7 @@
 
 - (CGFloat)_heightForRowFooterInSection:(NSInteger)rowSection
 {
-    if (rowSection < 0 || rowSection >= [self _numberOfColumnSections]) return 0;
+    if (rowSection < 0 || rowSection >= [self _numberOfRowSections]) return 0;
     
     return 0;
 }
