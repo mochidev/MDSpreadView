@@ -334,7 +334,7 @@
     self.backgroundColor = [UIColor whiteColor];
     self.directionalLockEnabled = YES;
     
-    dequeuedCells = [[NSMutableSet alloc] init];
+    _dequeuedCells = [[NSMutableSet alloc] init];
     visibleCells = [[NSMutableArray alloc] init];
     
     _headerColumnCells = [[NSMutableArray alloc] init];
@@ -401,7 +401,7 @@
     [_visibleRowIndexPath release];
     [_visibleColumnIndexPath release];
     [visibleCells release];
-    [dequeuedCells release];
+    [_dequeuedCells release];
     [super dealloc];
 }
 
@@ -654,6 +654,7 @@
     [self _layoutAddColumnCellsAfterWithOffset:offset size:boundsSize];
     [self _layoutRemoveColumnCellsAfterWithOffset:offset size:boundsSize];
     
+    [self _layoutRemoveRowCellsAfterWithOffset:offset size:boundsSize];
     [self _layoutAddRowCellsBeforeWithOffset:offset size:boundsSize];
     [self _layoutRemoveRowCellsBeforeWithOffset:offset size:boundsSize];
     [self _layoutAddRowCellsAfterWithOffset:offset size:boundsSize];
@@ -685,19 +686,17 @@
     
     for (MDSpreadViewCell *cell in _headerRowCells) {
         cell.hidden = YES;
-        [dequeuedCells addObject:cell];
-        
+        [_dequeuedCells addObject:cell];
     }
     
     for (MDSpreadViewCell *cell in _headerColumnCells) {
         cell.hidden = YES;
-        [dequeuedCells addObject:cell];
-        
+        [_dequeuedCells addObject:cell];
     }
     
     if (self._headerCornerCell) {
         self._headerCornerCell.hidden = YES;
-        [dequeuedCells addObject:self._headerCornerCell];
+        [_dequeuedCells addObject:self._headerCornerCell];
         self._headerCornerCell = nil;
     }
     
@@ -863,7 +862,7 @@
     NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
     [allVisibleCells addObjectsFromArray:_headerColumnCells];
     [allVisibleCells addObjectsFromArray:_headerRowCells];
-    [allVisibleCells addObject:self._headerCornerCell];
+    if (self._headerCornerCell) [allVisibleCells addObject:self._headerCornerCell];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;
@@ -1305,30 +1304,72 @@
 {
     CGFloat height = 0;
     MDIndexPath *lastIndexPath = nil;
+    MDIndexPath *last2IndexPath = nil;
     MDIndexPath *nextIndexPath = nil;
     
-    if (visibleCells.count) {
-    @autoreleasepool {
+    if (visibleCells.count) @autoreleasepool {
         lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
         height = [self _heightForRowAtIndexPath:lastIndexPath];
+        
+//        NSLog(@"Removing From %@", lastIndexPath);
         
         while (visibleBounds.origin.y+visibleBounds.size.height-height > offset.y+size.height) { // delete bottom most row
             if (lastIndexPath.section == 0 && lastIndexPath.row < -1) break;
             
             visibleBounds.size.height -= height;
-            if (visibleBounds.size.height < 0) visibleBounds.size.height = 0;
+            if (visibleBounds.size.height < 0) {
+                visibleBounds.origin.y += visibleBounds.size.height;
+                visibleBounds.size.height = 0;
+            }
             
-            [self _clearCellsForRowAtIndexPath:lastIndexPath];
+            if ([[visibleCells objectAtIndex:0] count] > 0) {
+                [self _clearCellsForRowAtIndexPath:lastIndexPath];
+            }
+//            } else {
+//                NSInteger rowSection = self._visibleRowIndexPath.section;
+//                NSInteger row = self._visibleRowIndexPath.row-1;
+//                
+//                if (row < -1) {
+//                    rowSection--;
+//                    row = [self _numberOfRowsInSection:rowSection];
+//                    
+//                    if (rowSection < 0) {
+//                        rowSection = 0;
+//                        row = -1;
+//                    }
+//                }
+//                
+//                self._visibleRowIndexPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
+//            }
             
-            //                NSLog(@"Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
-            //                NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+//                NSLog(@"Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
+//                NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
             
-            nextIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+            NSInteger rowSection = lastIndexPath.section;
+            NSInteger row = lastIndexPath.row-1;
+            
+            if (row < -1) {
+                rowSection--;
+                row = [self _numberOfRowsInSection:rowSection];
+                
+                if (rowSection < 0) {
+                    rowSection = 0;
+                    row = -1;
+                }
+            }
+            
+            nextIndexPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
+            last2IndexPath = lastIndexPath;
             if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
             lastIndexPath = nextIndexPath;
             height = [self _heightForRowAtIndexPath:lastIndexPath];
         }
-    }
+        if ([[visibleCells objectAtIndex:0] count] == 0) {
+            self._visibleRowIndexPath = last2IndexPath;
+        }
+        
+//        NSLog(@"           To %@", lastIndexPath);
+//        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
     }
 }
 
@@ -1671,7 +1712,15 @@
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
     MDSpreadViewCell *dequeuedCell = nil;
-    for (MDSpreadViewCell *aCell in dequeuedCells) {
+//    NSUInteger _reuseHash = [identifier hash];
+//    for (MDSpreadViewCell *aCell in _dequeuedCells) {
+//        if (aCell->_reuseHash == _reuseHash) {
+//            dequeuedCell = aCell;
+//            break;
+//        }
+//    }
+    
+    for (MDSpreadViewCell *aCell in _dequeuedCells) {
         if ([aCell.reuseIdentifier isEqualToString:identifier]) {
             dequeuedCell = aCell;
             break;
@@ -1679,7 +1728,7 @@
     }
     if (dequeuedCell) {
         [dequeuedCell retain];
-        [dequeuedCells removeObject:dequeuedCell];
+        [_dequeuedCells removeObject:dequeuedCell];
         [dequeuedCell prepareForReuse];
     }
     return [dequeuedCell autorelease];
@@ -1976,7 +2025,7 @@
     if (!cell) return;
 //    [cell removeFromSuperview];
     cell.hidden = YES;
-    [dequeuedCells addObject:cell];
+    [_dequeuedCells addObject:cell];
 }
 
 - (void)_clearCellsForColumnAtIndexPath:(MDIndexPath *)columnPath
@@ -1993,7 +2042,7 @@
         if ((NSNull *)cell != [NSNull null]) {
 //            [cell removeFromSuperview];
             cell.hidden = YES;
-            [dequeuedCells addObject:cell];
+            [_dequeuedCells addObject:cell];
         }
     }
     
@@ -2034,7 +2083,7 @@
             if ((NSNull *)cell != [NSNull null]) {
 //                [cell removeFromSuperview];
                 cell.hidden = YES;
-                [dequeuedCells addObject:cell];
+                [_dequeuedCells addObject:cell];
             }
             
             [column removeObjectAtIndex:yIndex];
@@ -2044,7 +2093,7 @@
             if ((NSNull *)cell != [NSNull null]) {
 //                [cell removeFromSuperview];
                 cell.hidden = YES;
-                [dequeuedCells addObject:cell];
+                [_dequeuedCells addObject:cell];
             }
             
             [column replaceObjectAtIndex:yIndex withObject:[NSNull null]];
@@ -2091,7 +2140,7 @@
     
 //    [cell removeFromSuperview];
     cell.hidden = YES;
-    [dequeuedCells addObject:cell];
+    [_dequeuedCells addObject:cell];
 }
 
 - (void)_clearAllCells
@@ -2101,7 +2150,7 @@
             if ((NSNull *)cell != [NSNull null]) {
 //                [cell removeFromSuperview];
                 cell.hidden = YES;
-                [dequeuedCells addObject:cell];
+                [_dequeuedCells addObject:cell];
             }
         }
     }
@@ -2459,7 +2508,7 @@
     NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
     [allVisibleCells addObjectsFromArray:_headerColumnCells];
     [allVisibleCells addObjectsFromArray:_headerRowCells];
-    [allVisibleCells addObject:self._headerCornerCell];
+    if (self._headerCornerCell) [allVisibleCells addObject:self._headerCornerCell];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;
@@ -2494,7 +2543,7 @@
     NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
     [allVisibleCells addObjectsFromArray:_headerColumnCells];
     [allVisibleCells addObjectsFromArray:_headerRowCells];
-    [allVisibleCells addObject:self._headerCornerCell];
+    if (self._headerCornerCell) [allVisibleCells addObject:self._headerCornerCell];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;

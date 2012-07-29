@@ -62,6 +62,8 @@ typedef enum {
 } MDSpreadViewSortAxis;
 
 @interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {
+  @public
+    NSUInteger _reuseHash;
   @private
     MDSpreadView *spreadView;
     
