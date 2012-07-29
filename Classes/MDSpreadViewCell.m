@@ -302,12 +302,14 @@
 
 - (void)setObjectValue:(id)anObject
 {
-    [anObject retain];
-    [objectValue release];
-    objectValue = anObject;
+    if (anObject != objectValue) {
+        [anObject retain];
+        [objectValue release];
+        objectValue = anObject;
     
-    if ([objectValue respondsToSelector:@selector(description)]) {
-        self.textLabel.text = [objectValue description];
+        if ([objectValue respondsToSelector:@selector(description)]) {
+            self.textLabel.text = [objectValue description];
+        }
     }
 }
 

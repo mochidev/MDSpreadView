@@ -303,6 +303,14 @@
 
 @implementation MDSpreadView
 
++ (NSDictionary *)MDAboutControllerTextCreditDictionary
+{
+    if (self == [MDSpreadView class]) {
+        return [NSDictionary dictionaryWithObjectsAndKeys:@"Tables powered by MDSpreadView, available free on GitHub!", @"Text", @"https://github.com/mochidev/MDSpreadViewDemo", "Link", nil];
+    }
+    return nil;
+}
+
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
