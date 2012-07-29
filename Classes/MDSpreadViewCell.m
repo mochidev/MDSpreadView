@@ -168,6 +168,17 @@
     return self;
 }
 
+- (void)setReuseIdentifier:(NSString *)anIdentifier
+{
+    if (reuseIdentifier != anIdentifier) {
+        [anIdentifier retain];
+        [reuseIdentifier release];
+        reuseIdentifier = anIdentifier;
+        
+        _reuseHash = [reuseIdentifier hash];
+    }
+}
+
 - (void)_handleTap:(UIGestureRecognizer *)gesture
 {
     if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -263,19 +274,29 @@
 
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
 {
-    highlighted = isHighlighted;
-    
-    textLabel.opaque = !isHighlighted;
-    detailTextLabel.opaque = !isHighlighted;
-    if (highlighted) {
-        textLabel.backgroundColor = [UIColor clearColor];
-        detailTextLabel.backgroundColor = [UIColor clearColor];
-    } else {
-        textLabel.backgroundColor = [UIColor whiteColor];
-        detailTextLabel.backgroundColor = [UIColor whiteColor];
-    }
-    if (animated) {
-        [UIView animateWithDuration:0.2 animations:^{
+//    if (highlighted != isHighlighted) {
+        highlighted = isHighlighted;
+        
+        textLabel.opaque = !isHighlighted;
+        detailTextLabel.opaque = !isHighlighted;
+        if (highlighted) {
+            textLabel.backgroundColor = [UIColor clearColor];
+            detailTextLabel.backgroundColor = [UIColor clearColor];
+        } else {
+            textLabel.backgroundColor = [UIColor whiteColor];
+            detailTextLabel.backgroundColor = [UIColor whiteColor];
+        }
+        if (animated) {
+            [UIView animateWithDuration:0.2 animations:^{
+                if (highlighted) {
+                    highlightedBackgroundView.alpha = 1;
+                } else {
+                    highlightedBackgroundView.alpha = 0;
+                }
+                textLabel.highlighted = highlighted;
+                detailTextLabel.highlighted = highlighted;
+            }];
+        } else {
             if (highlighted) {
                 highlightedBackgroundView.alpha = 1;
             } else {
@@ -283,16 +304,8 @@
             }
             textLabel.highlighted = highlighted;
             detailTextLabel.highlighted = highlighted;
-        }];
-    } else {
-        if (highlighted) {
-            highlightedBackgroundView.alpha = 1;
-        } else {
-            highlightedBackgroundView.alpha = 0;
         }
-        textLabel.highlighted = highlighted;
-        detailTextLabel.highlighted = highlighted;
-    }
+//    }
 }
 
 - (id)objectValue

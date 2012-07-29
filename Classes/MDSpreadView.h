@@ -117,7 +117,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     CGFloat columnWidth;
     CGFloat sectionColumnHeaderWidth;
     
-    NSMutableSet *dequeuedCells;
+    NSMutableSet *_dequeuedCells;
     
     NSMutableArray *visibleCells; // array of array
     MDIndexPath *_visibleRowIndexPath;
