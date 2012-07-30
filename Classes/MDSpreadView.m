@@ -306,7 +306,7 @@
 + (NSDictionary *)MDAboutControllerTextCreditDictionary
 {
     if (self == [MDSpreadView class]) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:@"Tables powered by MDSpreadView, available free on GitHub!", @"Text", @"https://github.com/mochidev/MDSpreadViewDemo", "Link", nil];
+        return [NSDictionary dictionaryWithObjectsAndKeys:@"Tables powered by MDSpreadView, available free on GitHub!", @"Text", @"https://github.com/mochidev/MDSpreadViewDemo", @"Link", nil];
     }
     return nil;
 }
@@ -675,7 +675,7 @@
         cell.hidden = !(cell.bounds.size.width && cell.bounds.size.height);
     }
 
-    if (_visibleColumnIndexPath.column == -1) {
+    if (_visibleColumnIndexPath.column == -1 && [visibleCells count] > 0) {
         NSMutableArray *headerColumn = [visibleCells objectAtIndex:0];
         for (MDSpreadViewCell *cell in headerColumn) {
             if ((NSNull *)cell != [NSNull null]) {
@@ -686,9 +686,11 @@
     
     if (_visibleRowIndexPath.row == -1) {
         for (NSMutableArray *column in visibleCells) {
-            MDSpreadViewCell *cell = [column objectAtIndex:0];
-            if ((NSNull *)cell != [NSNull null]) {
-                cell.hidden = YES;
+            if ([column count] > 0) {
+                MDSpreadViewCell *cell = [column objectAtIndex:0];
+                if ((NSNull *)cell != [NSNull null]) {
+                    cell.hidden = YES;
+                }
             }
         }
     }
