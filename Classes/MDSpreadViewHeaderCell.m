@@ -97,10 +97,12 @@
 
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
 {
-    [super setHighlighted:isHighlighted animated:animated];
+    if (self.highlighted != isHighlighted) {
+        [super setHighlighted:isHighlighted animated:animated];
     
-    self.textLabel.opaque = NO;
-    self.textLabel.backgroundColor = [UIColor clearColor];
+        self.textLabel.opaque = NO;
+        self.textLabel.backgroundColor = [UIColor clearColor];
+    }
 }
 - (BOOL)isAccessibilityElement
 {

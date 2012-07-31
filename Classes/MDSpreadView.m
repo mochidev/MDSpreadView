@@ -822,9 +822,9 @@
 {
     [super layoutSubviews];
     
-    [CATransaction begin];
-    [CATransaction setAnimationDuration:0];
-    [CATransaction setDisableActions:YES];
+//    [CATransaction begin];
+//    [CATransaction setAnimationDuration:0];
+//    [CATransaction setDisableActions:YES];
     
     CGPoint offset = self.contentOffset;
     CGSize boundsSize = self.bounds.size;
@@ -1033,7 +1033,7 @@
         }
     }
     
-    [CATransaction commit];
+//    [CATransaction commit];
 }
 
 - (void)_layoutAddColumnCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
@@ -1128,7 +1128,8 @@
 
                     [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
 
-                    [self insertSubview:cell belowSubview:anchor];
+                    if ([cell superview] != self)
+                        [self insertSubview:cell belowSubview:anchor];
                     [_headerRowCells insertObject:cell atIndex:0];
                     self._headerColumnIndexPath = columnPath;
                 }
@@ -1232,7 +1233,8 @@
                 
                 [self _willDisplayCell:cell forRowAtIndexPath:[MDIndexPath indexPathForRow:-1 inSection:rowSection] forColumnAtIndexPath:columnPath];
                 
-                [self insertSubview:cell belowSubview:anchor];
+                if ([cell superview] != self)
+                    [self insertSubview:cell belowSubview:anchor];
                 [_headerRowCells addObject:cell];
             }
         }
@@ -1540,7 +1542,8 @@
                     
                     [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
                     
-                    [self insertSubview:cell belowSubview:anchor];
+                    if ([cell superview] != self)
+                        [self insertSubview:cell belowSubview:anchor];
                     [_headerColumnCells insertObject:cell atIndex:0];
                     self._headerRowIndexPath = rowPath;
                 }
@@ -1643,7 +1646,8 @@
                 
                 [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
                 
-                [self insertSubview:cell belowSubview:anchor];
+                if ([cell superview] != self)
+                    [self insertSubview:cell belowSubview:anchor];
                 [_headerColumnCells addObject:cell];
             }
         }
@@ -1855,9 +1859,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         row++;
         if (row >= totalInRowSection+1) { // +1 for eventual footer
@@ -1904,9 +1908,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         row++;
         if (row >= totalInRowSection+1) { // +1 for eventual footer
@@ -1953,9 +1957,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         row++;
         if (row >= totalInRowSection+1) { // +1 for eventual footer
@@ -2001,9 +2005,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         column++;
         if (column >= totalInColumnSection+1) { // +1 for eventual footer
@@ -2050,9 +2054,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         column++;
         if (column >= totalInColumnSection+1) { // +1 for eventual footer
@@ -2098,9 +2102,9 @@
         
         [self _willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
         
-//        if ([cell superview] != self) {
+        if ([cell superview] != self) {
             [self insertSubview:cell belowSubview:anchor];
-//        }
+        }
         
         column++;
         if (column >= totalInColumnSection+1) { // +1 for eventual footer
@@ -2159,20 +2163,20 @@
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier
 {
     MDSpreadViewCell *dequeuedCell = nil;
-//    NSUInteger _reuseHash = [identifier hash];
-//    for (MDSpreadViewCell *aCell in _dequeuedCells) {
-//        if (aCell->_reuseHash == _reuseHash) {
-//            dequeuedCell = aCell;
-//            break;
-//        }
-//    }
-    
+    NSUInteger _reuseHash = [identifier hash];
     for (MDSpreadViewCell *aCell in _dequeuedCells) {
-        if ([aCell.reuseIdentifier isEqualToString:identifier]) {
+        if (aCell->_reuseHash == _reuseHash) {
             dequeuedCell = aCell;
             break;
         }
     }
+    
+//    for (MDSpreadViewCell *aCell in _dequeuedCells) {
+//        if ([aCell.reuseIdentifier isEqualToString:identifier]) {
+//            dequeuedCell = aCell;
+//            break;
+//        }
+//    }
     if (dequeuedCell) {
         [dequeuedCell retain];
         [_dequeuedCells removeObject:dequeuedCell];

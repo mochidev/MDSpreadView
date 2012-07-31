@@ -275,7 +275,7 @@
 
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
 {
-//    if (highlighted != isHighlighted) {
+    if (highlighted != isHighlighted) {
         highlighted = isHighlighted;
         
         textLabel.opaque = !isHighlighted;
@@ -306,7 +306,7 @@
             textLabel.highlighted = highlighted;
             detailTextLabel.highlighted = highlighted;
         }
-//    }
+    }
 }
 
 - (id)objectValue
