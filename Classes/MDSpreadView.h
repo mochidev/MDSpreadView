@@ -55,6 +55,12 @@ typedef enum {
     MDSpreadViewSelectionModeRowAndColumn
 } MDSpreadViewSelectionMode;
 
+typedef enum {
+    MDSpreadViewCellDomainHeaders = -1,
+    MDSpreadViewCellDomainCells = 0,
+    MDSpreadViewCellDomainFooters = 1
+} MDSpreadViewCellDomain;
+
 @class MDSpreadView;
 @protocol MDSpreadViewDataSource;
 @class MDSpreadViewCell;
@@ -127,10 +133,10 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableArray *_headerRowCells;
     NSMutableArray *_headerColumnCells;
     MDSpreadViewCell *_headerCornerCell;
-//    CGRect _headerBounds;
-//    
-//    MDIndexPath *_headerRowIndexPath;
-//    MDIndexPath *_headerColumnIndexPath;
+    CGRect _headerBounds;
+    
+    MDIndexPath *_headerRowIndexPath;
+    MDIndexPath *_headerColumnIndexPath;
     
     NSMutableArray *_rowSections;
     NSMutableArray *_columnSections;
