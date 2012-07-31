@@ -689,6 +689,8 @@
     self._visibleColumnIndexPath = nil;
     self._visibleRowIndexPath = nil;
     
+    CGPoint offset = self.contentOffset;
+    
     NSMutableArray *newColumnSections = [[NSMutableArray alloc] init];
     
     for (NSUInteger i = 0; i < numberOfColumnSections; i++) {
@@ -700,24 +702,29 @@
         sectionDescriptor.numberOfCells = numberOfColumns;
         sectionDescriptor.offset = totalWidth;
         
-        totalWidth += [self _widthForColumnHeaderInSection:i];
+        CGFloat width = [self _widthForColumnHeaderInSection:i];
         
-        if (!_visibleColumnIndexPath && totalWidth > visibleBounds.origin.x) {
+        totalWidth += width;
+        
+        if (!_visibleColumnIndexPath && totalWidth > offset.x) {
             self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:-1 inSection:i];
+            visibleBounds.origin.x = totalWidth-width;
         }
         
         for (NSUInteger j = 0; j < numberOfColumns; j++) {
-            totalWidth += [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:j inSection:i]];
+            CGFloat width = [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:j inSection:i]];
+            totalWidth += width;
             
-            if (!_visibleColumnIndexPath && totalWidth > visibleBounds.origin.x) {
+            if (!_visibleColumnIndexPath && totalWidth > offset.x) {
                 self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:j inSection:i];
+                visibleBounds.origin.x = totalWidth-width;
             }
         }
         
         sectionDescriptor.size = totalWidth - sectionDescriptor.offset;
     }
     
-    // actually compare it at some point or something
+    // actually compare it at some point or something... not sure why actually
     self._columnSections = newColumnSections;
     [newColumnSections release];
     
@@ -732,17 +739,22 @@
         sectionDescriptor.numberOfCells = numberOfRows;
         sectionDescriptor.offset = totalHeight;
         
-        totalHeight += [self _heightForRowHeaderInSection:i];
+        CGFloat height = [self _heightForRowHeaderInSection:i];
         
-        if (!_visibleRowIndexPath && totalHeight > visibleBounds.origin.y) {
+        totalHeight += height;
+        
+        if (!_visibleRowIndexPath && totalHeight > offset.y) {
             self._visibleRowIndexPath = [MDIndexPath indexPathForRow:-1 inSection:i];
+            visibleBounds.origin.y = totalHeight-height;
         }
         
         for (NSUInteger j = 0; j < numberOfRows; j++) {
-            totalHeight += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
+            height = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
+            totalHeight += height;
             
-            if (!_visibleRowIndexPath && totalHeight > visibleBounds.origin.y) {
+            if (!_visibleRowIndexPath && totalHeight > offset.y) {
                 self._visibleRowIndexPath = [MDIndexPath indexPathForRow:j inSection:i];
+                visibleBounds.origin.y = totalHeight-height;
             }
         }
         
@@ -762,7 +774,7 @@
         self._visibleRowIndexPath = [MDIndexPath indexPathForRow:-1 inSection:0];
     }
     
-    self.contentOffset = visibleBounds.origin;
+//    self.contentOffset = visibleBounds.origin;
     self.contentSize = CGSizeMake(totalWidth-1, totalHeight-1);
     
     self._headerRowIndexPath = nil;
