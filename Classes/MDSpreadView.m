@@ -2955,7 +2955,8 @@
     }
     
     
-    NSArray *allSelections = [_selectedCells arrayByAddingObject:_currentSelection];
+    NSMutableArray *allSelections = [[_selectedCells mutableCopy] autorelease];
+    if (_currentSelection) [allSelections addObject:_currentSelection];
     NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
     [allVisibleCells addObjectsFromArray:_headerColumnCells];
     [allVisibleCells addObjectsFromArray:_headerRowCells];
