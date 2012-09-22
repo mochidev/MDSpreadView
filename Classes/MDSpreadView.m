@@ -1670,6 +1670,7 @@
             visibleBounds.origin.y += height;
             
             if (lastIndexPath.row == -1) {
+                if (lastIndexPath.section >= [_rowSections count]) break; // NOT A VERY GOOD FIX!!!
                 visibleBounds.origin.y = [[_rowSections objectAtIndex:lastIndexPath.section] offset] + height;
             }
             
