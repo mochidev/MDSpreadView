@@ -1670,6 +1670,7 @@
             visibleBounds.origin.y += height;
             
             if (lastIndexPath.row == -1) {
+                if (lastIndexPath.section >= [_rowSections count]) break; // NOT A VERY GOOD FIX!!!
                 visibleBounds.origin.y = [[_rowSections objectAtIndex:lastIndexPath.section] offset] + height;
             }
             
@@ -2955,7 +2956,8 @@
     }
     
     
-    NSArray *allSelections = [_selectedCells arrayByAddingObject:_currentSelection];
+    NSMutableArray *allSelections = [[_selectedCells mutableCopy] autorelease];
+    if (_currentSelection) [allSelections addObject:_currentSelection];
     NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
     [allVisibleCells addObjectsFromArray:_headerColumnCells];
     [allVisibleCells addObjectsFromArray:_headerRowCells];
