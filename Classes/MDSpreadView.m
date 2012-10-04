@@ -479,7 +479,7 @@
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath, _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections, _currentSelection, allowsMultipleSelection, allowsSelection;
+@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath, _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections, _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
 @synthesize defaultCellClass=_defaultCellClass;
 @synthesize defaultHeaderColumnCellClass=_defaultHeaderColumnCellClass;
 @synthesize defaultHeaderRowCellClass=_defaultHeaderRowCellClass;

@@ -61,6 +61,18 @@ typedef enum {
     MDSpreadViewCellDomainFooters = 1
 } MDSpreadViewCellDomain;
 
+typedef enum {
+    MDSpreadViewCellResizingNone,
+    MDSpreadViewCellResizingUniform,
+    MDSpreadViewCellResizingCellsOnly,
+    MDSpreadViewCellResizingHeadersOnly,
+    MDSpreadViewCellResizingFootersOnly,
+    MDSpreadViewCellResizingFirstHeader,
+    MDSpreadViewCellResizingLastFooter,
+    MDSpreadViewCellResizingFirstCell,
+    MDSpreadViewCellResizingLastCell
+} MDSpreadViewCellResizing;
+
 @class MDSpreadView;
 @protocol MDSpreadViewDataSource;
 @class MDSpreadViewCell;
@@ -166,6 +178,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     BOOL allowsSelection;
     BOOL allowsMultipleSelection;
+    
+    MDSpreadViewCellResizing columnResizing;
+    MDSpreadViewCellResizing rowResizing;
 }
 
 @property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
@@ -182,6 +197,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic) Class defaultHeaderColumnCellClass;
 @property (nonatomic) Class defaultHeaderRowCellClass;
 @property (nonatomic) Class defaultCellClass;
+
+@property (nonatomic) MDSpreadViewCellResizing columnResizing __attribute__((unavailable));
+@property (nonatomic) MDSpreadViewCellResizing rowResizing __attribute__((unavailable));
 
 @property (nonatomic, readwrite, retain) UIView *backgroundView __attribute__((unavailable)); // the background view will be automatically resized to track the size of the table view.  this will be placed as a subview of the table view behind all cells and headers/footers.  default may be non-nil for some devices.
 
