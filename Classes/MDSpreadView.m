@@ -1246,17 +1246,13 @@
 
 - (void)_layoutRemoveColumnCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
-    if (domain == MDSpreadViewCellDomainCells) {
-    @autoreleasepool {
-        CGFloat width = 0;
-        MDIndexPath *indexPathToRemove = [[self._visibleColumnIndexPath retain] autorelease];
-        MDIndexPath *nextIndexPathToRemove = nil;
+    CGFloat width = 0;
+    MDIndexPath *indexPathToRemove = nil;
+    MDIndexPath *nextIndexPathToRemove = nil;
     
-        NSUInteger numberOfColumnSections = [self _numberOfColumnSections];
+    if (domain == MDSpreadViewCellDomainCells) @autoreleasepool {
+        indexPathToRemove = [[self._visibleColumnIndexPath retain] autorelease];
         width = [self _widthForColumnAtIndexPath:indexPathToRemove];
-        
-//        NSLog(@"Removing From %@", indexPathToRemove);
-//        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
         
         while (visibleBounds.origin.x+width < offset.x) { // delete left most column
             visibleBounds.size.width -= width;
@@ -1270,21 +1266,7 @@
             if (visibleCells.count > 0)
                 [self _clearCellsForColumnAtIndexPath:indexPathToRemove];
             
-            NSInteger columnSection = indexPathToRemove.section;
-            NSInteger column = indexPathToRemove.column+1;
-            NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
-            
-            if (column >= totalInColumnSection+1) {
-                columnSection++;
-                column = -1; // -1 for header
-                
-                if (columnSection >= numberOfColumnSections) {
-                    columnSection = numberOfColumnSections-1;
-                    column = totalInColumnSection;
-                }
-            }
-            
-            nextIndexPathToRemove = [MDIndexPath indexPathForColumn:column inSection:columnSection];
+            nextIndexPathToRemove = [indexPathToRemove indexPathWithColumnOffset:1 inSpreadView:self guard:YES];
             if ([indexPathToRemove isEqualToIndexPath:nextIndexPathToRemove]) break;
             
             indexPathToRemove = nextIndexPathToRemove;
@@ -1293,70 +1275,51 @@
         
         if (visibleCells.count == 0)
             self._visibleColumnIndexPath = indexPathToRemove;
-    
-//        NSLog(@"           To %@ (%@)", indexPathToRemove, self._visibleColumnIndexPath);
-//        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
-    }
-    } else if (domain == MDSpreadViewCellDomainHeaders) {
-        @autoreleasepool {
-            CGFloat width = 0;
-            MDIndexPath *indexPathToRemove = [[self._headerColumnIndexPath retain] autorelease];
-            MDIndexPath *nextIndexPathToRemove = nil;
+        
+    } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
+        indexPathToRemove = [[self._headerColumnIndexPath retain] autorelease];
+        width = [self _widthForColumnAtIndexPath:indexPathToRemove];
+        
+        while (_headerBounds.origin.x+width < offset.x) { // delete left most column
+            _headerBounds.size.width -= width;
+            if (_headerBounds.size.width < 0) _headerBounds.size.width = 0;
+            _headerBounds.origin.x += width;
             
-            width = [self _widthForColumnAtIndexPath:indexPathToRemove];
-            
-            //        NSLog(@"Removing From %@", indexPathToRemove);
-            //        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
-            
-            while (_headerBounds.origin.x+width < offset.x) { // delete left most column
-                _headerBounds.size.width -= width;
-                if (_headerBounds.size.width < 0) _headerBounds.size.width = 0;
-                _headerBounds.origin.x += width;
-                
-                if (indexPathToRemove.column == -1) {
-                    _headerBounds.origin.x = [[_columnSections objectAtIndex:indexPathToRemove.section] offset] + width;
-                }
-                
-                if (_headerRowCells.count > 0) {
-                    MDSpreadViewCell *cell = [_headerRowCells objectAtIndex:0];
-                    [_dequeuedCells addObject:cell];
-                    cell.hidden = YES;
-                    [_headerRowCells removeObjectAtIndex:0];
-                    self._headerColumnIndexPath = [indexPathToRemove indexPathWithColumnOffset:1 inSpreadView:self guard:NO];
-                }
-                
-                nextIndexPathToRemove = [indexPathToRemove indexPathWithColumnOffset:1 inSpreadView:self guard:YES];
-                if ([indexPathToRemove isEqualToIndexPath:nextIndexPathToRemove]) break;
-                
-                indexPathToRemove = nextIndexPathToRemove;
-                width = [self _widthForColumnAtIndexPath:indexPathToRemove];
+            if (indexPathToRemove.column == -1) {
+                _headerBounds.origin.x = [[_columnSections objectAtIndex:indexPathToRemove.section] offset] + width;
             }
             
-            if (_headerRowCells.count == 0)
-                self._headerColumnIndexPath = indexPathToRemove;
+            if (_headerRowCells.count > 0) {
+                MDSpreadViewCell *cell = [_headerRowCells objectAtIndex:0];
+                [_dequeuedCells addObject:cell];
+                cell.hidden = YES;
+                [_headerRowCells removeObjectAtIndex:0];
+                self._headerColumnIndexPath = [indexPathToRemove indexPathWithColumnOffset:1 inSpreadView:self guard:NO];
+            }
             
-            //        NSLog(@"           To %@ (%@)", indexPathToRemove, self._visibleColumnIndexPath);
-            //        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
+            nextIndexPathToRemove = [indexPathToRemove indexPathWithColumnOffset:1 inSpreadView:self guard:YES];
+            if ([indexPathToRemove isEqualToIndexPath:nextIndexPathToRemove]) break;
+            
+            indexPathToRemove = nextIndexPathToRemove;
+            width = [self _widthForColumnAtIndexPath:indexPathToRemove];
         }
+        
+        if (_headerRowCells.count == 0)
+            self._headerColumnIndexPath = indexPathToRemove;
     }
 }
 
 - (void)_layoutRemoveColumnCellsAfterWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
-    if (domain == MDSpreadViewCellDomainCells) {
-//    if (!self._visibleColumnIndexPath) return;
-    
     CGFloat width = 0;
     MDIndexPath *lastIndexPath = nil;
     MDIndexPath *last2IndexPath = nil;
     MDIndexPath *nextIndexPath = nil;
     
-    @autoreleasepool {
+    if (domain == MDSpreadViewCellDomainCells) @autoreleasepool {
         lastIndexPath = [self _columnIndexPathFromRelativeIndex:visibleCells.count-1];
         last2IndexPath = self._visibleColumnIndexPath;
         width = [self _widthForColumnAtIndexPath:lastIndexPath];
-        
-//        NSLog(@"Removing From %@ (%@) %@", lastIndexPath, self._visibleColumnIndexPath, NSStringFromCGRect(visibleBounds));
         
         while (visibleBounds.origin.x+visibleBounds.size.width-width > offset.x+size.width) { // delete right most column
             if (lastIndexPath.section == 0 && lastIndexPath.column < -1) break;
@@ -1374,84 +1337,62 @@
             if (visibleCells.count > 0)
                 [self _clearCellsForColumnAtIndexPath:lastIndexPath];
             
-            //            NSLog(@"Removing cell %d,%d from the right (%d columns)", lastIndexPath.section, lastIndexPath.column, visibleCells.count);
-            //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
-            
-            NSInteger columnSection = lastIndexPath.section;
-            NSInteger column = lastIndexPath.column-1;
-            
-            if (column < -1) {
-                columnSection--;
-                column = [self _numberOfColumnsInSection:columnSection];
-                
-                if (columnSection < 0) {
-                    columnSection = 0;
-                    column = -1;
-                }
-            }
-            
-            nextIndexPath = [MDIndexPath indexPathForColumn:column inSection:columnSection];
+            nextIndexPath = [lastIndexPath indexPathWithColumnOffset:-1 inSpreadView:self guard:YES];
             last2IndexPath = lastIndexPath;
             if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
             lastIndexPath = nextIndexPath;
             width = [self _widthForColumnAtIndexPath:lastIndexPath];
         }
+        
         if ([visibleCells count] == 0)
             self._visibleColumnIndexPath = last2IndexPath;
         
-//        NSLog(@"           To %@ (%@)", lastIndexPath, self._visibleColumnIndexPath);
-//        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
-    }
-    } else if (domain == MDSpreadViewCellDomainHeaders) {
-        CGFloat width = 0;
-        MDIndexPath *lastIndexPath = nil;
-        MDIndexPath *last2IndexPath = nil;
-        MDIndexPath *nextIndexPath = nil;
+    } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
+        lastIndexPath = [_headerColumnIndexPath indexPathWithColumnOffset:_headerRowCells.count-1 inSpreadView:self guard:NO];
+        last2IndexPath = self._headerColumnIndexPath;
+        width = [self _widthForColumnAtIndexPath:lastIndexPath];
         
-        @autoreleasepool {
-            lastIndexPath = [_headerColumnIndexPath indexPathWithColumnOffset:_headerRowCells.count-1 inSpreadView:self guard:NO];
-            last2IndexPath = self._headerColumnIndexPath;
-            width = [self _widthForColumnAtIndexPath:lastIndexPath];
+        while (_headerBounds.origin.x+_headerBounds.size.width-width > offset.x+size.width) { // delete right most column
+            if (lastIndexPath.section == 0 && lastIndexPath.column < -1) break;
             
-            while (_headerBounds.origin.x+_headerBounds.size.width-width > offset.x+size.width) { // delete right most column
-                if (lastIndexPath.section == 0 && lastIndexPath.column < -1) break;
+            _headerBounds.size.width -= width;
+            if (_headerBounds.size.width < 0) {
+                _headerBounds.origin.x += _headerBounds.size.width;
+                _headerBounds.size.width = 0;
                 
-                _headerBounds.size.width -= width;
-                if (_headerBounds.size.width < 0) {
-                    _headerBounds.origin.x += _headerBounds.size.width;
-                    _headerBounds.size.width = 0;
-                    
-                    if (lastIndexPath.column == -1) {
-                        _headerBounds.origin.x = [[_columnSections objectAtIndex:lastIndexPath.section] offset];
-                    }
+                if (lastIndexPath.column == -1) {
+                    _headerBounds.origin.x = [[_columnSections objectAtIndex:lastIndexPath.section] offset];
                 }
-                
-                if (_headerRowCells.count > 0) {
-                    NSInteger index = [self._headerColumnIndexPath offsetBetweenColumnIndexPath:lastIndexPath inSpreadView:self];
-                    if (index >= 0 && index < _headerRowCells.count) {
-                        MDSpreadViewCell *cell = [_headerRowCells objectAtIndex:index];
-                        [_dequeuedCells addObject:cell];
-                        cell.hidden = YES;
-                        [_headerRowCells removeObjectAtIndex:index];
-                    }
-                }
-                
-                nextIndexPath = [lastIndexPath indexPathWithColumnOffset:-1 inSpreadView:self guard:YES];
-                last2IndexPath = lastIndexPath;
-                if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
-                lastIndexPath = nextIndexPath;
-                width = [self _widthForColumnAtIndexPath:lastIndexPath];
             }
-            if ([_headerRowCells count] == 0)
-                self._headerColumnIndexPath = last2IndexPath;
+            
+            if (_headerRowCells.count > 0) {
+                NSInteger index = [self._headerColumnIndexPath offsetBetweenColumnIndexPath:lastIndexPath inSpreadView:self];
+                if (index >= 0 && index < _headerRowCells.count) {
+                    MDSpreadViewCell *cell = [_headerRowCells objectAtIndex:index];
+                    [_dequeuedCells addObject:cell];
+                    cell.hidden = YES;
+                    [_headerRowCells removeObjectAtIndex:index];
+                }
+            }
+            
+            nextIndexPath = [lastIndexPath indexPathWithColumnOffset:-1 inSpreadView:self guard:YES];
+            last2IndexPath = lastIndexPath;
+            if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+            lastIndexPath = nextIndexPath;
+            width = [self _widthForColumnAtIndexPath:lastIndexPath];
         }
+        
+        if ([_headerRowCells count] == 0)
+            self._headerColumnIndexPath = last2IndexPath;
     }
 }
 
 - (void)_layoutAddRowCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
-    if (domain == MDSpreadViewCellDomainCells) {
     CGFloat height = 0;
+    MDIndexPath *lastIndexPath = nil;
+    
+    if (domain == MDSpreadViewCellDomainCells) {
     
     while (visibleBounds.origin.y > offset.y) { // add rows before
         @autoreleasepool {
@@ -1468,6 +1409,9 @@
             if (rowSection < 0) break;
             
             MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
+            
+//            if (lastIndexPath == rowPath) break;
+//            lastIndexPath = rowPath;
             
             height = 0;
             
@@ -1492,7 +1436,6 @@
         }
     }
     } else if (domain == MDSpreadViewCellDomainHeaders) {
-        CGFloat height = 0;
         MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:-1 inSection:self._visibleColumnIndexPath.section];
         NSInteger columnSection = columnPath.section;
         CGFloat width = [self _widthForColumnAtIndexPath:columnPath];
@@ -1512,6 +1455,9 @@
                 if (rowSection < 0) break;
                 
                 MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
+                
+//                if (lastIndexPath == rowPath) break;
+//                lastIndexPath = rowPath;
                 
                 height = [self _heightForRowAtIndexPath:rowPath];
                 
@@ -1656,43 +1602,45 @@
 
 - (void)_layoutRemoveRowCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
-    if (domain == MDSpreadViewCellDomainCells) {
     CGFloat height = 0;
-    MDIndexPath *lastIndexPath = nil;
+    MDIndexPath *indexPathToRemove = nil;
+    MDIndexPath *nextIndexPathToRemove = nil;
+    NSInteger numberOfRowSections = [self _numberOfRowSections];
     
-    @autoreleasepool {
-        lastIndexPath = self._visibleRowIndexPath;
-        height = [self _heightForRowAtIndexPath:lastIndexPath];
+    if (domain == MDSpreadViewCellDomainCells) @autoreleasepool {
+        indexPathToRemove = [[self._visibleRowIndexPath retain] autorelease];
+        height = [self _heightForRowAtIndexPath:indexPathToRemove];
         
         while (visibleBounds.origin.y+height < offset.y) { // delete top most row
             visibleBounds.size.height -= height;
             if (visibleBounds.size.height < 0) visibleBounds.size.height = 0;
             visibleBounds.origin.y += height;
             
-            if (lastIndexPath.row == -1) {
-                if (lastIndexPath.section >= [_rowSections count]) break; // NOT A VERY GOOD FIX!!!
-                visibleBounds.origin.y = [[_rowSections objectAtIndex:lastIndexPath.section] offset] + height;
+            if (indexPathToRemove.row == -1) {
+                if (indexPathToRemove.section >= [_rowSections count]) break; // NOT A VERY GOOD FIX!!!
+                visibleBounds.origin.y = [[_rowSections objectAtIndex:indexPathToRemove.section] offset] + height;
             }
             
-            //            MDIndexPath *firstIndexPath = [[self._visibleRowIndexPath retain] autorelease];
-            [self _clearCellsForRowAtIndexPath:lastIndexPath];
+//            if ([[visibleCells objectAtIndex:0] count] == 0)
+                [self _clearCellsForRowAtIndexPath:indexPathToRemove];
             
-            //            NSLog(@"Removing cell %d,%d from the top (%d rows)", firstIndexPath.section, firstIndexPath.column, [[visibleCells objectAtIndex:0] count]);
-            //            NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(boundsSize));
+            nextIndexPathToRemove = [indexPathToRemove indexPathWithRowOffset:1 inSpreadView:self guard:YES];
+            if ([indexPathToRemove isEqualToIndexPath:nextIndexPathToRemove]) break;
             
-            if (lastIndexPath == self._visibleRowIndexPath) break;
-            lastIndexPath = self._visibleRowIndexPath;
-            height = [self _heightForRowAtIndexPath:lastIndexPath];
+            indexPathToRemove = nextIndexPathToRemove;
+            height = [self _heightForRowAtIndexPath:indexPathToRemove];
         }
-    }
-    } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
-        CGFloat height = 0;
-        MDIndexPath *indexPathToRemove = [[self._headerRowIndexPath retain] autorelease];
-        MDIndexPath *nextIndexPathToRemove = nil;
         
+        if ([[visibleCells objectAtIndex:0] count] == 0)
+            self._visibleRowIndexPath = indexPathToRemove;
+        
+    } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
+        indexPathToRemove = [[self._headerRowIndexPath retain] autorelease];
         height = [self _heightForRowAtIndexPath:indexPathToRemove];
         
         while (_headerBounds.origin.y+height < offset.y) { // delete left most column
+            if (indexPathToRemove.section >= numberOfRowSections) break;
+            
             _headerBounds.size.height -= height;
             if (_headerBounds.size.height < 0) _headerBounds.size.height = 0;
             _headerBounds.origin.y += height;
@@ -1723,17 +1671,15 @@
 
 - (void)_layoutRemoveRowCellsAfterWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
-    if (domain == MDSpreadViewCellDomainCells) {
     CGFloat height = 0;
     MDIndexPath *lastIndexPath = nil;
     MDIndexPath *last2IndexPath = nil;
     MDIndexPath *nextIndexPath = nil;
     
-    if (visibleCells.count) @autoreleasepool {
+    if (domain == MDSpreadViewCellDomainCells && visibleCells.count) @autoreleasepool {
         lastIndexPath = [self _rowIndexPathFromRelativeIndex:[[visibleCells objectAtIndex:0] count]-1];
+        last2IndexPath = self._visibleRowIndexPath;
         height = [self _heightForRowAtIndexPath:lastIndexPath];
-        
-//        NSLog(@"Removing From %@", lastIndexPath);
         
         while (visibleBounds.origin.y+visibleBounds.size.height-height > offset.y+size.height) { // delete bottom most row
             if (lastIndexPath.section == 0 && lastIndexPath.row < -1) break;
@@ -1751,77 +1697,53 @@
             if ([[visibleCells objectAtIndex:0] count] > 0)
                 [self _clearCellsForRowAtIndexPath:lastIndexPath];
             
-//                NSLog(@"Removing cell %d,%d from the bottom (%d rows)", lastIndexPath.section, lastIndexPath.column, [[visibleCells objectAtIndex:0] count]);
-//                NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
-            
-            NSInteger rowSection = lastIndexPath.section;
-            NSInteger row = lastIndexPath.row-1;
-            
-            if (row < -1) {
-                rowSection--;
-                row = [self _numberOfRowsInSection:rowSection];
-                
-                if (rowSection < 0) {
-                    rowSection = 0;
-                    row = -1;
-                }
-            }
-            
-            nextIndexPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
+            nextIndexPath = [lastIndexPath indexPathWithRowOffset:-1 inSpreadView:self guard:YES];
             last2IndexPath = lastIndexPath;
             if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
             lastIndexPath = nextIndexPath;
             height = [self _heightForRowAtIndexPath:lastIndexPath];
         }
+        
         if ([[visibleCells objectAtIndex:0] count] == 0)
             self._visibleRowIndexPath = last2IndexPath;
         
-//        NSLog(@"           To %@", lastIndexPath);
-//        NSLog(@"    Current Visible Bounds: %@ in {%@, %@}", NSStringFromCGRect(visibleBounds), NSStringFromCGPoint(offset), NSStringFromCGSize(size));
-    }
-    } else if (domain == MDSpreadViewCellDomainHeaders) {
-        CGFloat height = 0;
-        MDIndexPath *lastIndexPath = nil;
-        MDIndexPath *last2IndexPath = nil;
-        MDIndexPath *nextIndexPath = nil;
+    } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
+        lastIndexPath = [_headerRowIndexPath indexPathWithRowOffset:_headerColumnCells.count-1 inSpreadView:self guard:NO];
+        last2IndexPath = self._headerRowIndexPath;
+        height = [self _heightForRowAtIndexPath:lastIndexPath];
         
-        @autoreleasepool {
-            lastIndexPath = [_headerRowIndexPath indexPathWithRowOffset:_headerColumnCells.count-1 inSpreadView:self guard:NO];
-            last2IndexPath = self._headerRowIndexPath;
-            height = [self _heightForRowAtIndexPath:lastIndexPath];
+        while (_headerBounds.origin.y+_headerBounds.size.height-height > offset.y+size.height) { // delete bottom most row
+            if (lastIndexPath.section == 0 && lastIndexPath.row < -1) break;
             
-            while (_headerBounds.origin.y+_headerBounds.size.height-height > offset.y+size.height) { // delete bottom most row
-                if (lastIndexPath.section == 0 && lastIndexPath.row < -1) break;
+            _headerBounds.size.height -= height;
+            if (_headerBounds.size.height < 0) {
+                _headerBounds.origin.y += _headerBounds.size.height;
+                _headerBounds.size.height = 0;
                 
-                _headerBounds.size.height -= height;
-                if (_headerBounds.size.height < 0) {
-                    _headerBounds.origin.y += _headerBounds.size.height;
-                    _headerBounds.size.height = 0;
-                    
-                    if (lastIndexPath.row == -1) {
-                        _headerBounds.origin.y = [[_rowSections objectAtIndex:lastIndexPath.section] offset];
-                    }
+                if (lastIndexPath.row == -1) {
+                    _headerBounds.origin.y = [[_rowSections objectAtIndex:lastIndexPath.section] offset];
                 }
-                
-                if (_headerColumnCells.count > 0) {
-                    NSInteger index = [self._headerRowIndexPath offsetBetweenRowIndexPath:lastIndexPath inSpreadView:self];
-                    if (index >= 0 && index < _headerColumnCells.count) {
-                        MDSpreadViewCell *cell = [_headerColumnCells objectAtIndex:index];
-                        [_dequeuedCells addObject:cell];
-                        cell.hidden = YES;
-                        [_headerColumnCells removeObjectAtIndex:index];
-                    }
-                }
-                
-                nextIndexPath = [lastIndexPath indexPathWithRowOffset:-1 inSpreadView:self guard:YES];
-                last2IndexPath = lastIndexPath;
-                if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
-                lastIndexPath = nextIndexPath;
-                height = [self _heightForRowAtIndexPath:lastIndexPath];
             }
-            if (_headerColumnCells.count == 0)
-                self._headerRowIndexPath = last2IndexPath;
+            
+            if (_headerColumnCells.count > 0) {
+                NSInteger index = [self._headerRowIndexPath offsetBetweenRowIndexPath:lastIndexPath inSpreadView:self];
+                if (index >= 0 && index < _headerColumnCells.count) {
+                    MDSpreadViewCell *cell = [_headerColumnCells objectAtIndex:index];
+                    [_dequeuedCells addObject:cell];
+                    cell.hidden = YES;
+                    [_headerColumnCells removeObjectAtIndex:index];
+                }
+            }
+            
+            nextIndexPath = [lastIndexPath indexPathWithRowOffset:-1 inSpreadView:self guard:YES];
+            last2IndexPath = lastIndexPath;
+            if ([lastIndexPath isEqualToIndexPath:nextIndexPath]) break;
+            lastIndexPath = nextIndexPath;
+            height = [self _heightForRowAtIndexPath:lastIndexPath];
         }
+        
+        if (_headerColumnCells.count == 0 && last2IndexPath != nil)
+            self._headerRowIndexPath = last2IndexPath;
     }
 }
 
@@ -1830,11 +1752,14 @@
     NSInteger rowSection = self._visibleRowIndexPath.section;
     NSInteger row = self._visibleRowIndexPath.row;
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
+    NSInteger totalRowSections = [self _numberOfRowSections];
     
     CGFloat constructedHeight = 0;
     UIView *anchor;
     
     while (constructedHeight < visibleBounds.size.height) {
+        if (rowSection >= totalRowSections) break;
+        
         MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
         MDSpreadViewCell *cell = nil;
         
@@ -1878,12 +1803,15 @@
     NSInteger rowSection = self._visibleRowIndexPath.section;
     NSInteger row = self._visibleRowIndexPath.row;
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
+    NSInteger totalRowSections = [self _numberOfRowSections];
     
     CGFloat constructedHeight = 0;
     UIView *anchor;
     MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:-1 inSection:columnSection];
     
     while (constructedHeight < visibleBounds.size.height) {
+        if (rowSection >= totalRowSections) break;
+        
         MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
         MDSpreadViewCell *cell = nil;
         
@@ -1927,12 +1855,15 @@
     NSInteger rowSection = self._visibleRowIndexPath.section;
     NSInteger row = self._visibleRowIndexPath.row;
     NSInteger totalInRowSection = [self _numberOfRowsInSection:rowSection];
+    NSInteger totalRowSections = [self _numberOfRowSections];
     
     CGFloat constructedHeight = 0;
     UIView *anchor;
     MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:[self _numberOfColumnsInSection:columnSection] inSection:columnSection];
     
     while (constructedHeight < visibleBounds.size.height) {
+        if (rowSection >= totalRowSections) break;
+        
         MDIndexPath *rowPath = [MDIndexPath indexPathForRow:row inSection:rowSection];
         MDSpreadViewCell *cell = nil;
         
@@ -1976,11 +1907,14 @@
     NSInteger columnSection = self._visibleColumnIndexPath.section;
     NSInteger column = self._visibleColumnIndexPath.column;
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
+    NSInteger totalColumnSections = [self _numberOfColumnSections];
     
     CGFloat constructedWidth = 0;
     UIView *anchor;
     
     while (constructedWidth < visibleBounds.size.width) {
+        if (columnSection >= totalColumnSections) break;
+        
         MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:column inSection:columnSection];
         MDSpreadViewCell *cell = nil;
         
@@ -2024,12 +1958,15 @@
     NSInteger columnSection = self._visibleColumnIndexPath.section;
     NSInteger column = self._visibleColumnIndexPath.column;
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
+    NSInteger totalColumnSections = [self _numberOfColumnSections];
     
     CGFloat constructedWidth = 0;
     UIView *anchor;
     MDIndexPath *rowPath = [MDIndexPath indexPathForRow:-1 inSection:rowSection];
     
     while (constructedWidth < visibleBounds.size.width) {
+        if (columnSection >= totalColumnSections) break;
+        
         MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:column inSection:columnSection];
         MDSpreadViewCell *cell = nil;
         
@@ -2072,12 +2009,15 @@
     NSInteger columnSection = self._visibleColumnIndexPath.section;
     NSInteger column = self._visibleColumnIndexPath.column;
     NSInteger totalInColumnSection = [self _numberOfColumnsInSection:columnSection];
+    NSInteger totalColumnSections = [self _numberOfColumnSections];
     
     CGFloat constructedWidth = 0;
     UIView *anchor;
     MDIndexPath *rowPath = [MDIndexPath indexPathForRow:[self _numberOfRowsInSection:rowSection] inSection:rowSection];
     
     while (constructedWidth < visibleBounds.size.width) {
+        if (columnSection >= totalColumnSections) break;
+        
         MDIndexPath *columnPath = [MDIndexPath indexPathForColumn:column inSection:columnSection];
         MDSpreadViewCell *cell = nil;
         
@@ -2688,7 +2628,7 @@
 
 - (NSInteger)numberOfRowsInRowSection:(NSInteger)section
 {
-    if (_rowSections) return [[_rowSections objectAtIndex:section] numberOfCells];
+    if (_rowSections && section < [_rowSections count]) return [[_rowSections objectAtIndex:section] numberOfCells];
     else return [self _numberOfRowsInSection:section];
 }
 
@@ -2700,7 +2640,7 @@
 
 - (NSInteger)numberOfColumnsInColumnSection:(NSInteger)section
 {
-    if (_columnSections) return [[_columnSections objectAtIndex:section] numberOfCells];
+    if (_columnSections && section < [_columnSections count]) return [[_columnSections objectAtIndex:section] numberOfCells];
     else return [self _numberOfColumnsInSection:section];
 }
 
@@ -2768,6 +2708,7 @@
 
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
 {
+//    NSLog(@"Getting header cell %d %d", rowSection, columnSection);
     MDSpreadViewCell *returnValue = nil;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInRowSection:forColumnSection:)])
@@ -2801,6 +2742,7 @@
 
 - (MDSpreadViewCell *)_cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
 {
+//    NSLog(@"Getting header cell %@ %d", rowPath, section);
     MDSpreadViewCell *returnValue = nil;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInColumnSection:forRowAtIndexPath:)])
@@ -2834,6 +2776,7 @@
 
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
+//    NSLog(@"Getting header cell %d %@", section, columnPath);
     MDSpreadViewCell *returnValue = nil;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInRowSection:forColumnAtIndexPath:)])
@@ -2867,6 +2810,7 @@
 
 - (MDSpreadViewCell *)_cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
+//    NSLog(@"Getting cell %@ %@", rowPath, columnPath);
     MDSpreadViewCell *returnValue = nil;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:cellForRowAtIndexPath:forColumnAtIndexPath:)])
