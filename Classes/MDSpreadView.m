@@ -1390,7 +1390,7 @@
 - (void)_layoutAddRowCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
     CGFloat height = 0;
-    MDIndexPath *lastIndexPath = nil;
+//    MDIndexPath *lastIndexPath = nil;
     
     if (domain == MDSpreadViewCellDomainCells) {
     
@@ -1631,7 +1631,7 @@
             height = [self _heightForRowAtIndexPath:indexPathToRemove];
         }
         
-        if ([[visibleCells objectAtIndex:0] count] == 0)
+        if (visibleCells.count && [[visibleCells objectAtIndex:0] count] == 0)
             self._visibleRowIndexPath = indexPathToRemove;
         
     } else if (domain == MDSpreadViewCellDomainHeaders) @autoreleasepool {
