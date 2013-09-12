@@ -125,37 +125,67 @@
         self.backgroundColor = [UIColor whiteColor];
         self.reuseIdentifier = aReuseIdentifier;
         self.multipleTouchEnabled = YES;
-//        self.layer.shouldRasterize = YES;
-//        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
+        //        self.layer.shouldRasterize = YES;
+        //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
         
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
-        self.backgroundView = imageView;
-        [imageView release];
-        
-        imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCellSelected.png"]];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
-        self.highlightedBackgroundView = imageView;
-        [imageView release];
-        
-        UILabel *label = [[UILabel alloc] init];
-		label.opaque = YES;
-		label.backgroundColor = [UIColor whiteColor];
-        label.font = [UIFont boldSystemFontOfSize:18];
-		label.highlightedTextColor = [UIColor blackColor];
-        self.textLabel = label;
-        [label release];
-        
-        label = [[UILabel alloc] init];
-		label.opaque = YES;
-		label.backgroundColor = [UIColor whiteColor];
-        label.font = [UIFont boldSystemFontOfSize:18];
-		label.highlightedTextColor = [UIColor blackColor];
-        self.detailTextLabel = label;
-        [label release];
+        if ([UIMotionEffect class]) {
+            
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
+            imageView.contentMode = UIViewContentModeScaleToFill;
+            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            self.backgroundView = imageView;
+            [imageView release];
+            
+            UIView *view = [[UIView alloc] init];
+            view.backgroundColor = [UIColor colorWithWhite:217./255. alpha:1.];
+            self.highlightedBackgroundView = view;
+            [view release];
+            
+            UILabel *label = [[UILabel alloc] init];
+            label.opaque = YES;
+            label.backgroundColor = [UIColor whiteColor];
+            label.font = [UIFont systemFontOfSize:16];
+            label.highlightedTextColor = [UIColor blackColor];
+            self.textLabel = label;
+            [label release];
+            
+            label = [[UILabel alloc] init];
+            label.opaque = YES;
+            label.backgroundColor = [UIColor whiteColor];
+            label.font = [UIFont systemFontOfSize:16];
+            label.highlightedTextColor = [UIColor blackColor];
+            self.detailTextLabel = label;
+            [label release];
+        } else {
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
+            imageView.contentMode = UIViewContentModeScaleToFill;
+            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            self.backgroundView = imageView;
+            [imageView release];
+            
+            imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCellSelected.png"]];
+            imageView.contentMode = UIViewContentModeScaleToFill;
+            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            self.highlightedBackgroundView = imageView;
+            [imageView release];
+            
+            UILabel *label = [[UILabel alloc] init];
+            label.opaque = YES;
+            label.backgroundColor = [UIColor whiteColor];
+            label.font = [UIFont boldSystemFontOfSize:18];
+            label.highlightedTextColor = [UIColor blackColor];
+            self.textLabel = label;
+            [label release];
+            
+            label = [[UILabel alloc] init];
+            label.opaque = YES;
+            label.backgroundColor = [UIColor whiteColor];
+            label.font = [UIFont boldSystemFontOfSize:18];
+            label.highlightedTextColor = [UIColor blackColor];
+            self.detailTextLabel = label;
+            [label release];
+        }
         
         _tapGesture = [[MDSpreadViewCellTapGestureRecognizer alloc] init];
         _tapGesture.cancelsTouchesInView = NO;

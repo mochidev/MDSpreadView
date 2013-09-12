@@ -53,37 +53,54 @@
         }
     }
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
-        self.clipsToBounds = NO;
-        self.backgroundColor = nil;
-//        self.layer.shouldRasterize = YES;
-//        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
-        
-        MDSpreadViewCellBackground *newBackground = nil;
-        MDSpreadViewCellBackground *newSelectedBackground = nil;
-        if (aStyle == MDSpreadViewHeaderCellStyleCorner) {
-            newBackground = [[MDSpreadViewCellCornerHeaderBackground alloc] init];
-            newSelectedBackground = [[MDSpreadViewCellCornerHeaderBackground alloc] init];
-        } else if (aStyle == MDSpreadViewHeaderCellStyleRow) {
-            newBackground = [[MDSpreadViewCellRowHeaderBackground alloc] init];
-            newSelectedBackground = [[MDSpreadViewCellRowHeaderBackground alloc] init];
-        } else if (aStyle == MDSpreadViewHeaderCellStyleColumn) {
-            newBackground = [[MDSpreadViewCellColumnHeaderBackground alloc] init];
-            newSelectedBackground = [[MDSpreadViewCellColumnHeaderBackground alloc] init];
+        if ([UIMotionEffect class]) {
+            self.clipsToBounds = NO;
+            
+            UIView *newBackground = [[UIView alloc] init];
+            UIView *newSelectedBackground = [[UIView alloc] init];
+            newBackground.backgroundColor = [UIColor colorWithWhite:247./255. alpha:1];
+            newSelectedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
+            self.backgroundView = newBackground;
+            self.highlightedBackgroundView = newSelectedBackground;
+            [newBackground release];
+            [newSelectedBackground release];
+            
+            self.textLabel.font = [UIFont boldSystemFontOfSize:14];
+            self.textLabel.backgroundColor = self.backgroundView.backgroundColor;
+            self.textLabel.textColor = [UIColor blackColor];
+        } else {
+            self.clipsToBounds = NO;
+            self.backgroundColor = nil;
+    //        self.layer.shouldRasterize = YES;
+    //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
+            
+            MDSpreadViewCellBackground *newBackground = nil;
+            MDSpreadViewCellBackground *newSelectedBackground = nil;
+            if (aStyle == MDSpreadViewHeaderCellStyleCorner) {
+                newBackground = [[MDSpreadViewCellCornerHeaderBackground alloc] init];
+                newSelectedBackground = [[MDSpreadViewCellCornerHeaderBackground alloc] init];
+            } else if (aStyle == MDSpreadViewHeaderCellStyleRow) {
+                newBackground = [[MDSpreadViewCellRowHeaderBackground alloc] init];
+                newSelectedBackground = [[MDSpreadViewCellRowHeaderBackground alloc] init];
+            } else if (aStyle == MDSpreadViewHeaderCellStyleColumn) {
+                newBackground = [[MDSpreadViewCellColumnHeaderBackground alloc] init];
+                newSelectedBackground = [[MDSpreadViewCellColumnHeaderBackground alloc] init];
+            }
+            
+            newSelectedBackground.highlighted = YES;
+            self.backgroundView = newBackground;
+            self.highlightedBackgroundView = newSelectedBackground;
+            [newBackground release];
+            [newSelectedBackground release];
+            
+            self.textLabel.font = [UIFont boldSystemFontOfSize:18];
+            self.textLabel.opaque = NO;
+            self.textLabel.backgroundColor = nil;
+            self.textLabel.textColor = [UIColor whiteColor];
+            self.textLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
+            self.textLabel.shadowOffset = CGSizeMake(0, 1);
+            self.textLabel.highlightedTextColor = [UIColor whiteColor];
         }
-        
-        newSelectedBackground.highlighted = YES;
-        self.backgroundView = newBackground;
-        self.highlightedBackgroundView = newSelectedBackground;
-        [newBackground release];
-        [newSelectedBackground release];
-        
-		self.textLabel.font = [UIFont boldSystemFontOfSize:18];
-		self.textLabel.opaque = NO;
-		self.textLabel.backgroundColor = nil;
-		self.textLabel.textColor = [UIColor whiteColor];
-		self.textLabel.shadowColor = [UIColor colorWithWhite:0 alpha:0.4];
-		self.textLabel.shadowOffset = CGSizeMake(0, 1);
-        self.textLabel.highlightedTextColor = [UIColor whiteColor];
     }
     return self;
 }
@@ -99,9 +116,14 @@
 {
     if (self.highlighted != isHighlighted) {
         [super setHighlighted:isHighlighted animated:animated];
-    
-        self.textLabel.opaque = NO;
-        self.textLabel.backgroundColor = [UIColor clearColor];
+        
+        if (isHighlighted) {
+            self.textLabel.opaque = NO;
+            self.textLabel.backgroundColor = [UIColor clearColor];
+        } else {
+            self.textLabel.opaque = YES;
+            self.textLabel.backgroundColor = self.backgroundView.backgroundColor;
+        }
     }
 }
 - (BOOL)isAccessibilityElement
