@@ -301,7 +301,8 @@
 
 - (void)setFrame:(CGRect)frame
 {
-    [super setFrame:frame];
+    if (!CGRectEqualToRect(self.frame, frame))
+        [super setFrame:frame];
 }
 
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
