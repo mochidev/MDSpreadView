@@ -97,6 +97,7 @@
 @property (nonatomic, readonly) UIGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
 @property (nonatomic, retain) MDIndexPath *_columnPath;
+@property (nonatomic) CGRect _pureFrame;
 
 @end
 
@@ -110,7 +111,7 @@
 
 @implementation MDSpreadViewCell
 
-@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, _tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis, _rowPath, _columnPath;
+@synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, _tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis, _rowPath, _columnPath, _pureFrame;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -355,6 +356,12 @@
             self.textLabel.text = [objectValue description];
         }
     }
+}
+
+- (void)set_pureFrame:(CGRect)pureFrame
+{
+    _pureFrame = pureFrame;
+    self.frame = _pureFrame;
 }
 
 - (void)dealloc
