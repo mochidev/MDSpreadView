@@ -818,6 +818,23 @@
 
 #pragma mark - Layout
 
+- (void)setContentInset:(UIEdgeInsets)contentInset
+{
+    [super setContentInset:contentInset];
+    
+    CGPoint offset = self.contentOffset;
+    UIEdgeInsets inset = self.contentInset;
+    
+    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
+    if (offset.x <= 0 || offset.y <= 0) {
+        if (offset.x <= 0) offset.x = -inset.left;
+        if (offset.y <= 0) offset.y = -inset.top;
+        
+        self.contentOffset = offset;
+    }
+    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -898,7 +915,7 @@
         }
     }
 
-    CGFloat yOffset = offset.y;
+    CGFloat yOffset = offset.y + self.contentInset.top;
     rowSection = _visibleRowIndexPath.section;
     CGFloat height = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:-1 inSection:rowSection]];
     if (yOffset+height > nextHeaderOffset) {
@@ -953,7 +970,7 @@
         }
     }
 
-    CGFloat xOffset = offset.x;
+    CGFloat xOffset = offset.x + self.contentInset.left;
     columnSection = _visibleColumnIndexPath.section;
     CGFloat width = [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:-1 inSection:columnSection]];
     if (xOffset+width > nextHeaderOffset) {
