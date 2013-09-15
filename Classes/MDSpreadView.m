@@ -826,14 +826,14 @@
     CGPoint offset = self.contentOffset;
     UIEdgeInsets inset = self.contentInset;
     
-    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
+//    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
     if (offset.x <= 0 || offset.y <= 0) {
         if (offset.x <= 0) offset.x = -inset.left;
         if (offset.y <= 0) offset.y = -inset.top;
         
         self.contentOffset = offset;
     }
-    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
+//    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
 }
 
 - (void)layoutSubviews
