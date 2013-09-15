@@ -907,7 +907,7 @@
     
     NSMutableArray *headerCells = [[NSMutableArray alloc] initWithArray:_headerRowCells];
     MDIndexPath *currentIndexPath = self._visibleRowIndexPath;
-    BOOL shouldContinue = YES;
+    BOOL shouldContinue = ([self numberOfRowSections] > 0);
     CGFloat nextHeaderOffset = visibleBounds.origin.y;
     CGFloat currentHeaderOffset = 0;
     CGFloat yOffset = offset.y + self.contentInset.top;
@@ -986,7 +986,8 @@
             }
             
             MDIndexPath *newColumnIndexPath = [columnIndexPath indexPathWithColumnOffset:1 inSpreadView:self guard:YES];
-            if (cell && ![columnIndexPath isEqualToIndexPath:newColumnIndexPath]) hasMoreCells = YES;
+//            NSLog(@"%@ vs %@", columnIndexPath, newColumnIndexPath);
+            if (cell && columnIndexPath && ![columnIndexPath isEqualToIndexPath:newColumnIndexPath]) hasMoreCells = YES;
             columnIndexPath = newColumnIndexPath;
         }
         
