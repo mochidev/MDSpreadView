@@ -29,8 +29,10 @@
 //  Mochi Dev, and the Mochi Development logo are copyright Mochi Development, Inc.
 //  
 //  Also, it'd be super awesome if you credited this page in your about screen :)
-//  
+//
 
+
+#import <objc/runtime.h>
 #import "MDSpreadViewHeaderCell.h"
 #import "MDSpreadViewCellBackground.h"
 #import "MDSpreadViewCellRowHeaderBackground.h"
@@ -53,7 +55,7 @@
         }
     }
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
-        if ([UIMotionEffect class]) {
+        if ( objc_getClass("UIMotionEffect") != nil ) {
             self.clipsToBounds = NO;
             
             UIView *newBackground = [[UIView alloc] init];
