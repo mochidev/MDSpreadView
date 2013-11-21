@@ -31,9 +31,11 @@
 //  Also, it'd be super awesome if you credited this page in your about screen :)
 //  
 
+#import "objc/runtime.h"
 #import "MDSpreadViewCell.h"
 #import "MDSpreadView.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
+
 
 @interface MDSpreadViewCellTapGestureRecognizer : UIGestureRecognizer {
     CGPoint touchDown;
@@ -130,7 +132,7 @@
         //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
         
-        if ([UIMotionEffect class]) {
+        if ( objc_getClass("UIMotionEffect") != nil ) {
             
             UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
             imageView.contentMode = UIViewContentModeScaleToFill;
