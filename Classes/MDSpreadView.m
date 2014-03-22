@@ -269,6 +269,8 @@
 
 @end
 
+#pragma mark - MDSpreadViewSection
+
 @interface MDSpreadViewSection : NSObject {
     NSInteger numberOfCells;
     CGFloat offset;
@@ -286,6 +288,8 @@
 @synthesize numberOfCells, offset, size;
 
 @end
+
+#pragma mark - MDSpreadViewSelection
 
 @interface MDSpreadViewSelection ()
 
@@ -324,6 +328,8 @@
 
 
 @end
+
+#pragma mark - MDIndexPath
 
 @interface MDIndexPath ()
 
@@ -534,6 +540,8 @@
 
 @end
 
+#pragma mark - MDSortDescriptor
+
 @interface MDSortDescriptor ()
 
 @property (nonatomic, readwrite, strong) MDIndexPath *indexPath;
@@ -587,6 +595,8 @@
 
 
 @end
+
+#pragma mark - MDSpreadView
 
 @interface MDSpreadView ()
 
@@ -689,7 +699,10 @@
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight, _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath, _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections, _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
+@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight;
+@synthesize _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath;
+@synthesize _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections;
+@synthesize _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
 @synthesize defaultCellClass=_defaultCellClass;
 @synthesize defaultHeaderColumnCellClass=_defaultHeaderColumnCellClass;
 @synthesize defaultHeaderRowCellClass=_defaultHeaderRowCellClass;
