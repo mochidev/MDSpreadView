@@ -78,6 +78,7 @@ typedef enum {
 @class MDSpreadViewCell;
 @class MDIndexPath;
 @class MDSpreadViewSelection;
+@class MDSpreadViewCellMap;
 
 #pragma mark - MDSpreadViewDelegate
 
@@ -136,6 +137,22 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     CGFloat sectionColumnHeaderWidth;
     
     NSMutableSet *_dequeuedCells;
+    
+    // New algorithm
+    
+    MDSpreadViewCellMap *mapForContent;
+    MDSpreadViewCellMap *mapForColumnHeaders;
+    MDSpreadViewCellMap *mapForRowHeaders;
+    MDSpreadViewCellMap *mapForCornerHeaders;
+    
+    MDIndexPath *minColumnIndexPath;
+    MDIndexPath *maxColumnIndexPath;
+    MDIndexPath *minRowIndexPath;
+    MDIndexPath *maxRowIndexPath;
+    
+    UIView *dummyView;
+    
+    // Done with new algorithm
     
     NSMutableArray *visibleCells; // array of array
     MDIndexPath *_visibleRowIndexPath;

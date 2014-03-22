@@ -1103,28 +1103,167 @@
      F F F F F F F
  
  7. Finally, we will do a similar treatment for the header and footer corner cells.
-    Each will be in its own 2D structure, one cell for each section in each direction
  
-    The headers and footers will assume these two structures:
-     H  H        F  F
+    The headers and footers will assume this structure:
+     H F  H F
  
-     H  H        F  F
+     H F  H F
  
- Note: Maybe row/column headers and footers should be in a different structure?
+ Note: Maybe row/column headers and footers should be in different structures?
  
  
  */
     
+    // STEP 1
     
+    CGRect bounds = self.bounds;
+    
+    CGRect _visibleBounds = CGRectZero;
+    
+    NSInteger minRowSection = 0;
+    NSInteger maxRowSection = 0;
+    NSInteger minColumnSection = 0;
+    NSInteger maxColumnSection = 0;
+    
+    NSInteger minRowIndex = 0;
+    NSInteger maxRowIndex = 0;
+    NSInteger minColumnIndex = 0;
+    NSInteger maxColumnIndex = 0;
+    
+    BOOL searchingForMax = NO;
+    
+    // find min/max row sections
+    for (MDSpreadViewSection *section in _rowSections) {
+        CGFloat height = section.size;
+        if (!searchingForMax) {
+            if (_visibleBounds.origin.y + height > bounds.origin.y) {
+                searchingForMax = YES;
+                maxRowSection = minRowSection;
+                _visibleBounds.size.height += height;
+                continue;
+            }
+            _visibleBounds.origin.y += height;
+            minRowSection++;
+        } else {
+            if (_visibleBounds.origin.y + _visibleBounds.size.height > bounds.origin.y + bounds.size.height) {
+                break;
+            }
+            _visibleBounds.size.height += height;
+            maxRowSection++;
+        }
+    }
+    
+    NSInteger numberOfRows = [self _numberOfRowsInSection:minRowSection];
+    
+    // find min row index
+    for (NSInteger row = -1; row <= numberOfRows; row++) { // take into account header and footer
+        CGFloat height = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:row inSection:minRowSection]];
+        
+        if (_visibleBounds.origin.y + height > bounds.origin.y) {
+            break;
+        }
+        _visibleBounds.origin.y += height;
+        _visibleBounds.size.height -= height;
+        minRowIndex = row;
+        
+    }
+    
+    numberOfRows = [self _numberOfRowsInSection:maxRowSection];
+    
+    // find max row index
+    for (NSInteger row = numberOfRows; row >= -1; row--) { // take into account header and footer
+        CGFloat height = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:row inSection:maxRowSection]];
+        
+        if (_visibleBounds.origin.y + _visibleBounds.size.height - height < bounds.origin.y + bounds.size.height) {
+            break;
+        }
+        _visibleBounds.size.height -= height;
+        maxRowIndex = row;
+        
+    }
+    
+    NSLog(@"Row: [%d-%d, %d-%d]", minRowSection, minRowIndex, maxRowSection, maxRowIndex);
+    
+    searchingForMax = NO;
+    
+    // find min/max column sections
+    for (MDSpreadViewSection *section in _columnSections) {
+        CGFloat width = section.size;
+        if (!searchingForMax) {
+            if (_visibleBounds.origin.x + width > bounds.origin.x) {
+                searchingForMax = YES;
+                maxColumnSection = minColumnSection;
+                _visibleBounds.size.width += width;
+                continue;
+            }
+            _visibleBounds.origin.x += width;
+            minColumnSection++;
+        } else {
+            if (_visibleBounds.origin.x + _visibleBounds.size.width > bounds.origin.x + bounds.size.width) {
+                break;
+            }
+            _visibleBounds.size.width += width;
+            maxColumnSection++;
+        }
+    }
+    
+    NSInteger numberOfColumns = [self _numberOfColumnsInSection:minColumnSection];
+    
+    // find min column index
+    for (NSInteger column = -1; column <= numberOfColumns; column++) { // take into account header and footer
+        CGFloat width = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:column inSection:minColumnSection]];
+        
+        if (_visibleBounds.origin.x + width > bounds.origin.x) {
+            break;
+        }
+        _visibleBounds.origin.x += width;
+        _visibleBounds.size.width -= width;
+        minColumnIndex = column;
+        
+    }
+    
+    numberOfColumns = [self _numberOfColumnsInSection:maxColumnSection];
+    
+    // find max column index
+    for (NSInteger column = numberOfColumns; column >= -1; column--) { // take into account header and footer
+        CGFloat width = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:column inSection:maxColumnSection]];
+        
+        if (_visibleBounds.origin.x + _visibleBounds.size.width - width < bounds.origin.x + bounds.size.width) {
+            break;
+        }
+        _visibleBounds.size.width -= width;
+        maxColumnIndex = column;
+        
+    }
+    NSLog(@"Column: [%d-%d, %d-%d]", minColumnSection, minColumnIndex, maxColumnSection, maxColumnIndex);
+    
+    // do columns
+    
+    
+    
+    //    NSLog(@"%@", NSStringFromCGRect(self.bounds));
+    
+    //    CGRect _visibleBounds = CGRectMake(<#CGFloat x#>, <#CGFloat y#>, <#CGFloat width#>, <#CGFloat height#>)
+    
+    if (!dummyView) {
+        dummyView = [[UIView alloc] init];
+        dummyView.backgroundColor = [UIColor colorWithHue:(arc4random()%1000)/1000. saturation:1 brightness:1 alpha:0.1];
+        [self addSubview:dummyView];
+    }
+    dummyView.frame = _visibleBounds;
+    
+    
+/*
+ 
 //    [CATransaction begin];
 //    [CATransaction setAnimationDuration:0];
 //    [CATransaction setDisableActions:YES];
-    
+ 
     CGPoint offset = self.contentOffset;
     CGSize boundsSize = self.bounds.size;
-    
+ 
     if (boundsSize.width == 0 || boundsSize.height == 0) return;
-    
+ 
 //    NSLog(@"--");
 //    NSLog(@"Current Visible Bounds: %@ in actual bounds: %@ offset: %@", NSStringFromCGRect(visibleBounds), NSStringFromCGSize(boundsSize), NSStringFromCGPoint(offset));
     
@@ -1423,6 +1562,7 @@
     }
     
 //    [CATransaction commit];
+ */
 }
 
 - (void)_layoutAddColumnCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
