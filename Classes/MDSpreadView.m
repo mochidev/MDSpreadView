@@ -35,6 +35,226 @@
 #import "MDSpreadViewCell.h"
 #import "MDSpreadViewHeaderCell.h"
 
+#pragma mark - MDSpreadViewCellMap
+
+@interface MDSpreadViewCellMap : NSObject {
+  @private
+    NSMutableArray *columns;
+}
+
+@property (nonatomic, readonly) NSUInteger rowCount;
+@property (nonatomic, readonly) NSUInteger columnCount;
+
+- (BOOL)getIndicesForCell:(MDSpreadViewCell *)cell row:(NSUInteger *)row column:(NSUInteger *)column;
+
+- (NSArray *)rowAtIndex:(NSUInteger)index;
+- (NSArray *)columnAtIndex:(NSUInteger)index;
+
+- (void)insertRowsBefore:(NSArray *)rows; // array of arrays
+- (void)insertRowsAfter:(NSArray *)rows;
+- (void)insertColumnsBefore:(NSArray *)columns;
+- (void)insertColumnsAfter:(NSArray *)columns;
+
+- (NSArray *)removeCellsBeforeRow:(NSUInteger)newFirstRow column:(NSUInteger)newFirstColumn;
+- (NSArray *)removeCellsAfterRow:(NSUInteger)newLastRow column:(NSUInteger)newLastColumn;
+
+@end
+
+@implementation MDSpreadViewCellMap
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        columns = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+- (BOOL)getIndicesForCell:(MDSpreadViewCell *)aCell row:(NSUInteger *)rowIndex column:(NSUInteger *)columnIndex
+{
+    *columnIndex = 0;
+    for (NSMutableArray *column in columns) {
+        *rowIndex = [column indexOfObjectIdenticalTo:aCell];
+        if (*rowIndex != NSNotFound) {
+            return YES;
+        }
+        (*columnIndex)++; // http://stackoverflow.com/a/3655755/1565236
+    }
+    *rowIndex = NSNotFound;
+    *columnIndex = NSNotFound;
+    return NO;
+}
+
+- (NSArray *)rowAtIndex:(NSUInteger)rowIndex
+{
+    NSMutableArray *newRow = [[NSMutableArray alloc] initWithCapacity:self.rowCount];
+    
+    NSAssert((rowIndex < _rowCount), @"row index %d beyond bounds of cell map [0, %d]", rowIndex, _rowCount);
+    
+    for (NSMutableArray *column in columns) {
+        [newRow addObject:[column objectAtIndex:rowIndex]];
+    }
+    
+    return newRow;
+}
+
+- (NSArray *)columnAtIndex:(NSUInteger)columnIndex
+{
+    NSAssert((columnIndex < _rowCount), @"column index %d beyond bounds of cell map [0, %d]", columnIndex, _columnCount);
+    
+    return [[columns objectAtIndex:columnIndex] copy];
+}
+
+- (void)insertRowsBefore:(NSArray *)cellRows
+{
+    if (_columnCount == 0) {
+        _columnCount = [[cellRows firstObject] count];
+        
+        for (NSUInteger i = 0; i < _columnCount; i++) {
+            [columns addObject:[[NSMutableArray alloc] init]];
+        }
+    }
+    
+    NSUInteger numberOfNewRows = cellRows.count;
+    NSUInteger columnIndex = 0;
+    for (NSMutableArray *column in columns) {
+        NSUInteger rowIndex = 0;
+        for (NSArray *newRow in cellRows) {
+            NSAssert(newRow.count == _columnCount, @"added row with %d columns not %d as in cell map", newRow.count, _columnCount);
+            [column insertObject:[newRow objectAtIndex:columnIndex] atIndex:rowIndex];
+            rowIndex++;
+        }
+        columnIndex++;
+    }
+    _rowCount += numberOfNewRows;
+}
+
+- (void)insertRowsAfter:(NSArray *)cellRows
+{
+    if (_columnCount == 0) {
+        _columnCount = [[cellRows firstObject] count];
+        
+        for (NSUInteger i = 0; i < _columnCount; i++) {
+            [columns addObject:[[NSMutableArray alloc] init]];
+        }
+    }
+    
+    NSUInteger numberOfNewRows = cellRows.count;
+    NSUInteger columnIndex = 0;
+    for (NSMutableArray *column in columns) {
+        for (NSArray *newRow in cellRows) {
+            NSAssert(newRow.count == _columnCount, @"added row with %d columns not %d as in cell map", newRow.count, _columnCount);
+            [column addObject:[newRow objectAtIndex:columnIndex]];
+        }
+        columnIndex++;
+    }
+    _rowCount += numberOfNewRows;
+}
+
+- (void)insertColumnsBefore:(NSArray *)cellColumns
+{
+    if (_rowCount == 0) {
+        _rowCount = [[cellColumns firstObject] count];
+    }
+    NSUInteger numberOfNewColumns = cellColumns.count;
+    NSUInteger columnIndex = 0;
+    for (NSArray *newColumn in cellColumns) {
+        NSAssert(newColumn.count == _rowCount, @"added column with %d rows not %d as in cell map", newColumn.count, _rowCount);
+        [columns insertObject:[newColumn mutableCopy] atIndex:columnIndex];
+        columnIndex++;
+    }
+    _columnCount += numberOfNewColumns;
+}
+
+- (void)insertColumnsAfter:(NSArray *)cellColumns
+{
+    if (_rowCount == 0) {
+        _rowCount = [[cellColumns firstObject] count];
+    }
+    NSUInteger numberOfNewColumns = cellColumns.count;
+    for (NSArray *newColumn in cellColumns) {
+        NSAssert(newColumn.count == _rowCount, @"added column with %d rows not %d as in cell map", newColumn.count, _rowCount);
+        [columns addObject:[newColumn mutableCopy]];
+    }
+    _columnCount += numberOfNewColumns;
+}
+
+- (NSArray *)removeCellsBeforeRow:(NSUInteger)newFirstRow column:(NSUInteger)newFirstColumn
+{
+    NSMutableArray *cellsToRemove = [[NSMutableArray alloc] init];
+    
+    while (newFirstColumn && _columnCount) {
+        [cellsToRemove addObjectsFromArray:[columns firstObject]];
+        [columns removeObjectAtIndex:0];
+        
+        _columnCount--;
+        if (_columnCount == 0) {
+            _rowCount = 0;
+            break;
+        }
+        newFirstColumn--;
+    }
+    
+    while (newFirstRow && _rowCount) {
+        for (NSMutableArray *column in columns) {
+            [cellsToRemove addObject:[column firstObject]];
+            [column removeObjectAtIndex:0];
+        }
+        
+        _rowCount--;
+        if (_rowCount == 0) {
+            [columns removeAllObjects];
+            _columnCount = 0;
+            break;
+        }
+        newFirstRow--;
+    }
+    
+    return cellsToRemove;
+}
+
+- (NSArray *)removeCellsAfterRow:(NSUInteger)newLastRow column:(NSUInteger)newLastColumn
+{
+    NSMutableArray *cellsToRemove = [[NSMutableArray alloc] init];
+    
+    NSInteger rowsToRemove = _rowCount - newLastRow - 1;
+    if (rowsToRemove < 0) rowsToRemove = 0;
+    
+    NSInteger columnsToRemove = _columnCount - newLastColumn - 1;
+    if (columnsToRemove < 0) columnsToRemove = 0;
+    
+    while (columnsToRemove && _columnCount) {
+        [cellsToRemove addObjectsFromArray:[columns lastObject]];
+        [columns removeLastObject];
+        
+        _columnCount--;
+        if (_columnCount == 0) {
+            _rowCount = 0;
+            break;
+        }
+        columnsToRemove--;
+    }
+    
+    while (rowsToRemove && _rowCount) {
+        for (NSMutableArray *column in columns) {
+            [cellsToRemove addObject:[column lastObject]];
+            [column removeLastObject];
+        }
+        
+        _rowCount--;
+        if (_rowCount == 0) {
+            [columns removeAllObjects];
+            _columnCount = 0;
+            break;
+        }
+        rowsToRemove--;
+    }
+    
+    return cellsToRemove;
+}
+
+@end
+
 @interface MDSpreadViewCell ()
 
 @property (nonatomic, readwrite, copy) NSString *reuseIdentifier;
