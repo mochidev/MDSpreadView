@@ -1035,6 +1035,8 @@
 //    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
 }
 
+#define MDSpreadViewFrameTime
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
@@ -1116,6 +1118,10 @@
     
     // STEP 1
     
+#ifdef MDSpreadViewFrameTime
+    CFAbsoluteTime frameTime = CFAbsoluteTimeGetCurrent();
+#endif
+    
     CGRect bounds = self.bounds;
     
     CGRect _visibleBounds = CGRectZero;
@@ -1182,7 +1188,7 @@
         
     }
     
-    NSLog(@"Row: [%d-%d, %d-%d]", minRowSection, minRowIndex, maxRowSection, maxRowIndex);
+//    NSLog(@"Row: [%d-%d, %d-%d]", minRowSection, minRowIndex, maxRowSection, maxRowIndex);
     
     searchingForMax = NO;
     
@@ -1235,7 +1241,7 @@
         maxColumnIndex = column;
         
     }
-    NSLog(@"Column: [%d-%d, %d-%d]", minColumnSection, minColumnIndex, maxColumnSection, maxColumnIndex);
+//    NSLog(@"Column: [%d-%d, %d-%d]", minColumnSection, minColumnIndex, maxColumnSection, maxColumnIndex);
     
     // do columns
     
@@ -1251,8 +1257,10 @@
         [self addSubview:dummyView];
     }
     dummyView.frame = _visibleBounds;
-    
-    
+   
+#ifdef MDSpreadViewFrameTime
+    NSLog(@"Frame time: %.1fms", (CFAbsoluteTimeGetCurrent() - frameTime)*1000.);
+#endif
 /*
  
 //    [CATransaction begin];
