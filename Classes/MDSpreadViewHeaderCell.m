@@ -62,8 +62,6 @@
             newSelectedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
             self.backgroundView = newBackground;
             self.highlightedBackgroundView = newSelectedBackground;
-            [newBackground release];
-            [newSelectedBackground release];
             
             self.textLabel.font = [UIFont boldSystemFontOfSize:14];
             self.textLabel.backgroundColor = self.backgroundView.backgroundColor;
@@ -90,8 +88,6 @@
             newSelectedBackground.highlighted = YES;
             self.backgroundView = newBackground;
             self.highlightedBackgroundView = newSelectedBackground;
-            [newBackground release];
-            [newSelectedBackground release];
             
             self.textLabel.font = [UIFont boldSystemFontOfSize:18];
             self.textLabel.opaque = NO;

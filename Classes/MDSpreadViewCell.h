@@ -65,8 +65,6 @@ typedef enum {
   @public
     NSUInteger _reuseHash;
   @private
-    MDSpreadView *spreadView;
-    
     UIView *backgroundView; // default is UIImageView
     UIView *highlightedBackgroundView;
     UILabel *textLabel;
