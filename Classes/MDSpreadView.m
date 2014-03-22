@@ -1039,6 +1039,83 @@
 {
     [super layoutSubviews];
     
+/* OK, the general algorithm will be something like this:
+ 
+ 1. Calculate the current bounding rect of the content. That is to say, the:
+        visibleBounds
+        minRowIndexPath (inclusive)
+        maxRowIndexPath (inclusive)
+        minColumnIndexPath
+        maxColumnIndexPath
+    Practically, these bounds will be ever so slightly larger than the actual bounds, to accomodate for contentInset.
+    While we are at it, we will cache widths and heights into two arrays, so they don't need to be re-calculated later.
+    We will use the existing visibleBounds, along with references to cell sizes to calculate this.
+    However, if the (min|max)*IndexPath is different than the existing (min|max)*IndexPath, the calculations
+     for that dimension will be calculated based on the existing sections.
+    Finally, don't forget to include the sizes of any headers and footers! Headers have an index or -1 while
+     footers have an index of sectionCount+1.
+ 
+    For a spread view with 2 column/row sections, with 3 and 4 items respectively, we will get this:
+     C C C  C C C C
+     C C C  C C C C
+     C C C  C C C C
+ 
+     C C C  C C C C
+     C C C  C C C C
+     C C C  C C C C
+     C C C  C C C C
+ 
+ 2. Remove any *content* cells that are outside of these bounds.
+    Although we probably don't have any yet, *content* cells will be arranged in a 2D array with markers to
+     the current min/max index paths in each direction.
+    If any dimension is empty, that dimension will be marked as voided.
+    Space will *not* be skipped for any headers and footers in this structure.
+ 
+ 3. Add back new content cells until the structure is complete
+ 
+ 4. Based on this, we will now calculate the column header/footer min/max index paths.
+    The only difference here is that we will round the first index path to the first/last columns of a section
+     for the header and footer respectively.
+    As before, we remove any header and footer that fall outside this range, and then add new ones
+    This 2D structure will be similar, but will only have column headers and footers, alternating each column
+     (It'll probably only be 2 or 3 columns wide, while having the same height as the main structure)
+    If we add any headers before an existing one, or footers after the end of the last one, be sure to reset
+     the frames of the affected cells (aka, they used to be pinned)
+ 
+    Assuming everything fit on screen, we will get a structure similar to this:
+     H F  H F
+     H F  H F
+     H F  H F
+     H F  H F
+     H F  H F
+     H F  H F
+     H F  H F
+ 
+ 5. From here, we locate the first header and last footer, and pin them to the current horizontal bounds
+ 
+ 6. Now, we do the same for the row headers and footers.
+ 
+    Assuming everything fit on screen, we will get a structure similar to this:
+     H H H H H H H
+     F F F F F F F
+ 
+     H H H H H H H
+     F F F F F F F
+ 
+ 7. Finally, we will do a similar treatment for the header and footer corner cells.
+    Each will be in its own 2D structure, one cell for each section in each direction
+ 
+    The headers and footers will assume these two structures:
+     H  H        F  F
+ 
+     H  H        F  F
+ 
+ Note: Maybe row/column headers and footers should be in a different structure?
+ 
+ 
+ */
+    
+    
 //    [CATransaction begin];
 //    [CATransaction setAnimationDuration:0];
 //    [CATransaction setDisableActions:YES];
