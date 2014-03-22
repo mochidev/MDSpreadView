@@ -128,7 +128,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 @interface MDSpreadView : UIScrollView {
   @private
-    id <MDSpreadViewDataSource> _dataSource;
+    id <MDSpreadViewDataSource> __weak _dataSource;
     
     CGFloat rowHeight;
     CGFloat sectionRowHeaderHeight;
@@ -169,10 +169,10 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDSpreadViewSelectionMode selectionMode;
     NSMutableArray *sortDescriptors;
     
-    Class _defaultHeaderCornerCellClass;
-    Class _defaultHeaderColumnCellClass;
-    Class _defaultHeaderRowCellClass;
-    Class _defaultCellClass;
+    Class __weak _defaultHeaderCornerCellClass;
+    Class __weak _defaultHeaderColumnCellClass;
+    Class __weak _defaultHeaderRowCellClass;
+    Class __weak _defaultCellClass;
     
     BOOL _didSetReloadData;
     
@@ -183,8 +183,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDSpreadViewCellResizing rowResizing;
 }
 
-@property (nonatomic, assign) IBOutlet id <MDSpreadViewDataSource> dataSource;
-@property (nonatomic, assign) IBOutlet id <MDSpreadViewDelegate> delegate;
+@property (nonatomic, weak) IBOutlet id <MDSpreadViewDataSource> dataSource;
+@property (nonatomic, weak) IBOutlet id <MDSpreadViewDelegate> delegate;
 
 // Cell Dimensions
 @property (nonatomic) CGFloat rowHeight;
@@ -193,15 +193,15 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic) CGFloat sectionColumnHeaderWidth;
 
 // default cell setters. must be subclasses of MDSpreadViewCell;
-@property (nonatomic) Class defaultHeaderCornerCellClass;
-@property (nonatomic) Class defaultHeaderColumnCellClass;
-@property (nonatomic) Class defaultHeaderRowCellClass;
-@property (nonatomic) Class defaultCellClass;
+@property (nonatomic, weak) Class defaultHeaderCornerCellClass;
+@property (nonatomic, weak) Class defaultHeaderColumnCellClass;
+@property (nonatomic, weak) Class defaultHeaderRowCellClass;
+@property (nonatomic, weak) Class defaultCellClass;
 
 @property (nonatomic) MDSpreadViewCellResizing columnResizing __attribute__((unavailable));
 @property (nonatomic) MDSpreadViewCellResizing rowResizing __attribute__((unavailable));
 
-@property (nonatomic, readwrite, retain) UIView *backgroundView __attribute__((unavailable)); // the background view will be automatically resized to track the size of the table view.  this will be placed as a subview of the table view behind all cells and headers/footers.  default may be non-nil for some devices.
+@property (nonatomic, readwrite, strong) UIView *backgroundView __attribute__((unavailable)); // the background view will be automatically resized to track the size of the table view.  this will be placed as a subview of the table view behind all cells and headers/footers.  default may be non-nil for some devices.
 
 // Data
 
@@ -259,7 +259,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 @property (nonatomic) MDSpreadViewCellSeparatorStyle separatorStyle __attribute__((unavailable));
 // default is MDSpreadViewCellSeparatorStyleCorner
-@property (nonatomic, retain) UIColor *separatorColor __attribute__((unavailable));
+@property (nonatomic, strong) UIColor *separatorColor __attribute__((unavailable));
 // default is the standard separator gray
 
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
@@ -335,7 +335,7 @@ enum {MDSpreadViewSelectWholeSpreadView = -1};
     MDSpreadViewSortAxis sortAxis;
 }
 
-@property (nonatomic, readonly, retain) MDIndexPath *indexPath;
+@property (nonatomic, readonly, strong) MDIndexPath *indexPath;
 // index path for sort header
 @property (nonatomic, readonly) NSInteger section;
 // the section to sort, or MDSpreadViewSelectWholeSpreadView to sort the whole spread view
@@ -359,8 +359,8 @@ enum {MDSpreadViewSelectWholeSpreadView = -1};
     MDSpreadViewSelectionMode selectionMode;
 }
 
-@property (nonatomic, retain, readonly) MDIndexPath *rowPath;
-@property (nonatomic, retain, readonly) MDIndexPath *columnPath;
+@property (nonatomic, strong, readonly) MDIndexPath *rowPath;
+@property (nonatomic, strong, readonly) MDIndexPath *columnPath;
 @property (nonatomic, readonly) MDSpreadViewSelectionMode selectionMode;
 
 + (id)selectionWithRow:(MDIndexPath *)row column:(MDIndexPath *)column mode:(MDSpreadViewSelectionMode)mode;
