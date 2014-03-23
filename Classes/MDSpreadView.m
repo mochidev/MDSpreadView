@@ -1556,6 +1556,52 @@
  */
 }
 
+// Only call this if the frame is non-zero!!
+- (MDSpreadViewCell *)_preparedCellForRowAtIndexPath:(MDIndexPath *)rowIndexPath forColumnAtIndexPath:(MDIndexPath *)columnIndexPath withRowSectionCount:(NSUInteger)rowSectionCount columnSectionCount:(NSUInteger)columnSectionCount frame:(CGRect)frame
+{
+    MDSpreadViewCell *cell = nil;
+    UIView *anchor = nil;
+    
+    NSInteger row = rowIndexPath.row;
+    NSInteger rowSection = rowIndexPath.section;
+    NSInteger column = columnIndexPath.row;
+    NSInteger columnSection = columnIndexPath.section;
+    
+    if (row == -1 && column == -1) { // corner header
+        cell = [self _cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
+        anchor = anchorCornerHeaderCell;
+    } else if (row == rowSectionCount && column == columnSectionCount) { // corner footer
+        cell = [self _cellForFooterInRowSection:rowSection forColumnSection:columnSection];
+        anchor = anchorCornerHeaderCell;
+    } else if (row == -1) { // header row
+        cell = [self _cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+        anchor = anchorRowHeaderCell;
+    } else if (row == rowSectionCount) { // footer row
+        cell = [self _cellForFooterInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+        anchor = anchorRowHeaderCell;
+    } else if (column == -1) { // header column
+        cell = [self _cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+        anchor = anchorColumnHeaderCell;
+    } else if (column == columnSectionCount) { // footer column
+        cell = [self _cellForFooterInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+        anchor = anchorColumnHeaderCell;
+    } else { // content
+        cell = [self _cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
+        anchor = anchorCell;
+    }
+    
+    cell._pureFrame = frame;
+    cell.hidden = NO;
+    
+    [self _willDisplayCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
+    
+    if ([cell superview] != self) {
+        [self insertSubview:cell belowSubview:anchor];
+    }
+    
+    return cell;
+}
+
 - (void)_layoutAddColumnCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
 {
     if (domain == MDSpreadViewCellDomainCells) {
@@ -3211,6 +3257,7 @@
 #pragma mark — Cells
 - (void)_willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
+    // TODO: Should handle footers here as well
     if (rowPath.row <= 0 && columnPath.column <= 0) {
         if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInRowSection:forColumnSection:)])
             [self.delegate spreadView:self willDisplayCell:cell forHeaderInRowSection:rowPath.section forColumnSection:columnPath.section];
@@ -3260,6 +3307,11 @@
     return returnValue;
 }
 
+- (MDSpreadViewCell *)_cellForFooterInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
+{
+    return [self _cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
+}
+
 - (MDSpreadViewCell *)_cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
 {
 //    NSLog(@"Getting header cell %@ %d", rowPath, section);
@@ -3294,6 +3346,11 @@
     return returnValue;
 }
 
+- (MDSpreadViewCell *)_cellForFooterInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
+{
+    return [self _cellForHeaderInColumnSection:section forRowAtIndexPath:rowPath];
+}
+
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
 //    NSLog(@"Getting header cell %d %@", section, columnPath);
@@ -3326,6 +3383,11 @@
     [returnValue setNeedsLayout];
     
     return returnValue;
+}
+
+- (MDSpreadViewCell *)_cellForFooterInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)rowPath
+{
+    return [self _cellForHeaderInRowSection:section forColumnAtIndexPath:rowPath];
 }
 
 - (MDSpreadViewCell *)_cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
