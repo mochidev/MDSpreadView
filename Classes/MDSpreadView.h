@@ -150,6 +150,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDIndexPath *minRowIndexPath;
     MDIndexPath *maxRowIndexPath;
     
+    NSMutableArray *columnSections;
+    NSMutableArray *rowSections;
+    
     UIView *dummyView;
     
     // Done with new algorithm

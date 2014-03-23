@@ -57,6 +57,7 @@
 
 - (NSArray *)removeCellsBeforeRow:(NSUInteger)newFirstRow column:(NSUInteger)newFirstColumn;
 - (NSArray *)removeCellsAfterRow:(NSUInteger)newLastRow column:(NSUInteger)newLastColumn;
+- (NSArray *)removeAllCells;
 
 @end
 
@@ -249,6 +250,22 @@
         }
         rowsToRemove--;
     }
+    
+    return cellsToRemove;
+}
+
+- (NSArray *)removeAllCells
+{
+    NSMutableArray *cellsToRemove = [[NSMutableArray alloc] init];
+    
+    for (NSMutableArray *column in columns) {
+        [cellsToRemove addObjectsFromArray:column];
+    }
+    
+    [columns removeAllObjects];
+    
+    _rowCount = 0;
+    _columnCount = 0;
     
     return cellsToRemove;
 }
@@ -731,7 +748,12 @@
     self.directionalLockEnabled = YES;
     
     _dequeuedCells = [[NSMutableSet alloc] init];
-    visibleCells = [[NSMutableArray alloc] init];
+//    visibleCells = [[NSMutableArray alloc] init];
+    
+    mapForContent = [[MDSpreadViewCellMap alloc] init];
+    mapForColumnHeaders = [[MDSpreadViewCellMap alloc] init];
+    mapForRowHeaders = [[MDSpreadViewCellMap alloc] init];
+    mapForCornerHeaders = [[MDSpreadViewCellMap alloc] init];
     
     _headerColumnCells = [[NSMutableArray alloc] init];
     _headerRowCells = [[NSMutableArray alloc] init];
@@ -886,14 +908,16 @@
         CGFloat totalHeight = 0;
         
         [self _clearAllCells];
-        [visibleCells removeAllObjects];
         
         visibleBounds.size = CGSizeZero;
         
+        minColumnIndexPath = nil;
+        maxColumnIndexPath = nil;
+        minRowIndexPath = nil;
+        maxRowIndexPath = nil;
+        
         self._visibleColumnIndexPath = nil;
         self._visibleRowIndexPath = nil;
-        
-        CGPoint offset = self.contentOffset;
         
         NSMutableArray *newColumnSections = [[NSMutableArray alloc] init];
         
@@ -905,30 +929,19 @@
             sectionDescriptor.numberOfCells = numberOfColumns;
             sectionDescriptor.offset = totalWidth;
             
-            CGFloat width = [self _widthForColumnHeaderInSection:i];
-            
-            totalWidth += width;
-            
-            if (!_visibleColumnIndexPath && totalWidth > offset.x) {
-                self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:-1 inSection:i];
-                visibleBounds.origin.x = totalWidth-width;
-            }
+            totalWidth += [self _widthForColumnHeaderInSection:i];
             
             for (NSUInteger j = 0; j < numberOfColumns; j++) {
-                CGFloat width = [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:j inSection:i]];
-                totalWidth += width;
-                
-                if (!_visibleColumnIndexPath && totalWidth > offset.x) {
-                    self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:j inSection:i];
-                    visibleBounds.origin.x = totalWidth-width;
-                }
+                totalWidth += [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:j inSection:i]];
             }
+            
+            totalWidth += [self _widthForColumnFooterInSection:i];
             
             sectionDescriptor.size = totalWidth - sectionDescriptor.offset;
         }
         
-        // actually compare it at some point or something... not sure why actually
-        self._columnSections = newColumnSections;
+        // maybe compare to the old value, and move existing cells if there are any
+        columnSections = newColumnSections;
         
         NSMutableArray *newRowSections = [[NSMutableArray alloc] init];
         
@@ -940,50 +953,20 @@
             sectionDescriptor.numberOfCells = numberOfRows;
             sectionDescriptor.offset = totalHeight;
             
-            CGFloat height = [self _heightForRowHeaderInSection:i];
-            
-            totalHeight += height;
-            
-            if (!_visibleRowIndexPath && totalHeight > offset.y) {
-                self._visibleRowIndexPath = [MDIndexPath indexPathForRow:-1 inSection:i];
-                visibleBounds.origin.y = totalHeight-height;
-            }
+            totalHeight += [self _heightForRowHeaderInSection:i];
             
             for (NSUInteger j = 0; j < numberOfRows; j++) {
-                height = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
-                totalHeight += height;
-                
-                if (!_visibleRowIndexPath && totalHeight > offset.y) {
-                    self._visibleRowIndexPath = [MDIndexPath indexPathForRow:j inSection:i];
-                    visibleBounds.origin.y = totalHeight-height;
-                }
+                totalHeight += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
             }
+            
+            totalHeight += [self _heightForRowFooterInSection:i];
             
             sectionDescriptor.size = totalHeight - sectionDescriptor.offset;
         }
         
-        self._rowSections = newRowSections;
+        rowSections = newRowSections;
         
-        if (!self._visibleColumnIndexPath) {
-            visibleBounds.origin.x = 0;
-            self._visibleColumnIndexPath = [MDIndexPath indexPathForColumn:-1 inSection:0];
-        }
-        
-        if (!self._visibleRowIndexPath) {
-            visibleBounds.origin.y = 0;
-            self._visibleRowIndexPath = [MDIndexPath indexPathForRow:-1 inSection:0];
-        }
-        
-//    self.contentOffset = visibleBounds.origin;
         self.contentSize = CGSizeMake(totalWidth-1, totalHeight-1);
-        
-        self._headerRowIndexPath = nil;
-        self._headerColumnIndexPath = nil;
-    
-//    anchorCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
-//    anchorColumnHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
-//    anchorCornerHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
-//    anchorRowHeaderCell.frame = CGRectMake(0, 0, calculatedSize.width, calculatedSize.height);
     
 //    if (selectedSection != NSNotFound || selectedRow!= NSNotFound) {
 //        if (selectedSection > numberOfSections || selectedRow > [self tableView:self numberOfRowsInSection:selectedSection]) {
@@ -3071,13 +3054,16 @@
 
 - (void)_clearAllCells
 {
-    for (NSMutableArray *array in visibleCells) {
-        for (MDSpreadViewCell *cell in array) {
-            if ((NSNull *)cell != [NSNull null]) {
-//                [cell removeFromSuperview];
-                cell.hidden = YES;
-                [_dequeuedCells addObject:cell];
-            }
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    [array addObjectsFromArray:[mapForContent removeAllCells]];
+    [array addObjectsFromArray:[mapForColumnHeaders removeAllCells]];
+    [array addObjectsFromArray:[mapForRowHeaders removeAllCells]];
+    [array addObjectsFromArray:[mapForCornerHeaders removeAllCells]];
+    
+    for (MDSpreadViewCell *cell in array) {
+        if ((NSNull *)cell != [NSNull null]) {
+            cell.hidden = YES;
+            [_dequeuedCells addObject:cell];
         }
     }
 }
