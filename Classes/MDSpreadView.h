@@ -144,6 +144,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDSpreadViewCellMap *mapForColumnHeaders;
     MDSpreadViewCellMap *mapForRowHeaders;
     MDSpreadViewCellMap *mapForCornerHeaders;
+    CGRect mapBounds;
     
     MDIndexPath *minColumnIndexPath;
     MDIndexPath *maxColumnIndexPath;
@@ -154,6 +155,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableArray *rowSections;
     
     UIView *dummyView;
+    UIView *dummyViewB;
     
     // Done with new algorithm
     
