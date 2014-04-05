@@ -1254,12 +1254,12 @@
     
     // here, remove front columns and rows
     if (minColumnIndexPath) { // if this is nil, the others will be nil too
+        
         // remove columns before
         NSInteger workingColumnSection = minColumnIndexPath.section;
         NSInteger workingColumnIndex = minColumnIndexPath.column;
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
-        
         
         NSInteger preColumnDifference = 0;
         
@@ -1277,19 +1277,50 @@
             
         }
         
+        // remove rows before
+        NSInteger workingRowSection = minRowIndexPath.section;
+        NSInteger workingRowIndex = minRowIndexPath.row;
+        
+        NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+        
+        NSInteger preRowDifference = 0;
+        
+        while ((workingRowSection < minRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == minRowSection && workingRowIndex < minRowIndex)) { // go through sections
+            if (workingRowIndex > -1 && workingRowIndex < numberOfRowsInSection) {
+                preRowDifference++;
+            }
+            
+            workingRowIndex++;
+            if (workingRowIndex > numberOfRowsInSection) {
+                workingRowIndex = -1;
+                workingRowSection++;
+                numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+            }
+            
+        }
+        
 //        NSLog(@"Removing [%d", preColumnDifference);
         
-        if (preColumnDifference > 0) {
-            NSArray *oldCells = [mapForContent removeCellsBeforeRow:0 column:preColumnDifference];
+        if (preColumnDifference > 0 || preRowDifference > 0) {
+            NSArray *oldCells = [mapForContent removeCellsBeforeRow:preRowDifference column:preColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
                     [_dequeuedCells addObject:cell];
                 }
             }
-            mapBounds.size.width = mapBounds.origin.x + mapBounds.size.width - _visibleBounds.origin.x;
-            mapBounds.origin.x = _visibleBounds.origin.x;
-            minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
+            
+            if (preColumnDifference) {
+                mapBounds.size.width = mapBounds.origin.x + mapBounds.size.width - _visibleBounds.origin.x;
+                mapBounds.origin.x = _visibleBounds.origin.x;
+                minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
+            }
+            
+            if (preRowDifference) {
+                mapBounds.size.height = mapBounds.origin.y + mapBounds.size.height - _visibleBounds.origin.y;
+                mapBounds.origin.y = _visibleBounds.origin.y;
+                minRowIndexPath = [MDIndexPath indexPathForColumn:minRowIndex inSection:minRowSection];
+            }
             
             if (mapForContent.rowCount == 0) {
                 minColumnIndexPath = nil;
@@ -1309,7 +1340,6 @@
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
-        
         NSInteger postColumnDifference = 0;
         
         while ((workingColumnSection > maxColumnSection && workingColumnIndex >= -1) || (workingColumnSection == maxColumnSection && workingColumnIndex > maxColumnIndex)) {
@@ -1326,18 +1356,48 @@
 
         }
         
+        // remove columns after
+        NSInteger workingRowSection = maxRowIndexPath.section;
+        NSInteger workingRowIndex = maxRowIndexPath.column;
+        
+        NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+        
+        NSInteger postRowDifference = 0;
+        
+        while ((workingRowSection > maxRowSection && workingRowIndex >= -1) || (workingRowSection == maxRowSection && workingRowIndex > maxRowIndex)) {
+            if (workingRowIndex > -1 && workingRowIndex < numberOfRowsInSection) {
+                postRowDifference++;
+            }
+            
+            workingRowIndex--;
+            if (workingRowIndex < -1) {
+                workingRowSection--;
+                numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+                workingRowIndex = numberOfRowsInSection;
+            }
+            
+        }
+        
 //        NSLog(@"Removing %d]", postColumnDifference);
         
-        if (postColumnDifference > 0) {
-            NSArray *oldCells = [mapForContent removeCellsAfterRow:mapForContent.rowCount-1 column:mapForContent.columnCount-postColumnDifference-1];
+        if (postColumnDifference > 0 || postRowDifference > 0) {
+            NSArray *oldCells = [mapForContent removeCellsAfterRow:mapForContent.rowCount-postRowDifference-1 column:mapForContent.columnCount-postColumnDifference-1];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
                     [_dequeuedCells addObject:cell];
                 }
             }
-            mapBounds.size.width = _visibleBounds.origin.x + _visibleBounds.size.width - mapBounds.origin.x;
-            maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
+            
+            if (postColumnDifference) {
+                mapBounds.size.width = _visibleBounds.origin.x + _visibleBounds.size.width - mapBounds.origin.x;
+                maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
+            }
+            
+            if (postRowDifference) {
+                mapBounds.size.height = _visibleBounds.origin.y + _visibleBounds.size.height - mapBounds.origin.y;
+                maxRowIndexPath = [MDIndexPath indexPathForRow:maxRowIndex inSection:maxRowSection];
+            }
             
             if (mapForContent.rowCount == 0) {
                 minColumnIndexPath = nil;
