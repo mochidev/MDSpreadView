@@ -1472,28 +1472,23 @@
     // add columns after
     if ((maxColumnIndexPath.section < maxColumnSection) || (maxColumnIndexPath.section == maxColumnSection && maxColumnIndexPath.column < maxColumnIndex)) {
         
-        NSInteger workingColumnSection = maxColumnIndexPath.section;
-        NSInteger workingColumnIndex = maxColumnIndexPath.column;
+        NSInteger workingColumnSection = maxColumnSection;
+        NSInteger workingColumnIndex = maxColumnIndex;
+        
+        NSInteger finalColumnSection = maxColumnIndexPath.section;
+        NSInteger finalColumnIndex = maxColumnIndexPath.column;
         
         NSInteger totalNumberOfColumnSections = [columnSections count];
         NSInteger totalNumberOfRowSections = [rowSections count];
         
-        CGPoint offset = CGPointMake(mapBounds.origin.x + mapBounds.size.width, 0); // _visibleBounds.origin.x + _visibleBounds.size.width
+        CGPoint offset = CGPointMake(_visibleBounds.origin.x + _visibleBounds.size.width, 0);
         
         NSMutableArray *columns = [[NSMutableArray alloc] init];
         NSArray *rowSizesCache = nil;
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
-        workingColumnIndex++;
-        if (workingColumnIndex > numberOfColumnsInSection) {
-            workingColumnIndex = -1;
-            workingColumnSection++;
-            numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
-        }
-        
-        // we should do this back to front
-        while ((workingColumnSection < maxColumnSection && workingColumnIndex <= numberOfColumnsInSection) || (workingColumnSection == maxColumnSection && workingColumnIndex <= maxColumnIndex)) { // go through sections
+        while ((workingColumnSection > finalColumnSection && workingColumnIndex >= -1) || (workingColumnSection == finalColumnSection && workingColumnIndex > finalColumnIndex)) { // go through sections
             if (workingColumnSection >= totalNumberOfColumnSections) {
                 NSAssert(NO, @"Shouldn't get here :/");
                 break;
@@ -1505,24 +1500,22 @@
             
             MDIndexPath *columnIndexPath = [MDIndexPath indexPathForRow:workingColumnIndex inSection:workingColumnSection];
             CGFloat width = [self _widthForColumnAtIndexPath:columnIndexPath];
-            // offset.x -= width
+            offset.x -= width;
             offset.y = _visibleBounds.origin.y;
             NSArray *column = [self _layoutColumnAtIndexPath:columnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
                                                       offset:offset width:width rowSizesCache:rowSizesCache];
             
             if (column) {
-                [columns addObject:column];
+                [columns insertObject:column atIndex:0];
             }
-            
-            offset.x += width; // get rid of this
             
             mapBounds.size.width += width;
             
-            workingColumnIndex++;
-            if (workingColumnIndex > numberOfColumnsInSection) {
-                workingColumnIndex = -1;
-                workingColumnSection++;
+            workingColumnIndex--;
+            if (workingColumnIndex < -1) {
+                workingColumnSection--;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
+                workingColumnIndex = numberOfColumnsInSection;
             }
         }
         
