@@ -1377,7 +1377,7 @@
         frame.origin.x = _visibleBounds.origin.x;
         
         NSMutableArray *columns = [[NSMutableArray alloc] init];
-        NSMutableArray *rowSizesCache = nil;
+        NSArray *rowSizesCache = nil;
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
@@ -1388,29 +1388,7 @@
             }
             
             if (!rowSizesCache) {
-                rowSizesCache = [[NSMutableArray alloc] init];
-                
-                NSInteger workingRowSection = minRowSection;
-                NSInteger workingRowIndex = minRowIndex;
-                NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                
-                while ((workingRowSection < maxRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == maxRowSection && workingRowIndex <= maxRowIndex)) { // go through sections
-                    if (workingRowSection >= totalNumberOfRowSections) {
-                        NSAssert(NO, @"Shouldn't get here :/");
-                        break;
-                    }
-                    
-                    MDIndexPath *indexPath = [MDIndexPath indexPathForRow:workingRowIndex inSection:workingRowSection];
-                    
-                    [rowSizesCache addObject:[[MDSpreadViewSizeCache alloc] initWithIndexPath:indexPath size:[self _heightForRowAtIndexPath:indexPath] sectionCount:numberOfRowsInSection]];
-                    
-                    workingRowIndex++;
-                    if (workingRowIndex > numberOfRowsInSection) {
-                        workingRowIndex = -1;
-                        workingRowSection++;
-                        numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                    }
-                }
+                rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections];
             }
             
             NSMutableArray *column = [[NSMutableArray alloc] init];
@@ -1484,7 +1462,7 @@
         frame.origin.x = _visibleBounds.origin.x;
         
         NSMutableArray *columns = [[NSMutableArray alloc] init];
-        NSMutableArray *rowSizesCache = nil;
+        NSArray *rowSizesCache = nil;
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
@@ -1495,29 +1473,7 @@
             }
             
             if (!rowSizesCache) {
-                rowSizesCache = [[NSMutableArray alloc] init];
-                
-                NSInteger workingRowSection = minRowSection;
-                NSInteger workingRowIndex = minRowIndex;
-                NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                
-                while ((workingRowSection < maxRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == maxRowSection && workingRowIndex <= maxRowIndex)) { // go through sections
-                    if (workingRowSection >= totalNumberOfRowSections) {
-                        NSAssert(NO, @"Shouldn't get here :/");
-                        break;
-                    }
-                    
-                    MDIndexPath *indexPath = [MDIndexPath indexPathForRow:workingRowIndex inSection:workingRowSection];
-                    
-                    [rowSizesCache addObject:[[MDSpreadViewSizeCache alloc] initWithIndexPath:indexPath size:[self _heightForRowAtIndexPath:indexPath] sectionCount:numberOfRowsInSection]];
-                    
-                    workingRowIndex++;
-                    if (workingRowIndex > numberOfRowsInSection) {
-                        workingRowIndex = -1;
-                        workingRowSection++;
-                        numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                    }
-                }
+                rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections];
             }
             
             NSMutableArray *column = [[NSMutableArray alloc] init];
@@ -1590,7 +1546,7 @@
         frame.origin.x = mapBounds.origin.x + mapBounds.size.width;
         
         NSMutableArray *columns = [[NSMutableArray alloc] init];
-        NSMutableArray *rowSizesCache = nil;
+        NSArray *rowSizesCache = nil;
         
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
@@ -1608,29 +1564,7 @@
             }
             
             if (!rowSizesCache) {
-                rowSizesCache = [[NSMutableArray alloc] init];
-                
-                NSInteger workingRowSection = minRowSection;
-                NSInteger workingRowIndex = minRowIndex;
-                NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                
-                while ((workingRowSection < maxRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == maxRowSection && workingRowIndex <= maxRowIndex)) { // go through sections
-                    if (workingRowSection >= totalNumberOfRowSections) {
-                        NSAssert(NO, @"Shouldn't get here :/");
-                        break;
-                    }
-                    
-                    MDIndexPath *indexPath = [MDIndexPath indexPathForRow:workingRowIndex inSection:workingRowSection];
-                    
-                    [rowSizesCache addObject:[[MDSpreadViewSizeCache alloc] initWithIndexPath:indexPath size:[self _heightForRowAtIndexPath:indexPath] sectionCount:numberOfRowsInSection]];
-                    
-                    workingRowIndex++;
-                    if (workingRowIndex > numberOfRowsInSection) {
-                        workingRowIndex = -1;
-                        workingRowSection++;
-                        numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
-                    }
-                }
+                rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections];
             }
             
             NSMutableArray *column = [[NSMutableArray alloc] init];
@@ -2070,6 +2004,35 @@
     }
     
     return cell;
+}
+
+- (NSArray *)_generateRowSizeCacheBetweenSection:(NSInteger)minRowSection index:(NSInteger)minRowIndex andSection:(NSInteger)maxRowSection index:(NSInteger)maxRowIndex withTotalRowSections:(NSInteger)totalNumberOfRowSections
+{
+    NSMutableArray *rowSizesCache = [[NSMutableArray alloc] init];
+    
+    NSInteger workingRowSection = minRowSection;
+    NSInteger workingRowIndex = minRowIndex;
+    NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+    
+    while ((workingRowSection < maxRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == maxRowSection && workingRowIndex <= maxRowIndex)) { // go through sections
+        if (workingRowSection >= totalNumberOfRowSections) {
+            NSAssert(NO, @"Shouldn't get here :/");
+            break;
+        }
+        
+        MDIndexPath *indexPath = [MDIndexPath indexPathForRow:workingRowIndex inSection:workingRowSection];
+        
+        [rowSizesCache addObject:[[MDSpreadViewSizeCache alloc] initWithIndexPath:indexPath size:[self _heightForRowAtIndexPath:indexPath] sectionCount:numberOfRowsInSection]];
+        
+        workingRowIndex++;
+        if (workingRowIndex > numberOfRowsInSection) {
+            workingRowIndex = -1;
+            workingRowSection++;
+            numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
+        }
+    }
+    
+    return rowSizesCache;
 }
 
 - (void)_layoutAddColumnCellsBeforeWithOffset:(CGPoint)offset size:(CGSize)size domain:(MDSpreadViewCellDomain)domain
