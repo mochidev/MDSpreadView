@@ -736,14 +736,9 @@
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize rowHeight, columnWidth, sectionColumnHeaderWidth, sectionRowHeaderHeight;
 @synthesize _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath;
 @synthesize _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections;
 @synthesize _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
-@synthesize defaultCellClass=_defaultCellClass;
-@synthesize defaultHeaderColumnCellClass=_defaultHeaderColumnCellClass;
-@synthesize defaultHeaderRowCellClass=_defaultHeaderRowCellClass;
-@synthesize defaultHeaderCornerCellClass=_defaultHeaderCornerCellClass;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -780,8 +775,10 @@
     
     _rowHeight = 44; // 25
     _sectionRowHeaderHeight = 22;
+    _sectionRowFooterHeight = 22;
     _columnWidth = 220;
     _sectionColumnHeaderWidth = 110;
+    _sectionColumnFooterWidth = 110;
     
     _selectedCells = [[NSMutableArray alloc] init];
     selectionMode = MDSpreadViewSelectionModeCell;
@@ -791,6 +788,9 @@
     _defaultHeaderColumnCellClass = [MDSpreadViewHeaderCell class];
     _defaultHeaderCornerCellClass = [MDSpreadViewHeaderCell class];
     _defaultHeaderRowCellClass = [MDSpreadViewHeaderCell class];
+    _defaultFooterColumnCellClass = [MDSpreadViewHeaderCell class];
+    _defaultFooterCornerCellClass = [MDSpreadViewHeaderCell class];
+    _defaultFooterRowCellClass = [MDSpreadViewHeaderCell class];
     
     anchorCell = [[UIView alloc] init];
 //    anchorCell.hidden = YES;
@@ -839,7 +839,18 @@
 {
     _sectionRowHeaderHeight = newHeight;
     
+    didSetHeaderHeight = YES;
     if (implementsRowHeaderHeight) return;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setSectionRowFooterHeight:(CGFloat)newHeight
+{
+    _sectionRowFooterHeight = newHeight;
+    
+    didSetFooterHeight = YES;
+    if (implementsRowFooterHeight) return;
     
     [self _setNeedsReloadData];
 }
@@ -857,7 +868,18 @@
 {
     _sectionColumnHeaderWidth = newWidth;
     
+    didSetHeaderWidth = YES;
     if (implementsColumnHeaderWidth) return;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setSectionColumnFooterWidth:(CGFloat)newWidth
+{
+    _sectionColumnFooterWidth = newWidth;
+    
+    didSetFooterWidth = YES;
+    if (implementsColumnFooterWidth) return;
     
     [self _setNeedsReloadData];
 }
@@ -885,6 +907,51 @@
     NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
     
     _defaultHeaderRowCellClass = aClass;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDefaultFooterCornerCellClass:(Class)aClass
+{
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
+    _defaultFooterCornerCellClass = aClass;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDefaultFooterColumnCellClass:(Class)aClass
+{
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
+    _defaultFooterColumnCellClass = aClass;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDefaultFooterRowCellClass:(Class)aClass
+{
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
+    _defaultFooterRowCellClass = aClass;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDefaultHeaderRowFooterCornerCellClass:(Class)aClass
+{
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
+    _defaultHeaderRowFooterCornerCellClass = aClass;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDefaultHeaderColumnFooterCornerCellClass:(Class)aClass
+{
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
+    _defaultHeaderColumnFooterCornerCellClass = aClass;
     
     [self _setNeedsReloadData];
 }
@@ -918,8 +985,36 @@
     
         implementsRowHeight = YES;
         implementsRowHeaderHeight = YES;
+        implementsRowFooterHeight = YES;
         implementsColumnWidth = YES;
         implementsColumnHeaderWidth = YES;
+        implementsColumnFooterWidth = YES;
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInRowSection:forColumnSection:)] || [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnSection:)]) {
+            implementsRowHeaderData = YES;
+            implementsColumnHeaderData = YES;
+        } else {
+            implementsRowHeaderData = ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInRowSection:forColumnAtIndexPath:)] ||
+                                       [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnAtIndexPath:)] ||
+                                       [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnFooterSection:)]);
+            
+            implementsColumnHeaderData = ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInColumnSection:forRowAtIndexPath:)] ||
+                                          [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowAtIndexPath:)] ||
+                                          [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowFooterSection:)]);
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInRowSection:forColumnSection:)] || [_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnSection:)]) {
+            implementsRowFooterData = YES;
+            implementsColumnFooterData = YES;
+        } else {
+            implementsRowFooterData = ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInRowSection:forColumnAtIndexPath:)] ||
+                                       [_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnAtIndexPath:)] ||
+                                       [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowFooterSection:)]);
+            
+            implementsColumnFooterData = ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInColumnSection:forRowAtIndexPath:)] ||
+                                          [_dataSource respondsToSelector:@selector(spreadView:titleForFooterInColumnSection:forRowAtIndexPath:)] ||
+                                          [_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnFooterSection:)]);
+        }
         
         NSUInteger numberOfColumnSections = [self _numberOfColumnSections];
         NSUInteger numberOfRowSections = [self _numberOfRowSections];
@@ -1110,9 +1205,11 @@
  7. Finally, we will do a similar treatment for the header and footer corner cells.
  
     The headers and footers will assume this structure:
-     H F  H F
+     H B  H B
+     A F  A F
  
-     H F  H F
+     H B  H B
+     A F  A F
  
  Note: Maybe row/column headers and footers should be in different structures?
  
@@ -3766,6 +3863,8 @@
         implementsColumnHeaderWidth = NO;
     }
     
+    if (!didSetHeaderWidth && !implementsColumnHeaderData) return 0;
+    
     return self.sectionColumnHeaderWidth;
 }
 
@@ -3787,7 +3886,15 @@
 {
     if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
     
-    return 0;
+    if (implementsColumnFooterWidth && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnFooterInSection:)]) {
+        return [self.delegate spreadView:self widthForColumnFooterInSection:columnSection];
+    } else {
+        implementsColumnFooterWidth = NO;
+    }
+    
+    if (!didSetFooterWidth && !implementsColumnFooterData) return 0;
+    
+    return self.sectionColumnFooterWidth;
 }
 
 - (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection
@@ -3799,6 +3906,8 @@
     } else {
         implementsRowHeaderHeight = NO;
     }
+    
+    if (!didSetHeaderHeight && !implementsRowHeaderData) return 0;
     
     return self.sectionRowHeaderHeight;
 }
@@ -3821,7 +3930,15 @@
 {
     if (rowSection < 0 || rowSection >= [self _numberOfRowSections]) return 0;
     
-    return 0;
+    if (implementsRowFooterHeight && [self.delegate respondsToSelector:@selector(spreadView:heightForRowFooterInSection:)]) {
+        return [self.delegate spreadView:self heightForRowFooterInSection:rowSection];
+    } else {
+        implementsRowFooterHeight = NO;
+    }
+    
+    if (!didSetFooterHeight && !implementsRowFooterData) return 0;
+    
+    return self.sectionRowFooterHeight;
 }
 
 #pragma mark — Counts
@@ -3896,16 +4013,36 @@
 #pragma mark — Cells
 - (void)_willDisplayCell:(MDSpreadViewCell *)cell forRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
+    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowPath.section] numberOfCells];
+    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnPath.section] numberOfCells];
+    
+    NSAssert((rowPath.row >= -1 && rowPath.row <= numberOfRowsInSection && columnPath.column >= -1 && columnPath.column <= numberOfColumnsInSection), @"Trying to display an out of range cell");
+    
     // TODO: Should handle footers here as well
-    if (rowPath.row <= 0 && columnPath.column <= 0) {
+    if (rowPath.row == -1 && columnPath.column == -1) {
         if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInRowSection:forColumnSection:)])
             [self.delegate spreadView:self willDisplayCell:cell forHeaderInRowSection:rowPath.section forColumnSection:columnPath.section];
-    } else if (rowPath.row <= 0) {
+    } else if (rowPath.row == numberOfRowsInSection && columnPath.column == numberOfColumnsInSection) {
+        if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forFooterInRowSection:forColumnSection:)])
+            [self.delegate spreadView:self willDisplayCell:cell forFooterInRowSection:rowPath.section forColumnSection:columnPath.section];
+    } else if (rowPath.row == -1 && columnPath.column == numberOfColumnsInSection) {
+        if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInRowSection:forColumnFooterSection:)])
+            [self.delegate spreadView:self willDisplayCell:cell forHeaderInRowSection:rowPath.section forColumnFooterSection:columnPath.section];
+    } else if (rowPath.row == numberOfRowsInSection && columnPath.column == -1) {
+        if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInColumnSection:forRowFooterSection:)])
+            [self.delegate spreadView:self willDisplayCell:cell forHeaderInColumnSection:columnPath.section forRowFooterSection:rowPath.section];
+    } else if (rowPath.row == -1) {
         if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInRowSection:forColumnAtIndexPath:)])
             [self.delegate spreadView:self willDisplayCell:cell forHeaderInRowSection:rowPath.section forColumnAtIndexPath:columnPath];
-    } else if (columnPath.column <= 0) {
+    } else if (rowPath.row == numberOfRowsInSection) {
+        if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forFooterInRowSection:forColumnAtIndexPath:)])
+            [self.delegate spreadView:self willDisplayCell:cell forFooterInRowSection:rowPath.section forColumnAtIndexPath:columnPath];
+    } else if (columnPath.column == -1) {
         if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forHeaderInColumnSection:forRowAtIndexPath:)])
             [self.delegate spreadView:self willDisplayCell:cell forHeaderInColumnSection:columnPath.section forRowAtIndexPath:rowPath];
+    } else if (columnPath.column == numberOfColumnsInSection) {
+        if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forFooterInColumnSection:forRowAtIndexPath:)])
+            [self.delegate spreadView:self willDisplayCell:cell forFooterInColumnSection:columnPath.section forRowAtIndexPath:rowPath];
     } else {
         if ([self.delegate respondsToSelector:@selector(spreadView:willDisplayCell:forRowAtIndexPath:forColumnAtIndexPath:)])
             [self.delegate spreadView:self willDisplayCell:cell forRowAtIndexPath:rowPath forColumnAtIndexPath:columnPath];
@@ -3946,9 +4083,106 @@
     return returnValue;
 }
 
+- (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)rowSection forColumnFooterSection:(NSInteger)columnSection
+{
+    MDSpreadViewCell *returnValue = nil;
+    
+    if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInRowSection:forColumnFooterSection:)])
+        returnValue = [_dataSource spreadView:self cellForHeaderInRowSection:rowSection forColumnFooterSection:columnSection];
+    
+    if (!returnValue) {
+        static NSString *cellIdentifier = @"_kMDDefaultHeaderRowFooterCornerCell";
+        
+        MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            cell = [[_defaultHeaderRowFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                 reuseIdentifier:cellIdentifier];
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnFooterSection:)])
+            cell.objectValue = [_dataSource spreadView:self titleForHeaderInRowSection:rowSection forColumnFooterSection:columnSection];
+        
+        returnValue = cell;
+    }
+    
+    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:columnSection];
+    
+    [returnValue setNeedsLayout];
+    
+    return returnValue;
+}
+
+- (MDSpreadViewCell *)_cellForHeaderInColumnSection:(NSInteger)columnSection forRowFooterSection:(NSInteger)rowSection
+{
+    MDSpreadViewCell *returnValue = nil;
+    
+    if ([_dataSource respondsToSelector:@selector(spreadView:cellForHeaderInColumnSection:forRowFooterSection:)])
+        returnValue = [_dataSource spreadView:self cellForHeaderInColumnSection:columnSection forRowFooterSection:rowSection];
+    
+    if (!returnValue) {
+        static NSString *cellIdentifier = @"_kMDDefaultColumnFooterCornerCell";
+        
+        MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            cell = [[_defaultHeaderColumnFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                    reuseIdentifier:cellIdentifier];
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowFooterSection:)])
+            cell.objectValue = [_dataSource spreadView:self titleForHeaderInColumnSection:columnSection forRowFooterSection:rowSection];
+        
+        returnValue = cell;
+    }
+    
+    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:columnSection];
+    
+    [returnValue setNeedsLayout];
+    
+    return returnValue;
+}
+
 - (MDSpreadViewCell *)_cellForFooterInRowSection:(NSInteger)rowSection forColumnSection:(NSInteger)columnSection
 {
-    return [self _cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
+    MDSpreadViewCell *returnValue = nil;
+    
+    if ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInRowSection:forColumnSection:)])
+        returnValue = [_dataSource spreadView:self cellForFooterInRowSection:rowSection forColumnSection:columnSection];
+    
+    if (!returnValue) {
+        static NSString *cellIdentifier = @"_kMDDefaultFooterCornerCell";
+        
+        MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            cell = [[_defaultFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                        reuseIdentifier:cellIdentifier];
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnSection:)])
+            cell.objectValue = [_dataSource spreadView:self titleForFooterInRowSection:rowSection forColumnSection:columnSection];
+        
+        returnValue = cell;
+    }
+    
+    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:columnSection];
+    
+    [returnValue setNeedsLayout];
+    
+    return returnValue;
 }
 
 - (MDSpreadViewCell *)_cellForHeaderInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
@@ -3987,7 +4221,35 @@
 
 - (MDSpreadViewCell *)_cellForFooterInColumnSection:(NSInteger)section forRowAtIndexPath:(MDIndexPath *)rowPath
 {
-    return [self _cellForHeaderInColumnSection:section forRowAtIndexPath:rowPath];
+    MDSpreadViewCell *returnValue = nil;
+    
+    if ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInColumnSection:forRowAtIndexPath:)])
+        returnValue = [_dataSource spreadView:self cellForFooterInColumnSection:section forRowAtIndexPath:rowPath];
+    
+    if (!returnValue) {
+        static NSString *cellIdentifier = @"_kMDDefaultFooterColumnCell";
+        
+        MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            cell = [[_defaultFooterColumnCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
+                                                        reuseIdentifier:cellIdentifier];
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInColumnSection:forRowAtIndexPath:)])
+            cell.objectValue = [_dataSource spreadView:self titleForFooterInColumnSection:section forRowAtIndexPath:rowPath];
+        
+        returnValue = cell;
+    }
+    
+    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:section] numberOfCells];
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = rowPath;
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:section];
+    
+    [returnValue setNeedsLayout];
+    
+    return returnValue;
 }
 
 - (MDSpreadViewCell *)_cellForHeaderInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
@@ -4024,9 +4286,37 @@
     return returnValue;
 }
 
-- (MDSpreadViewCell *)_cellForFooterInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)rowPath
+- (MDSpreadViewCell *)_cellForFooterInRowSection:(NSInteger)section forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
-    return [self _cellForHeaderInRowSection:section forColumnAtIndexPath:rowPath];
+    MDSpreadViewCell *returnValue = nil;
+    
+    if ([_dataSource respondsToSelector:@selector(spreadView:cellForFooterInRowSection:forColumnAtIndexPath:)])
+        returnValue = [_dataSource spreadView:self cellForFooterInRowSection:section forColumnAtIndexPath:columnPath];
+    
+    if (!returnValue) {
+        static NSString *cellIdentifier = @"_kMDDefaultFooterRowCell";
+        
+        MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            cell = [[_defaultFooterRowCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
+                                                     reuseIdentifier:cellIdentifier];
+        }
+        
+        if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnAtIndexPath:)])
+            cell.objectValue = [_dataSource spreadView:self titleForFooterInRowSection:section forColumnAtIndexPath:columnPath];
+        
+        returnValue = cell;
+    }
+    
+    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:section] numberOfCells];
+	
+    returnValue.spreadView = self;
+	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:section];
+    returnValue._columnPath = columnPath;
+    
+    [returnValue setNeedsLayout];
+    
+    return returnValue;
 }
 
 - (MDSpreadViewCell *)_cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
