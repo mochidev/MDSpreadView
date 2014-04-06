@@ -1220,7 +1220,7 @@
     
     // find min column index
     for (NSInteger column = -1; column <= numberOfColumns; column++) { // take into account header and footer
-        CGFloat width = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:column inSection:minColumnSection]];
+        CGFloat width = [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForRow:column inSection:minColumnSection]];
         
         if (width && _visibleBounds.origin.x + width > bounds.origin.x) {
             minColumnIndex = column;
@@ -1235,7 +1235,7 @@
     
     // find max column index
     for (NSInteger column = numberOfColumns; column >= -1; column--) { // take into account header and footer
-        CGFloat width = [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:column inSection:maxColumnSection]];
+        CGFloat width = [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForRow:column inSection:maxColumnSection]];
         
         if (width && _visibleBounds.origin.x + _visibleBounds.size.width - width < bounds.origin.x + bounds.size.width) {
             maxColumnIndex = column;
