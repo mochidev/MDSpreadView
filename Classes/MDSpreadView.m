@@ -986,9 +986,6 @@
         
         rowSections = newRowSections;
         
-#pragma message "remove this!"
-//        totalHeight = 0;
-        
         self.contentSize = CGSizeMake(totalWidth-1, totalHeight-1);
     
 //    if (selectedSection != NSNotFound || selectedRow!= NSNotFound) {
@@ -1041,7 +1038,7 @@
 //    NSLog(@"\n\n%f, %f (%f, %f)\n\n", offset.x, offset.y, inset.left, inset.top);
 }
 
-#define MDSpreadViewFrameTime
+//#define MDSpreadViewFrameTime
 
 - (void)layoutSubviews
 {
@@ -1709,19 +1706,19 @@
     
     //    CGRect _visibleBounds = CGRectMake(<#CGFloat x#>, <#CGFloat y#>, <#CGFloat width#>, <#CGFloat height#>)
     
-    if (!dummyView) {
-        dummyView = [[UIView alloc] init];
-        dummyView.backgroundColor = [UIColor colorWithHue:(arc4random()%1000)/1000. saturation:1 brightness:1 alpha:0.1];
-        [self addSubview:dummyView];
-    }
-    dummyView.frame = _visibleBounds;
-    
-    if (!dummyViewB) {
-        dummyViewB = [[UIView alloc] init];
-        dummyViewB.backgroundColor = [UIColor colorWithWhite:0 alpha:0.1];
-        [self addSubview:dummyViewB];
-    }
-    dummyViewB.frame = mapBounds;
+//    if (!dummyView) {
+//        dummyView = [[UIView alloc] init];
+//        dummyView.backgroundColor = [UIColor colorWithHue:(arc4random()%1000)/1000. saturation:1 brightness:1 alpha:0.1];
+//        [self addSubview:dummyView];
+//    }
+//    dummyView.frame = _visibleBounds;
+//    
+//    if (!dummyViewB) {
+//        dummyViewB = [[UIView alloc] init];
+//        dummyViewB.backgroundColor = [UIColor colorWithWhite:0 alpha:0.1];
+//        [self addSubview:dummyViewB];
+//    }
+//    dummyViewB.frame = mapBounds;
    
 #ifdef MDSpreadViewFrameTime
     NSLog(@"Frame time: %.1fms", (CFAbsoluteTimeGetCurrent() - frameTime)*1000.);
