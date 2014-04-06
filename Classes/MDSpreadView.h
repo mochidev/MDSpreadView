@@ -131,11 +131,6 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
   @private
     id <MDSpreadViewDataSource> __weak _dataSource;
     
-    CGFloat rowHeight;
-    CGFloat sectionRowHeaderHeight;
-    CGFloat columnWidth;
-    CGFloat sectionColumnHeaderWidth;
-    
     NSMutableSet *_dequeuedCells;
     
     // New algorithm
@@ -192,11 +187,6 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     MDSpreadViewSelectionMode selectionMode;
     NSMutableArray *sortDescriptors;
-    
-    Class __weak _defaultHeaderCornerCellClass;
-    Class __weak _defaultHeaderColumnCellClass;
-    Class __weak _defaultHeaderRowCellClass;
-    Class __weak _defaultCellClass;
     
     BOOL _didSetReloadData;
     

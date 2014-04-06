@@ -778,10 +778,10 @@
     _headerColumnCells = [[NSMutableArray alloc] init];
     _headerRowCells = [[NSMutableArray alloc] init];
     
-    rowHeight = 44; // 25
-    sectionRowHeaderHeight = 22;
-    columnWidth = 220;
-    sectionColumnHeaderWidth = 110;
+    _rowHeight = 44; // 25
+    _sectionRowHeaderHeight = 22;
+    _columnWidth = 220;
+    _sectionColumnHeaderWidth = 110;
     
     _selectedCells = [[NSMutableArray alloc] init];
     selectionMode = MDSpreadViewSelectionModeCell;
@@ -828,7 +828,7 @@
 
 - (void)setRowHeight:(CGFloat)newHeight
 {
-    rowHeight = newHeight;
+    _rowHeight = newHeight;
     
     if (implementsRowHeight) return;
     
@@ -837,7 +837,7 @@
 
 - (void)setSectionRowHeaderHeight:(CGFloat)newHeight
 {
-    sectionRowHeaderHeight = newHeight;
+    _sectionRowHeaderHeight = newHeight;
     
     if (implementsRowHeaderHeight) return;
     
@@ -846,7 +846,7 @@
 
 - (void)setColumnWidth:(CGFloat)newWidth
 {
-    columnWidth = newWidth;
+    _columnWidth = newWidth;
     
     if (implementsColumnWidth) return;
     
@@ -855,7 +855,7 @@
 
 - (void)setSectionColumnHeaderWidth:(CGFloat)newWidth
 {
-    sectionColumnHeaderWidth = newWidth;
+    _sectionColumnHeaderWidth = newWidth;
     
     if (implementsColumnHeaderWidth) return;
     
