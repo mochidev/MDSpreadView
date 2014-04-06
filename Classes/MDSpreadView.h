@@ -157,6 +157,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     UIView *dummyView;
     UIView *dummyViewB;
     
+    CGSize dequeuedCellSizeHint;
+    
     // Done with new algorithm
     
     NSMutableArray *visibleCells; // array of array

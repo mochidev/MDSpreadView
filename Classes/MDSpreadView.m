@@ -2046,6 +2046,8 @@
     NSInteger column = columnIndexPath.row;
     NSInteger columnSection = columnIndexPath.section;
     
+    dequeuedCellSizeHint = frame.size;
+    
     if (row == -1 && column == -1) { // corner header
         cell = [self _cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
         anchor = anchorCornerHeaderCell;
@@ -3300,7 +3302,15 @@
 {
     MDSpreadViewCell *dequeuedCell = nil;
     NSUInteger _reuseHash = [identifier hash];
+    
     for (MDSpreadViewCell *aCell in _dequeuedCells) {
+        if (aCell->_reuseHash == _reuseHash && CGSizeEqualToSize(aCell.frame.size, dequeuedCellSizeHint)) {
+            dequeuedCell = aCell;
+            break;
+        }
+    }
+    
+    if (!dequeuedCell) for (MDSpreadViewCell *aCell in _dequeuedCells) {
         if (aCell->_reuseHash == _reuseHash) {
             dequeuedCell = aCell;
             break;
