@@ -864,8 +864,8 @@
 
 - (void)setDefaultHeaderCornerCellClass:(Class)aClass
 {
-    if (![aClass isSubclassOfClass:[MDSpreadViewCell class]]) [NSException raise:NSInvalidArgumentException format:@"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass)];
-                          
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
+    
     _defaultHeaderCornerCellClass = aClass;
     
     [self _setNeedsReloadData];
@@ -873,7 +873,7 @@
 
 - (void)setDefaultHeaderColumnCellClass:(Class)aClass
 {
-    if (![aClass isSubclassOfClass:[MDSpreadViewCell class]]) [NSException raise:NSInvalidArgumentException format:@"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass)];
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
     
     _defaultHeaderColumnCellClass = aClass;
     
@@ -882,7 +882,7 @@
 
 - (void)setDefaultHeaderRowCellClass:(Class)aClass
 {
-    if (![aClass isSubclassOfClass:[MDSpreadViewCell class]]) [NSException raise:NSInvalidArgumentException format:@"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass)];
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
     
     _defaultHeaderRowCellClass = aClass;
     
@@ -891,7 +891,7 @@
 
 - (void)setDefaultCellClass:(Class)aClass
 {
-    if (![aClass isSubclassOfClass:[MDSpreadViewCell class]]) [NSException raise:NSInvalidArgumentException format:@"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass)];
+    NSAssert([aClass isSubclassOfClass:[MDSpreadViewCell class]], @"%@ is not a subclass of MDSpreadViewCell.", NSStringFromClass(aClass));
     
     _defaultCellClass = aClass;
     
