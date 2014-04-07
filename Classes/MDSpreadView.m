@@ -1236,6 +1236,9 @@
     NSInteger minColumnIndex = -1;
     NSInteger maxColumnIndex = -1;
     
+    NSInteger totalNumberOfColumnSections = [columnSections count];
+    NSInteger totalNumberOfRowSections = [rowSections count];
+    
     BOOL searchingForMax = NO;
     
     // find min/max row sections
@@ -1366,6 +1369,7 @@
             if (workingColumnIndex > numberOfColumnsInSection) {
                 workingColumnIndex = -1;
                 workingColumnSection++;
+                if (workingColumnSection >= totalNumberOfColumnSections) break;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
             }
             
@@ -1388,6 +1392,7 @@
             if (workingRowIndex > numberOfRowsInSection) {
                 workingRowIndex = -1;
                 workingRowSection++;
+                if (workingRowSection >= totalNumberOfRowSections) break;
                 numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
             }
             
@@ -1444,6 +1449,7 @@
             workingColumnIndex--;
             if (workingColumnIndex < -1) {
                 workingColumnSection--;
+                if (workingColumnSection < 0) break;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
                 workingColumnIndex = numberOfColumnsInSection;
             }
@@ -1466,6 +1472,7 @@
             workingRowIndex--;
             if (workingRowIndex < -1) {
                 workingRowSection--;
+                if (workingRowSection < 0) break;
                 numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
                 workingRowIndex = numberOfRowsInSection;
             }
@@ -1528,9 +1535,6 @@
             NSInteger finalRowSection = minRowIndexPath.section;
             NSInteger finalRowIndex = minRowIndexPath.column;
             
-            NSInteger totalNumberOfColumnSections = [columnSections count];
-            NSInteger totalNumberOfRowSections = [rowSections count];
-            
             NSInteger currentMinColumnSection = minColumnIndexPath.section;
             NSInteger currentMinColumnIndex = minColumnIndexPath.column;
             NSInteger currentMaxColumnSection = maxColumnIndexPath.section;
@@ -1572,6 +1576,7 @@
                 if (workingRowIndex > numberOfRowsInSection) {
                     workingRowIndex = -1;
                     workingRowSection++;
+                    if (workingRowSection >= totalNumberOfRowSections) break;
                     numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
                 }
             }
@@ -1588,9 +1593,6 @@
             
             NSInteger finalRowSection = maxRowIndexPath.section;
             NSInteger finalRowIndex = maxRowIndexPath.column;
-            
-            NSInteger totalNumberOfRowSections = [rowSections count];
-            NSInteger totalNumberOfColumnSections = [columnSections count];
             
             NSInteger currentMinColumnSection = minColumnIndexPath.section;
             NSInteger currentMinColumnIndex = minColumnIndexPath.column;
@@ -1631,6 +1633,7 @@
                 workingRowIndex--;
                 if (workingRowIndex < -1) {
                     workingRowSection--;
+                    if (workingRowSection < 0) break;
                     numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
                     workingRowIndex = numberOfRowsInSection;
                 }
@@ -1650,9 +1653,6 @@
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
-        
-        NSInteger totalNumberOfColumnSections = [columnSections count];
-        NSInteger totalNumberOfRowSections = [rowSections count];
         
         CGPoint offset = CGPointMake(_visibleBounds.origin.x, 0);
         
@@ -1688,6 +1688,7 @@
             if (workingColumnIndex > numberOfColumnsInSection) {
                 workingColumnIndex = -1;
                 workingColumnSection++;
+                if (workingColumnSection >= totalNumberOfColumnSections) break;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
             }
         }
@@ -1704,9 +1705,6 @@
         
         NSInteger finalColumnSection = minColumnIndexPath.section;
         NSInteger finalColumnIndex = minColumnIndexPath.column;
-        
-        NSInteger totalNumberOfColumnSections = [columnSections count];
-        NSInteger totalNumberOfRowSections = [rowSections count];
         
         CGPoint offset = CGPointMake(_visibleBounds.origin.x, 0);
         
@@ -1744,6 +1742,7 @@
             if (workingColumnIndex > numberOfColumnsInSection) {
                 workingColumnIndex = -1;
                 workingColumnSection++;
+                if (workingColumnSection >= totalNumberOfColumnSections) break;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
             }
         }
@@ -1760,9 +1759,6 @@
         
         NSInteger finalColumnSection = maxColumnIndexPath.section;
         NSInteger finalColumnIndex = maxColumnIndexPath.column;
-        
-        NSInteger totalNumberOfColumnSections = [columnSections count];
-        NSInteger totalNumberOfRowSections = [rowSections count];
         
         CGPoint offset = CGPointMake(_visibleBounds.origin.x + _visibleBounds.size.width, 0);
         
@@ -1798,6 +1794,7 @@
             workingColumnIndex--;
             if (workingColumnIndex < -1) {
                 workingColumnSection--;
+                if (workingColumnSection >= totalNumberOfColumnSections) break;
                 numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
                 workingColumnIndex = numberOfColumnsInSection;
             }
@@ -1817,9 +1814,6 @@
         maxRowHeaderIndexPath = [MDIndexPath indexPathForColumn:maxRowIndex inSection:maxRowSection];
         
         NSInteger workingColumnSection = minColumnSection;
-        
-        NSInteger totalNumberOfColumnSections = [columnSections count];
-        NSInteger totalNumberOfRowSections = [rowSections count];
         
         CGPoint offset = CGPointMake(_visibleBounds.origin.x, 0);
         
@@ -2273,6 +2267,7 @@
         if (workingColumnIndex > numberOfColumnsInSection) {
             workingColumnIndex = -1;
             workingColumnSection++;
+            if (workingColumnSection >= totalNumberOfColumnSections) break;
             numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         }
     }
@@ -2302,6 +2297,7 @@
         if (workingRowIndex > numberOfRowsInSection) {
             workingRowIndex = -1;
             workingRowSection++;
+            if (workingRowSection >= totalNumberOfRowSections) break;
             numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
         }
     }
