@@ -2896,16 +2896,16 @@
         cell = [self _cellForFooterInRowSection:rowSection forColumnSection:columnSection];
         anchor = anchorCornerHeaderCell;
     } else if (row == -1) { // header row
-        cell = [self _cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+        cell = [self _cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
         anchor = anchorRowHeaderCell;
     } else if (row == rowSectionCount) { // footer row
-        cell = [self _cellForFooterInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+        cell = [self _cellForFooterInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
         anchor = anchorRowHeaderCell;
     } else if (column == -1) { // header column
-        cell = [self _cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+        cell = [self _cellForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
         anchor = anchorColumnHeaderCell;
     } else if (column == columnSectionCount) { // footer column
-        cell = [self _cellForFooterInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+        cell = [self _cellForFooterInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
         anchor = anchorColumnHeaderCell;
     } else { // content
         cell = [self _cellForRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
