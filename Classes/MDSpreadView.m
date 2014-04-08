@@ -3042,9 +3042,14 @@
                 frame.origin.y += height;
             }
         } else {
-            NSUInteger numberOfRows = rowSizesCache.count;
-            for (NSInteger i = 0; i < numberOfRows; i++) {
-                [column addObject:[NSNull null]];
+            for (MDSpreadViewSizeCache *aSizeCache in rowSizesCache) {
+                MDIndexPath *rowIndexPath = aSizeCache.indexPath;
+                NSUInteger numberOfRowsInSection = aSizeCache.sectionCount;
+                NSInteger row = rowIndexPath.row;
+                
+                if ((row >= 0 && row < numberOfRowsInSection) || headerContents) {
+                    [column addObject:[NSNull null]];
+                }
             }
         }
         
@@ -3100,9 +3105,14 @@
                 frame.origin.x += width;
             }
         } else {
-            NSUInteger numberOfColumns = columnSizesCache.count;
-            for (NSInteger i = 0; i < numberOfColumns; i++) {
-                [row addObject:[NSNull null]];
+            for (MDSpreadViewSizeCache *aSizeCache in columnSizesCache) {
+                MDIndexPath *columnIndexPath = aSizeCache.indexPath;
+                NSUInteger numberOfColumnsInSection = aSizeCache.sectionCount;
+                NSInteger column = columnIndexPath.column;
+                
+                if ((column >= 0 && column < numberOfColumnsInSection) || headerContents) {
+                    [row addObject:[NSNull null]];
+                }
             }
         }
         
