@@ -1618,8 +1618,6 @@
                 }
                 
                 offset.y += height;
-                mapBounds.origin.y -= height;
-                mapBounds.size.height += height;
                 
                 workingRowIndex++;
                 if (workingRowIndex > numberOfRowsInSection) {
@@ -1671,8 +1669,6 @@
                     [rows insertObject:row atIndex:0];
                 }
                 
-                mapBounds.size.height += height;
-                
                 workingRowIndex--;
                 if (workingRowIndex < -1) {
                     workingRowSection--;
@@ -1723,8 +1719,6 @@
                 }
                 
                 offset.x += width;
-                mapBounds.origin.x -= width;
-                mapBounds.size.width += width;
                 
                 workingColumnIndex++;
                 if (workingColumnIndex > numberOfColumnsInSection) {
@@ -1775,8 +1769,6 @@
                 if (column) {
                     [columns insertObject:column atIndex:0];
                 }
-                
-                mapBounds.size.width += width;
                 
                 workingColumnIndex--;
                 if (workingColumnIndex < -1) {
@@ -1834,7 +1826,6 @@
             }
         }
         
-        mapBounds = _visibleBounds;
         [mapForContent insertColumnsAfter:columns];
     }
     
@@ -2380,6 +2371,7 @@
         [mapForRowHeaders insertColumnsAfter:columns];
     }
     
+    mapBounds = _visibleBounds;
     minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
     maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
     minRowIndexPath = [MDIndexPath indexPathForColumn:minRowIndex inSection:minRowSection];
