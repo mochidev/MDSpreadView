@@ -1359,12 +1359,12 @@
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
         NSInteger preColumnDifference = 0;
-        NSInteger preCellColumnDifference = 0;
+        NSInteger preContentColumnDifference = 0;
         NSInteger preHeaderColumnDifference = 0;
         
         while ((workingColumnSection < minColumnSection && workingColumnIndex <= numberOfColumnsInSection) || (workingColumnSection == minColumnSection && workingColumnIndex < minColumnIndex)) { // go through sections
             if (workingColumnIndex > -1 && workingColumnIndex < numberOfColumnsInSection) {
-                preCellColumnDifference++;
+                preContentColumnDifference++;
             } else if (workingColumnIndex == numberOfColumnsInSection) {
                 preHeaderColumnDifference += 2;
             }
@@ -1388,12 +1388,12 @@
         NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
         
         NSInteger preRowDifference = 0;
-        NSInteger preCellRowDifference = 0;
+        NSInteger preContentRowDifference = 0;
         NSInteger preHeaderRowDifference = 0;
         
         while ((workingRowSection < minRowSection && workingRowIndex <= numberOfRowsInSection) || (workingRowSection == minRowSection && workingRowIndex < minRowIndex)) { // go through sections
             if (workingRowIndex > -1 && workingRowIndex < numberOfRowsInSection) {
-                preCellRowDifference++;
+                preContentRowDifference++;
             } else if (workingRowIndex == numberOfRowsInSection) {
                 preHeaderRowDifference += 2;
             }
@@ -1413,7 +1413,7 @@
 //        NSLog(@"Removing [%d", preColumnDifference);
         
         if (preColumnDifference > 0 || preRowDifference > 0) {
-            NSArray *oldCells = [mapForContent removeCellsBeforeRow:preCellRowDifference column:preCellColumnDifference];
+            NSArray *oldCells = [mapForContent removeCellsBeforeRow:preContentRowDifference column:preContentColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
@@ -1421,7 +1421,7 @@
                 }
             }
             
-            oldCells = [mapForColumnHeaders removeCellsBeforeRow:preCellRowDifference column:preHeaderColumnDifference];
+            oldCells = [mapForColumnHeaders removeCellsBeforeRow:preContentRowDifference column:preHeaderColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
@@ -1429,13 +1429,13 @@
                 }
             }
             
-//            oldCells = [mapForRowHeaders removeCellsBeforeRow:preHeaderRowDifference column:preCellColumnDifference];
-//            for (MDSpreadViewCell *cell in oldCells) {
-//                if ((NSNull *)cell != [NSNull null]) {
-//                    cell.hidden = YES;
-//                    [_dequeuedCells addObject:cell];
-//                }
-//            }
+            oldCells = [mapForRowHeaders removeCellsBeforeRow:preHeaderRowDifference column:preContentColumnDifference];
+            for (MDSpreadViewCell *cell in oldCells) {
+                if ((NSNull *)cell != [NSNull null]) {
+                    cell.hidden = YES;
+                    [_dequeuedCells addObject:cell];
+                }
+            }
             
             if (preColumnDifference) {
                 mapBounds.size.width = mapBounds.origin.x + mapBounds.size.width - _visibleBounds.origin.x;
@@ -1468,12 +1468,12 @@
         NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
         
         NSInteger postColumnDifference = 0;
-        NSInteger postCellColumnDifference = 0;
+        NSInteger postContentColumnDifference = 0;
         NSInteger postHeaderColumnDifference = 0;
         
         while ((workingColumnSection > maxColumnSection && workingColumnIndex >= -1) || (workingColumnSection == maxColumnSection && workingColumnIndex > maxColumnIndex)) {
             if (workingColumnIndex > -1 && workingColumnIndex < numberOfColumnsInSection) {
-                postCellColumnDifference++;
+                postContentColumnDifference++;
             } else if (workingColumnIndex == -1) {
                 postHeaderColumnDifference += 2;
             }
@@ -1497,12 +1497,12 @@
         NSInteger numberOfRowsInSection = [(MDSpreadViewSection *)[rowSections objectAtIndex:workingRowSection] numberOfCells];
         
         NSInteger postRowDifference = 0;
-        NSInteger postCellRowDifference = 0;
+        NSInteger postContentRowDifference = 0;
         NSInteger postHeaderRowDifference = 0;
         
         while ((workingRowSection > maxRowSection && workingRowIndex >= -1) || (workingRowSection == maxRowSection && workingRowIndex > maxRowIndex)) {
             if (workingRowIndex > -1 && workingRowIndex < numberOfRowsInSection) {
-                postCellRowDifference++;
+                postContentRowDifference++;
             } else if (workingRowIndex == -1) {
                 postHeaderRowDifference += 2;
             }
@@ -1522,8 +1522,8 @@
 //        NSLog(@"Removing %d]", postColumnDifference);
         
         if (postColumnDifference > 0 || postRowDifference > 0) {
-            NSArray *oldCells = [mapForContent removeCellsAfterRow:mapForContent.rowCount - 1 - postCellRowDifference
-                                                            column:mapForContent.columnCount - 1 - postCellColumnDifference];
+            NSArray *oldCells = [mapForContent removeCellsAfterRow:mapForContent.rowCount - 1 - postContentRowDifference
+                                                            column:mapForContent.columnCount - 1 - postContentColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
@@ -1531,7 +1531,7 @@
                 }
             }
             
-            oldCells = [mapForColumnHeaders removeCellsAfterRow:mapForColumnHeaders.rowCount - 1 - postCellRowDifference
+            oldCells = [mapForColumnHeaders removeCellsAfterRow:mapForColumnHeaders.rowCount - 1 - postContentRowDifference
                                                          column:mapForColumnHeaders.columnCount - 1 - postHeaderColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
@@ -1540,14 +1540,14 @@
                 }
             }
             
-//            oldCells = [mapForRowHeaders removeCellsAfterRow:mapForRowHeaders.rowCount - 1 - postHeaderRowDifference
-//                                                      column:mapForRowHeaders.columnCount - 1 - postCellRowDifference];
-//            for (MDSpreadViewCell *cell in oldCells) {
-//                if ((NSNull *)cell != [NSNull null]) {
-//                    cell.hidden = YES;
-//                    [_dequeuedCells addObject:cell];
-//                }
-//            }
+            oldCells = [mapForRowHeaders removeCellsAfterRow:mapForRowHeaders.rowCount - 1 - postHeaderRowDifference
+                                                      column:mapForRowHeaders.columnCount - 1 - postContentColumnDifference];
+            for (MDSpreadViewCell *cell in oldCells) {
+                if ((NSNull *)cell != [NSNull null]) {
+                    cell.hidden = YES;
+                    [_dequeuedCells addObject:cell];
+                }
+            }
             
             if (postColumnDifference) {
                 mapBounds.size.width = _visibleBounds.origin.x + _visibleBounds.size.width - mapBounds.origin.x;
