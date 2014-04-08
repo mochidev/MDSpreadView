@@ -1454,6 +1454,22 @@
                 maxColumnIndexPath = nil;
                 minRowIndexPath = nil;
                 maxRowIndexPath = nil;
+                
+                oldCells = [mapForColumnHeaders removeAllCells];
+                for (MDSpreadViewCell *cell in oldCells) {
+                    if ((NSNull *)cell != [NSNull null]) {
+                        cell.hidden = YES;
+                        [_dequeuedCells addObject:cell];
+                    }
+                }
+                
+                oldCells = [mapForRowHeaders removeAllCells];
+                for (MDSpreadViewCell *cell in oldCells) {
+                    if ((NSNull *)cell != [NSNull null]) {
+                        cell.hidden = YES;
+                        [_dequeuedCells addObject:cell];
+                    }
+                }
             }
         }
     }
@@ -1564,6 +1580,22 @@
                 maxColumnIndexPath = nil;
                 minRowIndexPath = nil;
                 maxRowIndexPath = nil;
+                
+                oldCells = [mapForColumnHeaders removeAllCells];
+                for (MDSpreadViewCell *cell in oldCells) {
+                    if ((NSNull *)cell != [NSNull null]) {
+                        cell.hidden = YES;
+                        [_dequeuedCells addObject:cell];
+                    }
+                }
+                
+                oldCells = [mapForRowHeaders removeAllCells];
+                for (MDSpreadViewCell *cell in oldCells) {
+                    if ((NSNull *)cell != [NSNull null]) {
+                        cell.hidden = YES;
+                        [_dequeuedCells addObject:cell];
+                    }
+                }
             }
         }
     }
