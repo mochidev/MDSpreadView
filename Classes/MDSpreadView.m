@@ -49,6 +49,7 @@
 
 - (NSArray *)rowAtIndex:(NSUInteger)index;
 - (NSArray *)columnAtIndex:(NSUInteger)index;
+@property (nonatomic, readonly) NSArray *allColumns;
 
 - (void)insertRowsBefore:(NSArray *)rows; // array of arrays
 - (void)insertRowsAfter:(NSArray *)rows;
@@ -104,6 +105,11 @@
     NSAssert((columnIndex < _rowCount), @"column index %d beyond bounds of cell map [0, %d]", columnIndex, _columnCount);
     
     return [[columns objectAtIndex:columnIndex] copy];
+}
+
+- (NSArray *)allColumns
+{
+    return [columns copy];
 }
 
 - (void)insertRowsBefore:(NSArray *)cellRows
@@ -1223,6 +1229,8 @@
 #endif
     
     CGRect bounds = self.bounds;
+    UIEdgeInsets insets = self.contentInset;
+    CGRect insetBounds = UIEdgeInsetsInsetRect(bounds, insets);
     
     CGRect _visibleBounds = CGRectZero;
     
@@ -2136,7 +2144,57 @@
     
     // STEP 5
     
-    //...
+    if (minColumnIndexPath) {
+        
+        NSArray *columns = mapForColumnHeaders.allColumns;
+        
+        BOOL isHeader = YES;
+        NSInteger workingColumnSection = minColumnSection;
+        
+        for (NSArray *column in columns) {
+            NSAssert((workingColumnSection < totalNumberOfColumnSections), @"Over section bounds!");
+            
+            MDSpreadViewSection *currentSection = [columnSections objectAtIndex:workingColumnSection];
+            CGFloat headerWidth = [self _widthForColumnHeaderInSection:workingColumnSection];
+            CGFloat footerWidth = [self _widthForColumnFooterInSection:workingColumnSection];
+            CGFloat sectionOffset = currentSection.offset;
+            CGFloat sectionSize = currentSection.size;
+            
+            CGFloat newOffset = 0;
+            
+            if (isHeader) {
+                if (sectionOffset + sectionSize - headerWidth - footerWidth < insetBounds.origin.x) {
+                    newOffset = sectionOffset + sectionSize - headerWidth - footerWidth;
+                } else if (sectionOffset < insetBounds.origin.x) {
+                    newOffset = insetBounds.origin.x;
+                } else {
+                    newOffset = sectionOffset;
+                }
+            } else {
+                if (sectionOffset + headerWidth + footerWidth > insetBounds.origin.x + insetBounds.size.width) {
+                    newOffset = sectionOffset + headerWidth;
+                } else if (sectionOffset + sectionSize > insetBounds.origin.x + insetBounds.size.width) {
+                    newOffset = insetBounds.origin.x + insetBounds.size.width - footerWidth;
+                } else {
+                    newOffset = sectionOffset + sectionSize - footerWidth;
+                }
+                
+                workingColumnSection++;
+            }
+            
+            for (MDSpreadViewCell *cell in column) {
+                if ((NSNull *)cell == [NSNull null]) continue;
+                
+                CGRect frame = cell._pureFrame;
+                
+                frame.origin.x = newOffset;
+                
+                cell.frame = frame;
+            }
+            
+            isHeader = !isHeader;
+        }
+    }
     
     // STEP 6
     
