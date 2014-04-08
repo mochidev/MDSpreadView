@@ -2225,116 +2225,107 @@
 //            [mapForColumnHeaders insertRowsAfter:rows];
 //        }
 //        
-//        // add columns before
-//        if (minColumnIndexPath.section > minColumnSection) {
-//            
-//            NSInteger workingColumnSection = minColumnSection;
-//            NSInteger finalColumnSection = minColumnIndexPath.section;
-//            
-//            CGPoint offset = CGPointZero;
-//            
-//            NSMutableArray *columns = [[NSMutableArray alloc] init];
-//            NSArray *rowSizesCache = nil;
-//            
-//            while (workingColumnSection < finalColumnSection) { // go through sections
-//                if (workingColumnSection >= totalNumberOfColumnSections) {
-//                    NSAssert(NO, @"Shouldn't get here :/");
-//                    break;
-//                }
-//                
-//                if (!rowSizesCache) {
-//                    rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections headersOnly:NO];
-//                }
-//                
-//                MDSpreadViewSection *currentSection = [columnSections objectAtIndex:workingColumnSection];
-//                
-//                NSInteger numberOfColumnsInSection = currentSection.numberOfCells;
-//                
-//                MDIndexPath *headerColumnIndexPath = [MDIndexPath indexPathForColumn:-1 inSection:workingColumnSection];
-//                CGFloat width = [self _widthForColumnAtIndexPath:headerColumnIndexPath];
-//                offset.x = currentSection.offset;
-//                offset.y = _visibleBounds.origin.y;
-//                NSArray *header = [self _layoutColumnAtIndexPath:headerColumnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
-//                                                        isHeader:YES headerContents:NO
-//                                                          offset:offset width:width rowSizesCache:rowSizesCache];
-//                
-//                if (header) {
-//                    [columns addObject:header];
-//                }
-//                
-//                MDIndexPath *footerColumnIndexPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:workingColumnSection];
-//                width = [self _widthForColumnAtIndexPath:footerColumnIndexPath];
-//                offset.x = currentSection.offset + currentSection.size - width;
-//                offset.y = _visibleBounds.origin.y;
-//                NSArray *footer = [self _layoutColumnAtIndexPath:footerColumnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
-//                                                        isHeader:YES headerContents:NO
-//                                                          offset:offset width:width rowSizesCache:rowSizesCache];
-//                
-//                if (footer) {
-//                    [columns addObject:footer];
-//                }
-//                
-//                workingColumnSection++;
-//            }
-//            
-//            [mapForColumnHeaders insertColumnsBefore:columns];
-//        }
-//        
-//        // add columns after
-//        if (maxColumnIndexPath.section < maxColumnSection) {
-//            
-//            NSInteger workingColumnSection = maxColumnSection;
-//            NSInteger finalColumnSection = maxColumnIndexPath.section;
-//            
-//            CGPoint offset = CGPointZero;
-//            
-//            NSMutableArray *columns = [[NSMutableArray alloc] init];
-//            NSArray *rowSizesCache = nil;
-//            
-//            while (workingColumnSection > finalColumnSection) { // go through sections
-//                if (workingColumnSection < 0) {
-//                    NSAssert(NO, @"Shouldn't get here :/");
-//                    break;
-//                }
-//                
-//                if (!rowSizesCache) {
-//                    rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections headersOnly:NO];
-//                }
-//                
-//                MDSpreadViewSection *currentSection = [columnSections objectAtIndex:workingColumnSection];
-//                
-//                NSInteger numberOfColumnsInSection = currentSection.numberOfCells;
-//                
-//                MDIndexPath *headerColumnIndexPath = [MDIndexPath indexPathForColumn:-1 inSection:workingColumnSection];
-//                CGFloat width = [self _widthForColumnAtIndexPath:headerColumnIndexPath];
-//                offset.x = currentSection.offset;
-//                offset.y = _visibleBounds.origin.y;
-//                NSArray *header = [self _layoutColumnAtIndexPath:headerColumnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
-//                                                        isHeader:YES headerContents:NO
-//                                                          offset:offset width:width rowSizesCache:rowSizesCache];
-//                
-//                if (header) {
-//                    [columns insertObject:header atIndex:0];
-//                }
-//                
-//                MDIndexPath *footerColumnIndexPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:workingColumnSection];
-//                width = [self _widthForColumnAtIndexPath:footerColumnIndexPath];
-//                offset.x = currentSection.offset + currentSection.size - width;
-//                offset.y = _visibleBounds.origin.y;
-//                NSArray *footer = [self _layoutColumnAtIndexPath:footerColumnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
-//                                                        isHeader:YES headerContents:NO
-//                                                          offset:offset width:width rowSizesCache:rowSizesCache];
-//                
-//                if (footer) {
-//                    [columns insertObject:footer atIndex:1];
-//                }
-//                
-//                workingColumnSection--;
-//            }
-//            
-//            [mapForColumnHeaders insertColumnsAfter:columns];
-//        }
-//        
+
+        
+        // add columns before
+        if ((minColumnIndexPath.section > minColumnSection) || (minColumnIndexPath.section == minColumnSection && minColumnIndexPath.column > minColumnIndex)) {
+            
+            NSInteger workingColumnSection = minColumnSection;
+            NSInteger workingColumnIndex = minColumnIndex;
+            
+            NSInteger finalColumnSection = minColumnIndexPath.section;
+            NSInteger finalColumnIndex = minColumnIndexPath.column;
+            
+            CGPoint offset = CGPointMake(_visibleBounds.origin.x, 0);
+            
+            NSMutableArray *columns = [[NSMutableArray alloc] init];
+            NSArray *rowSizesCache = nil;
+            
+            NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
+            
+            while ((workingColumnSection < finalColumnSection && workingColumnIndex <= numberOfColumnsInSection) || (workingColumnSection == finalColumnSection && workingColumnIndex < finalColumnIndex)) { // go through sections
+                if (workingColumnSection >= totalNumberOfColumnSections) {
+                    NSAssert(NO, @"Shouldn't get here :/");
+                    break;
+                }
+                
+                if (!rowSizesCache) {
+                    rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections headersOnly:YES];
+                }
+                
+                MDIndexPath *columnIndexPath = [MDIndexPath indexPathForRow:workingColumnIndex inSection:workingColumnSection];
+                CGFloat width = [self _widthForColumnAtIndexPath:columnIndexPath];
+                NSArray *column = [self _layoutColumnAtIndexPath:columnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
+                                                        isHeader:NO headerContents:YES
+                                                          offset:offset width:width rowSizesCache:rowSizesCache];
+                
+                if (column) {
+                    [columns addObject:column];
+                }
+                
+                offset.x += width;
+                
+                workingColumnIndex++;
+                if (workingColumnIndex > numberOfColumnsInSection) {
+                    workingColumnIndex = -1;
+                    workingColumnSection++;
+                    if (workingColumnSection >= totalNumberOfColumnSections) break;
+                    numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
+                }
+            }
+            
+            [mapForRowHeaders insertColumnsBefore:columns];
+        }
+        
+        // add columns after
+        if ((maxColumnIndexPath.section < maxColumnSection) || (maxColumnIndexPath.section == maxColumnSection && maxColumnIndexPath.column < maxColumnIndex)) {
+            
+            NSInteger workingColumnSection = maxColumnSection;
+            NSInteger workingColumnIndex = maxColumnIndex;
+            
+            NSInteger finalColumnSection = maxColumnIndexPath.section;
+            NSInteger finalColumnIndex = maxColumnIndexPath.column;
+            
+            CGPoint offset = CGPointMake(_visibleBounds.origin.x + _visibleBounds.size.width, 0);
+            
+            NSMutableArray *columns = [[NSMutableArray alloc] init];
+            NSArray *rowSizesCache = nil;
+            
+            NSInteger numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
+            
+            while ((workingColumnSection > finalColumnSection && workingColumnIndex >= -1) || (workingColumnSection == finalColumnSection && workingColumnIndex > finalColumnIndex)) { // go through sections
+                if (workingColumnSection >= totalNumberOfColumnSections) {
+                    NSAssert(NO, @"Shouldn't get here :/");
+                    break;
+                }
+                
+                if (!rowSizesCache) {
+                    rowSizesCache = [self _generateRowSizeCacheBetweenSection:minRowSection index:minRowIndex andSection:maxRowSection index:maxRowIndex withTotalRowSections:totalNumberOfRowSections headersOnly:YES];
+                }
+                
+                MDIndexPath *columnIndexPath = [MDIndexPath indexPathForRow:workingColumnIndex inSection:workingColumnSection];
+                CGFloat width = [self _widthForColumnAtIndexPath:columnIndexPath];
+                offset.x -= width;
+                NSArray *column = [self _layoutColumnAtIndexPath:columnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
+                                                        isHeader:NO headerContents:YES
+                                                          offset:offset width:width rowSizesCache:rowSizesCache];
+                
+                if (column) {
+                    [columns insertObject:column atIndex:0];
+                }
+                
+                workingColumnIndex--;
+                if (workingColumnIndex < -1) {
+                    workingColumnSection--;
+                    if (workingColumnSection >= totalNumberOfColumnSections) break;
+                    numberOfColumnsInSection = [(MDSpreadViewSection *)[columnSections objectAtIndex:workingColumnSection] numberOfCells];
+                    workingColumnIndex = numberOfColumnsInSection;
+                }
+            }
+            
+            [mapForRowHeaders insertColumnsAfter:columns];
+        }
+        
     } else { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
@@ -2359,7 +2350,6 @@
             
             MDIndexPath *columnIndexPath = [MDIndexPath indexPathForRow:workingColumnIndex inSection:workingColumnSection];
             CGFloat width = [self _widthForColumnAtIndexPath:columnIndexPath];
-//            offset.y = _visibleBounds.origin.y;
             NSArray *column = [self _layoutColumnAtIndexPath:columnIndexPath numberOfColumnsInSection:numberOfColumnsInSection
                                                     isHeader:NO headerContents:YES
                                                       offset:offset width:width rowSizesCache:rowSizesCache];
