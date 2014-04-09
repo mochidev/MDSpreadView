@@ -44,6 +44,7 @@
 
 @property (nonatomic, readonly) NSUInteger rowCount;
 @property (nonatomic, readonly) NSUInteger columnCount;
+@property (nonatomic, readonly, getter = hasContent) BOOL content;
 
 - (BOOL)getIndicesForCell:(MDSpreadViewCell *)cell row:(NSUInteger *)row column:(NSUInteger *)column;
 
@@ -126,6 +127,11 @@
     }
     
     return rows;
+}
+
+- (BOOL)hasContent
+{
+    return (_rowCount > 0);
 }
 
 - (void)insertRowsBefore:(NSArray *)cellRows
@@ -1476,29 +1482,6 @@
                 mapBounds.origin.y = _visibleBounds.origin.y;
                 minRowIndexPath = [MDIndexPath indexPathForColumn:minRowIndex inSection:minRowSection];
             }
-            
-            if (mapForContent.rowCount == 0) {
-                minColumnIndexPath = nil;
-                maxColumnIndexPath = nil;
-                minRowIndexPath = nil;
-                maxRowIndexPath = nil;
-                
-                oldCells = [mapForColumnHeaders removeAllCells];
-                for (MDSpreadViewCell *cell in oldCells) {
-                    if ((NSNull *)cell != [NSNull null]) {
-                        cell.hidden = YES;
-                        [_dequeuedCells addObject:cell];
-                    }
-                }
-                
-                oldCells = [mapForRowHeaders removeAllCells];
-                for (MDSpreadViewCell *cell in oldCells) {
-                    if ((NSNull *)cell != [NSNull null]) {
-                        cell.hidden = YES;
-                        [_dequeuedCells addObject:cell];
-                    }
-                }
-            }
         }
     }
     
@@ -1602,29 +1585,6 @@
                 mapBounds.size.height = _visibleBounds.origin.y + _visibleBounds.size.height - mapBounds.origin.y;
                 maxRowIndexPath = [MDIndexPath indexPathForRow:maxRowIndex inSection:maxRowSection];
             }
-            
-            if (mapForContent.rowCount == 0) {
-                minColumnIndexPath = nil;
-                maxColumnIndexPath = nil;
-                minRowIndexPath = nil;
-                maxRowIndexPath = nil;
-                
-                oldCells = [mapForColumnHeaders removeAllCells];
-                for (MDSpreadViewCell *cell in oldCells) {
-                    if ((NSNull *)cell != [NSNull null]) {
-                        cell.hidden = YES;
-                        [_dequeuedCells addObject:cell];
-                    }
-                }
-                
-                oldCells = [mapForRowHeaders removeAllCells];
-                for (MDSpreadViewCell *cell in oldCells) {
-                    if ((NSNull *)cell != [NSNull null]) {
-                        cell.hidden = YES;
-                        [_dequeuedCells addObject:cell];
-                    }
-                }
-            }
         }
     }
     
@@ -1633,7 +1593,7 @@
     // here, add rows, then columns
     
     // if there is already some content, add rows
-    if (minColumnIndexPath) {
+    if ([mapForContent hasContent]) {
         
         NSInteger currentMinColumnSection = minColumnIndexPath.section;
         NSInteger currentMinColumnIndex = minColumnIndexPath.column;
@@ -1842,7 +1802,7 @@
             [mapForContent insertColumnsAfter:columns];
         }
         
-    } else if (!minColumnIndexPath) { // if there is nothing, start fresh, and do the whole thing in one go
+    } else { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -1891,7 +1851,7 @@
     
     // STEP 4
     
-    if (minColumnIndexPath) {
+    if ([mapForColumnHeaders hasContent]) {
         
         NSInteger currentMinColumnSection = minColumnIndexPath.section;
         NSInteger currentMaxColumnSection = maxColumnIndexPath.section;
@@ -2164,7 +2124,7 @@
     
     // STEP 5
     
-    if (mapForColumnHeaders.columnCount) {
+    if ([mapForColumnHeaders hasContent]) {
         
         NSArray *columns = mapForColumnHeaders.allColumns;
         
@@ -2218,7 +2178,7 @@
     
     // STEP 6
     
-    if (minColumnIndexPath) {
+    if ([mapForRowHeaders hasContent]) {
         
         NSInteger currentMinColumnSection = minColumnIndexPath.section;
         NSInteger currentMinColumnIndex = minColumnIndexPath.column;
@@ -2483,7 +2443,7 @@
     
     // STEP 7
     
-    if (mapForRowHeaders.rowCount) {
+    if ([mapForRowHeaders hasContent]) {
         
         NSArray *rows = mapForRowHeaders.allRows;
         
@@ -2537,7 +2497,7 @@
     
     // STEP 8
     
-    if (minColumnIndexPath) {
+    if ([mapForCornerHeaders hasContent]) {
         
         
     } else { // if there is nothing, start fresh, and do the whole thing in one go
@@ -2945,7 +2905,7 @@
     
     NSInteger row = rowIndexPath.row;
     NSInteger rowSection = rowIndexPath.section;
-    NSInteger column = columnIndexPath.row;
+    NSInteger column = columnIndexPath.column;
     NSInteger columnSection = columnIndexPath.section;
     
     dequeuedCellSizeHint = frame.size;
