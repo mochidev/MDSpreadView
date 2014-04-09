@@ -810,6 +810,10 @@
     _defaultHeaderColumnCellClass = [MDSpreadViewHeaderCell class];
     _defaultHeaderCornerCellClass = [MDSpreadViewHeaderCell class];
     _defaultHeaderRowCellClass = [MDSpreadViewHeaderCell class];
+    
+    _defaultHeaderRowFooterCornerCellClass = [MDSpreadViewHeaderCell class];
+    _defaultHeaderColumnFooterCornerCellClass = [MDSpreadViewHeaderCell class];
+    
     _defaultFooterColumnCellClass = [MDSpreadViewHeaderCell class];
     _defaultFooterCornerCellClass = [MDSpreadViewHeaderCell class];
     _defaultFooterRowCellClass = [MDSpreadViewHeaderCell class];
