@@ -2895,6 +2895,12 @@
     } else if (row == rowSectionCount && column == columnSectionCount) { // corner footer
         cell = [self _cellForFooterInRowSection:rowSection forColumnSection:columnSection];
         anchor = anchorCornerHeaderCell;
+    } else if (row == -1 && column == columnSectionCount) { // header row footer column
+        cell = [self _cellForHeaderInRowSection:rowSection forColumnFooterSection:columnSection];
+        anchor = anchorCornerHeaderCell;
+    } else if (row == rowSectionCount && column == -1) { // header column footer row
+        cell = [self _cellForHeaderInColumnSection:columnSection forRowFooterSection:rowSection];
+        anchor = anchorCornerHeaderCell;
     } else if (row == -1) { // header row
         cell = [self _cellForHeaderInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
         anchor = anchorRowHeaderCell;
