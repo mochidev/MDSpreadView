@@ -130,7 +130,7 @@
         //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
         
-        if ([UIMotionEffect class]) {
+        if (NSClassFromString(@"UIMotionEffect")) {
             
             UIImageView *imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCell.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
             self.backgroundView = imageView;

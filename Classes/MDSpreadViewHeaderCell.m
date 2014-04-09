@@ -53,7 +53,7 @@
         }
     }
     if (self = [super initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:reuseIdentifier]) {
-        if ([UIMotionEffect class]) {
+        if (NSClassFromString(@"UIMotionEffect")) {
             self.clipsToBounds = NO;
             
             UIView *newBackground = [[UIView alloc] init];
