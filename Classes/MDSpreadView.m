@@ -52,6 +52,7 @@
 - (NSArray *)columnAtIndex:(NSUInteger)index;
 @property (nonatomic, readonly) NSArray *allColumns;
 @property (nonatomic, readonly) NSArray *allRows;
+@property (nonatomic, readonly) NSArray *allCells; // No NSNulls in here
 
 - (void)insertRowsBefore:(NSArray *)rows; // array of arrays
 - (void)insertRowsAfter:(NSArray *)rows;
@@ -127,6 +128,21 @@
     }
     
     return rows;
+}
+
+- (NSArray *)allCells
+{
+    NSMutableArray *cells = [[NSMutableArray alloc] init];
+    
+    for (NSArray *column in columns) {
+        for (id cell in column) {
+            if (cell != [NSNull null]) {
+                [cells addObject:cell];
+            }
+        }
+    }
+    
+    return cells;
 }
 
 - (BOOL)hasContent
@@ -5567,10 +5583,11 @@
     
     NSMutableArray *allSelections = [_selectedCells mutableCopy];
     if (_currentSelection) [allSelections addObject:_currentSelection];
-    NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
-    [allVisibleCells addObjectsFromArray:_headerColumnCells];
-    [allVisibleCells addObjectsFromArray:_headerRowCells];
-    if (self._headerCornerCell) [allVisibleCells addObject:self._headerCornerCell];
+    
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
+    [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;
@@ -5602,10 +5619,10 @@
 {
     [_selectedCells removeObject:selection];
     
-    NSMutableSet *allVisibleCells = [NSMutableSet setWithSet:[self _allVisibleCells]];
-    [allVisibleCells addObjectsFromArray:_headerColumnCells];
-    [allVisibleCells addObjectsFromArray:_headerRowCells];
-    if (self._headerCornerCell) [allVisibleCells addObject:self._headerCornerCell];
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
+    [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         cell.highlighted = NO;
