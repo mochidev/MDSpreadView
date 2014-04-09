@@ -93,7 +93,7 @@
 {
     NSMutableArray *newRow = [[NSMutableArray alloc] initWithCapacity:self.rowCount];
     
-    NSAssert((rowIndex < _rowCount), @"row index %d beyond bounds of cell map [0, %d]", rowIndex, _rowCount);
+    NSAssert((rowIndex < _rowCount), @"row index %lu beyond bounds of cell map [0, %lu]", (unsigned long)rowIndex, (unsigned long)_rowCount);
     
     for (NSMutableArray *column in columns) {
         [newRow addObject:[column objectAtIndex:rowIndex]];
@@ -104,7 +104,7 @@
 
 - (NSArray *)columnAtIndex:(NSUInteger)columnIndex
 {
-    NSAssert((columnIndex < _rowCount), @"column index %d beyond bounds of cell map [0, %d]", columnIndex, _columnCount);
+    NSAssert((columnIndex < _rowCount), @"column index %lu beyond bounds of cell map [0, %lu]", (unsigned long)columnIndex, (unsigned long)_columnCount);
     
     return [[columns objectAtIndex:columnIndex] copy];
 }
@@ -149,7 +149,7 @@
     for (NSMutableArray *column in columns) {
         NSUInteger rowIndex = 0;
         for (NSArray *newRow in cellRows) {
-            NSAssert(newRow.count == _columnCount, @"added row with %d columns not %d as in cell map", newRow.count, _columnCount);
+            NSAssert(newRow.count == _columnCount, @"added row with %lu columns not %lu as in cell map", (unsigned long)newRow.count, (unsigned long)_columnCount);
             [column insertObject:[newRow objectAtIndex:columnIndex] atIndex:rowIndex];
             rowIndex++;
         }
@@ -172,7 +172,7 @@
     NSUInteger columnIndex = 0;
     for (NSMutableArray *column in columns) {
         for (NSArray *newRow in cellRows) {
-            NSAssert(newRow.count == _columnCount, @"added row with %d columns not %d as in cell map", newRow.count, _columnCount);
+            NSAssert(newRow.count == _columnCount, @"added row with %lu columns not %lu as in cell map", (unsigned long)newRow.count, (unsigned long)_columnCount);
             [column addObject:[newRow objectAtIndex:columnIndex]];
         }
         columnIndex++;
@@ -188,7 +188,7 @@
     NSUInteger numberOfNewColumns = cellColumns.count;
     NSUInteger columnIndex = 0;
     for (NSArray *newColumn in cellColumns) {
-        NSAssert(newColumn.count == _rowCount, @"added column with %d rows not %d as in cell map", newColumn.count, _rowCount);
+        NSAssert(newColumn.count == _rowCount, @"added column with %lu rows not %lu as in cell map", (unsigned long)newColumn.count, (unsigned long)_rowCount);
         [columns insertObject:[newColumn mutableCopy] atIndex:columnIndex];
         columnIndex++;
     }
@@ -202,7 +202,7 @@
     }
     NSUInteger numberOfNewColumns = cellColumns.count;
     for (NSArray *newColumn in cellColumns) {
-        NSAssert(newColumn.count == _rowCount, @"added column with %d rows not %d as in cell map", newColumn.count, _rowCount);
+        NSAssert(newColumn.count == _rowCount, @"added column with %lu rows not %lu as in cell map", (unsigned long)newColumn.count, (unsigned long)_rowCount);
         [columns addObject:[newColumn mutableCopy]];
     }
     _columnCount += numberOfNewColumns;
@@ -437,7 +437,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"[%d, %d]", section, row];
+    return [NSString stringWithFormat:@"[%ld, %ld]", (long)section, (long)row];
 }
 
 - (BOOL)isEqualToIndexPath:(MDIndexPath *)object
@@ -500,7 +500,7 @@
     if (numberOfSections == 0) {
         returnIndex += indexPath.row-row;
     } else if (numberOfSections > 0) {
-        for (int i = section; i <= indexPath.section; i++) {
+        for (NSInteger i = section; i <= indexPath.section; i++) {
             if (i == section) {
                 returnIndex += [spreadView numberOfRowsInRowSection:i]-row+1;
             } else if (i == indexPath.section) {
@@ -510,7 +510,7 @@
             }
         }
     } else {
-        for (int i = section; i >= indexPath.section; i--) {
+        for (NSInteger i = section; i >= indexPath.section; i--) {
             if (i == section) {
                 returnIndex -= row+1;
             } else if (i == indexPath.section) {
@@ -579,7 +579,7 @@
     if (numberOfSections == 0) {
         returnIndex += indexPath.row-row;
     } else if (numberOfSections > 0) {
-        for (int i = section; i <= indexPath.section; i++) {
+        for (NSInteger i = section; i <= indexPath.section; i++) {
             if (i == section) {
                 returnIndex += [spreadView numberOfColumnsInColumnSection:i]-row+1;
             } else if (i == indexPath.section) {
@@ -589,7 +589,7 @@
             }
         }
     } else {
-        for (int i = section; i >= indexPath.section; i--) {
+        for (NSInteger i = section; i >= indexPath.section; i--) {
             if (i == section) {
                 returnIndex -= row+1;
             } else if (i == indexPath.section) {
@@ -1078,7 +1078,7 @@
             
             totalWidth += [self _widthForColumnHeaderInSection:i];
             
-            for (NSUInteger j = 0; j < numberOfColumns; j++) {
+            for (NSInteger j = 0; j < numberOfColumns; j++) {
                 totalWidth += [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:j inSection:i]];
             }
             
@@ -1102,7 +1102,7 @@
             
             totalHeight += [self _heightForRowHeaderInSection:i];
             
-            for (NSUInteger j = 0; j < numberOfRows; j++) {
+            for (NSInteger j = 0; j < numberOfRows; j++) {
                 totalHeight += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:j inSection:i]];
             }
             
@@ -4591,7 +4591,7 @@
     if (numberOfSections == 0) {
         returnIndex += indexPath.row-_visibleRowIndexPath.row;
     } else if (numberOfSections > 0) {
-        for (int i = _visibleRowIndexPath.section; i <= indexPath.section; i++) {
+        for (NSInteger i = _visibleRowIndexPath.section; i <= indexPath.section; i++) {
             if (i == _visibleRowIndexPath.section) {
                 returnIndex += [self _numberOfRowsInSection:i]-_visibleRowIndexPath.row+1;
             } else if (i == indexPath.section) {
@@ -4601,7 +4601,7 @@
             }
         }
     } else {
-        for (int i = _visibleRowIndexPath.section; i >= indexPath.section; i--) {
+        for (NSInteger i = _visibleRowIndexPath.section; i >= indexPath.section; i--) {
             if (i == _visibleRowIndexPath.section) {
                 returnIndex -= _visibleRowIndexPath.row+1;
             } else if (i == indexPath.section) {
@@ -4624,7 +4624,7 @@
     if (numberOfSections == 0) {
         returnIndex += indexPath.column-_visibleColumnIndexPath.column;
     } else if (numberOfSections > 0) {
-        for (int i = _visibleColumnIndexPath.section; i <= indexPath.section; i++) {
+        for (NSInteger i = _visibleColumnIndexPath.section; i <= indexPath.section; i++) {
             if (i == _visibleColumnIndexPath.section) {
                 returnIndex += [self _numberOfColumnsInSection:i]-_visibleColumnIndexPath.column+1;
             } else if (i == indexPath.section) {
@@ -4634,7 +4634,7 @@
             }
         }
     } else {
-        for (int i = _visibleColumnIndexPath.section; i >= indexPath.section; i--) {
+        for (NSInteger i = _visibleColumnIndexPath.section; i >= indexPath.section; i--) {
             if (i == _visibleColumnIndexPath.section) {
                 returnIndex -= _visibleColumnIndexPath.column+1;
             } else if (i == indexPath.section) {
@@ -5217,8 +5217,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultHeaderCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
-                                                         reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultHeaderCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                                  reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnSection:)])
@@ -5250,8 +5250,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultHeaderRowFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
-                                                                 reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultHeaderRowFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                                           reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnFooterSection:)])
@@ -5284,8 +5284,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultHeaderColumnFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
-                                                                    reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultHeaderColumnFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                                              reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowFooterSection:)])
@@ -5318,8 +5318,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
-                                                        reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultFooterCornerCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleCorner
+                                                                                  reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnSection:)])
@@ -5353,8 +5353,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultHeaderColumnCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
-                                                         reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultHeaderColumnCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
+                                                                                  reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInColumnSection:forRowAtIndexPath:)])
@@ -5386,8 +5386,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultFooterColumnCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
-                                                        reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultFooterColumnCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleColumn
+                                                                                  reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInColumnSection:forRowAtIndexPath:)])
@@ -5420,8 +5420,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultHeaderRowCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
-                                                      reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultHeaderRowCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
+                                                                               reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForHeaderInRowSection:forColumnAtIndexPath:)])
@@ -5453,8 +5453,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultFooterRowCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
-                                                     reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewHeaderCell *)[_defaultFooterRowCellClass alloc] initWithStyle:MDSpreadViewHeaderCellStyleRow
+                                                                               reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:titleForFooterInRowSection:forColumnAtIndexPath:)])
@@ -5487,8 +5487,8 @@
         
         MDSpreadViewCell *cell = (MDSpreadViewCell *)[self dequeueReusableCellWithIdentifier:cellIdentifier];
         if (cell == nil) {
-            cell = [[_defaultCellClass alloc] initWithStyle:MDSpreadViewCellStyleDefault
-                                             reuseIdentifier:cellIdentifier];
+            cell = [(MDSpreadViewCell *)[_defaultCellClass alloc] initWithStyle:MDSpreadViewCellStyleDefault
+                                                                reuseIdentifier:cellIdentifier];
         }
         
         if ([_dataSource respondsToSelector:@selector(spreadView:objectValueForRowAtIndexPath:forColumnAtIndexPath:)])
