@@ -2160,7 +2160,7 @@
     
     // STEP 5
     
-    if (minColumnIndexPath) {
+    if (mapForColumnHeaders.columnCount) {
         
         NSArray *columns = mapForColumnHeaders.allColumns;
         
@@ -2479,7 +2479,7 @@
     
     // STEP 7
     
-    if (minColumnIndexPath) {
+    if (mapForRowHeaders.rowCount) {
         
         NSArray *rows = mapForRowHeaders.allRows;
         
