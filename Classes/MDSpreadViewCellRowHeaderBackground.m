@@ -37,16 +37,12 @@
 
 - (void)prepareBackground
 {
-	backgroundTop = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewRowHeaderTop.png"]
-                                      highlightedImage:[UIImage imageNamed:@"MDSpreadViewRowHeaderTopSelected.png"]];
-    backgroundTop.contentMode = UIViewContentModeScaleToFill;
-    backgroundTop.contentStretch = CGRectMake(2./backgroundTop.bounds.size.width, 3./backgroundTop.bounds.size.height, 1./backgroundTop.bounds.size.width, 1./backgroundTop.bounds.size.height);
+	backgroundTop = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewRowHeaderTop.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 2, 1, 2)]
+                                      highlightedImage:[[UIImage imageNamed:@"MDSpreadViewRowHeaderTopSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 2, 1, 2)]];
 	[self addSubview:backgroundTop];
     
-	backgroundBottom = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewRowHeaderBottom.png"]
-                                         highlightedImage:[UIImage imageNamed:@"MDSpreadViewRowHeaderBottomSelected.png"]];
-    backgroundBottom.contentMode = UIViewContentModeScaleToFill;
-    backgroundBottom.contentStretch = CGRectMake(2./backgroundBottom.bounds.size.width, 2./backgroundBottom.bounds.size.height, 1./backgroundBottom.bounds.size.width, 1./backgroundBottom.bounds.size.height);
+	backgroundBottom = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewRowHeaderBottom.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]
+                                         highlightedImage:[[UIImage imageNamed:@"MDSpreadViewRowHeaderBottomSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
 	[self addSubview:backgroundBottom];
 }
 

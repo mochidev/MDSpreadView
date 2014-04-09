@@ -37,28 +37,20 @@
 
 - (void)prepareBackground
 {
-	backgroundTopLeft = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerTopLeft.png"]
-                                          highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerTopLeftSelected.png"]];
-    backgroundTopLeft.contentMode = UIViewContentModeScaleToFill;
-    backgroundTopLeft.contentStretch = CGRectMake(3./backgroundTopLeft.bounds.size.width, 3./backgroundTopLeft.bounds.size.height, 1./backgroundTopLeft.bounds.size.width, 1./backgroundTopLeft.bounds.size.height);
+	backgroundTopLeft = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCornerTopLeft.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 3, 1, 1)]
+                                          highlightedImage:[[UIImage imageNamed:@"MDSpreadViewCornerTopLeftSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 3, 1, 1)]];
 	[self addSubview:backgroundTopLeft];
 	
-	backgroundTopRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRight.png"]
-                                           highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerTopRightSelected.png"]];
-    backgroundTopRight.contentMode = UIViewContentModeScaleToFill;
-    backgroundTopRight.contentStretch = CGRectMake(2./backgroundTopRight.bounds.size.width, 3./backgroundTopRight.bounds.size.height, 1./backgroundTopRight.bounds.size.width, 1./backgroundTopRight.bounds.size.height);
+	backgroundTopRight = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCornerTopRight.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 2, 1, 3)]
+                                           highlightedImage:[[UIImage imageNamed:@"MDSpreadViewCornerTopRightSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(3, 2, 1, 3)]];
 	[self addSubview:backgroundTopRight];
 	
-	backgroundBottomLeft = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeft.png"]
-                                             highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomLeftSelected.png"]];
-    backgroundBottomLeft.contentMode = UIViewContentModeScaleToFill;
-    backgroundBottomLeft.contentStretch = CGRectMake(3./backgroundBottomLeft.bounds.size.width, 2./backgroundBottomLeft.bounds.size.height, 1./backgroundBottomLeft.bounds.size.width, 1./backgroundBottomLeft.bounds.size.height);
+	backgroundBottomLeft = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCornerBottomLeft.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 3, 3, 1)]
+                                             highlightedImage:[[UIImage imageNamed:@"MDSpreadViewCornerBottomLeftSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 3, 3, 1)]];
 	[self addSubview:backgroundBottomLeft];
 	
-	backgroundBottomRight = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRight.png"]
-                                              highlightedImage:[UIImage imageNamed:@"MDSpreadViewCornerBottomRightSelected.png"]];
-    backgroundBottomRight.contentMode = UIViewContentModeScaleToFill;
-    backgroundBottomRight.contentStretch = CGRectMake(6./backgroundBottomRight.bounds.size.width, 6./backgroundBottomRight.bounds.size.height, 1./backgroundBottomRight.bounds.size.width, 1./backgroundBottomRight.bounds.size.height);
+	backgroundBottomRight = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCornerBottomRight.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(6, 6, 3, 3)]
+                                              highlightedImage:[[UIImage imageNamed:@"MDSpreadViewCornerBottomRightSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(6, 6, 3, 3)]];
 	[self addSubview:backgroundBottomRight];
 }
 

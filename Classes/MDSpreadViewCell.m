@@ -132,9 +132,7 @@
         
         if ([UIMotionEffect class]) {
             
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
-            imageView.contentMode = UIViewContentModeScaleToFill;
-            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCell.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
             self.backgroundView = imageView;
             
             UIView *view = [[UIView alloc] init];
@@ -155,14 +153,10 @@
             label.highlightedTextColor = [UIColor blackColor];
             self.detailTextLabel = label;
         } else {
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCell.png"]];
-            imageView.contentMode = UIViewContentModeScaleToFill;
-            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            UIImageView *imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCell.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
             self.backgroundView = imageView;
             
-            imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"MDSpreadViewCellSelected.png"]];
-            imageView.contentMode = UIViewContentModeScaleToFill;
-            imageView.contentStretch = CGRectMake(2./imageView.frame.size.width, 2./imageView.frame.size.height, 1./imageView.frame.size.width, 1./imageView.frame.size.height);
+            imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCellSelected.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
             self.highlightedBackgroundView = imageView;
             
             UILabel *label = [[UILabel alloc] init];
