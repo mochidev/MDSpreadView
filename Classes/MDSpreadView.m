@@ -1471,6 +1471,14 @@
                 }
             }
             
+            oldCells = [mapForCornerHeaders removeCellsBeforeRow:preHeaderRowDifference column:preHeaderColumnDifference];
+            for (MDSpreadViewCell *cell in oldCells) {
+                if ((NSNull *)cell != [NSNull null]) {
+                    cell.hidden = YES;
+                    [_dequeuedCells addObject:cell];
+                }
+            }
+            
             if (preColumnDifference) {
                 mapBounds.size.width = mapBounds.origin.x + mapBounds.size.width - _visibleBounds.origin.x;
                 mapBounds.origin.x = _visibleBounds.origin.x;
@@ -1569,6 +1577,15 @@
             
             oldCells = [mapForRowHeaders removeCellsAfterRow:mapForRowHeaders.rowCount - 1 - postHeaderRowDifference
                                                       column:mapForRowHeaders.columnCount - 1 - postContentColumnDifference];
+            for (MDSpreadViewCell *cell in oldCells) {
+                if ((NSNull *)cell != [NSNull null]) {
+                    cell.hidden = YES;
+                    [_dequeuedCells addObject:cell];
+                }
+            }
+            
+            oldCells = [mapForCornerHeaders removeCellsAfterRow:mapForCornerHeaders.rowCount - 1 - postHeaderRowDifference
+                                                         column:mapForCornerHeaders.columnCount - 1 - postHeaderColumnDifference];
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
