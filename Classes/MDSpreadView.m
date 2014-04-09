@@ -2800,6 +2800,94 @@
         
         [mapForCornerHeaders insertColumnsAfter:columns];
     }
+    
+    // STEP 9
+    
+    if ([mapForCornerHeaders hasContent]) {
+        
+        NSArray *columns = mapForCornerHeaders.allColumns;
+        
+        BOOL isColumnHeader = YES;
+        NSInteger workingColumnSection = minColumnSection;
+        
+        for (NSArray *column in columns) {
+            NSAssert((workingColumnSection < totalNumberOfColumnSections), @"Over section bounds!");
+            
+            MDSpreadViewSection *currentColumnSection = [columnSections objectAtIndex:workingColumnSection];
+            CGFloat headerWidth = [self _widthForColumnHeaderInSection:workingColumnSection];
+            CGFloat footerWidth = [self _widthForColumnFooterInSection:workingColumnSection];
+            CGFloat sectionOffset = currentColumnSection.offset;
+            CGFloat sectionSize = currentColumnSection.size;
+            
+            CGPoint newOffset = CGPointZero;
+            
+            if (isColumnHeader) {
+                if (sectionOffset + sectionSize - headerWidth - footerWidth < insetBounds.origin.x) {
+                    newOffset.x = sectionOffset + sectionSize - headerWidth - footerWidth;
+                } else if (sectionOffset < insetBounds.origin.x) {
+                    newOffset.x = insetBounds.origin.x;
+                } else {
+                    newOffset.x = sectionOffset;
+                }
+            } else {
+                if (sectionOffset + headerWidth + footerWidth > insetBounds.origin.x + insetBounds.size.width) {
+                    newOffset.x = sectionOffset + headerWidth;
+                } else if (sectionOffset + sectionSize > insetBounds.origin.x + insetBounds.size.width) {
+                    newOffset.x = insetBounds.origin.x + insetBounds.size.width - footerWidth;
+                } else {
+                    newOffset.x = sectionOffset + sectionSize - footerWidth;
+                }
+                
+                workingColumnSection++;
+            }
+            
+            BOOL isRowHeader = YES;
+            NSInteger workingRowSection = minRowSection;
+            
+            for (MDSpreadViewCell *cell in column) {
+                NSAssert((workingRowSection < totalNumberOfRowSections), @"Over section bounds!");
+                
+                MDSpreadViewSection *currentRowSection = [rowSections objectAtIndex:workingRowSection];
+                CGFloat headerHeight = [self _heightForRowHeaderInSection:workingRowSection];
+                CGFloat footerHeight = [self _heightForRowFooterInSection:workingRowSection];
+                CGFloat sectionOffset = currentRowSection.offset;
+                CGFloat sectionSize = currentRowSection.size;
+
+                if (isRowHeader) {
+                    if (sectionOffset + sectionSize - headerHeight - footerHeight < insetBounds.origin.y) {
+                        newOffset.y = sectionOffset + sectionSize - headerHeight - footerHeight;
+                    } else if (sectionOffset < insetBounds.origin.y) {
+                        newOffset.y = insetBounds.origin.y;
+                    } else {
+                        newOffset.y = sectionOffset;
+                    }
+                } else {
+                    if (sectionOffset + headerHeight + footerHeight > insetBounds.origin.y + insetBounds.size.height) {
+                        newOffset.y = sectionOffset + headerHeight;
+                    } else if (sectionOffset + sectionSize > insetBounds.origin.y + insetBounds.size.height) {
+                        newOffset.y = insetBounds.origin.y + insetBounds.size.height - footerHeight;
+                    } else {
+                        newOffset.y = sectionOffset + sectionSize - footerHeight;
+                    }
+                    
+                    workingRowSection++;
+                }
+                
+                isRowHeader = !isRowHeader;
+                
+                if ((NSNull *)cell == [NSNull null]) continue;
+                
+                CGRect frame = cell._pureFrame;
+                
+                frame.origin = newOffset;
+                
+                cell.frame = frame;
+            }
+            
+            isColumnHeader = !isColumnHeader;
+        }
+    }
+    
     mapBounds = _visibleBounds;
     minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
     maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
