@@ -35,6 +35,29 @@
 #import "MDSpreadViewCell.h"
 #import "MDSpreadViewHeaderCell.h"
 
+#pragma mark - Helper functions
+// From https://gist.github.com/dimitribouniol/5085495
+
+static CGFloat MDRound(CGFloat value)
+{
+    static CGFloat scale = 0;
+    if (scale <= 0) {
+        scale = [[UIScreen mainScreen] scale];
+    }
+    
+    return roundf(value*scale)/scale;
+}
+
+static CGFloat MDPixel()
+{
+    static CGFloat scale = 0;
+    if (scale <= 0) {
+        scale = [[UIScreen mainScreen] scale];
+    }
+    
+    return 1./scale;
+}
+
 #pragma mark - MDSpreadViewCellMap
 
 @interface MDSpreadViewCellMap : NSObject {
@@ -620,6 +643,9 @@
     _sectionColumnHeaderWidth = 110;
     _sectionColumnFooterWidth = 110;
     
+    _separatorStyle = MDSpreadViewCellSeparatorStyleCorner;
+    _separatorColor = [UIColor colorWithWhite:0.9 alpha:1];
+    
     _selectedCells = [[NSMutableArray alloc] init];
     selectionMode = MDSpreadViewSelectionModeCell;
     allowsSelection = YES;
@@ -924,8 +950,18 @@
         }
         
         rowSections = newRowSections;
+        CGFloat pixel = MDPixel();
         
-        self.contentSize = CGSizeMake(totalWidth-1, totalHeight-1);
+        if (_separatorStyle == MDSpreadViewCellSeparatorStyleCorner) {
+            totalWidth = MAX(totalWidth - pixel, 0);
+            totalHeight = MAX(totalHeight - pixel, 0);
+        } else if (_separatorStyle == MDSpreadViewCellSeparatorStyleHorizontal) {
+            totalHeight = MAX(totalHeight - pixel, 0);
+        } else if (_separatorStyle == MDSpreadViewCellSeparatorStyleVertical) {
+            totalWidth = MAX(totalWidth - pixel, 0);
+        }
+        
+        self.contentSize = CGSizeMake(totalWidth, totalHeight);
     
 //    if (selectedSection != NSNotFound || selectedRow!= NSNotFound) {
 //        if (selectedSection > numberOfSections || selectedRow > [self tableView:self numberOfRowsInSection:selectedSection]) {
@@ -957,6 +993,41 @@
 //    
 //    return [super hitTest:point withEvent:event];
 //}
+
+#pragma mark - Separators
+
+- (void)setSeparatorStyle:(MDSpreadViewCellSeparatorStyle)separatorStyle
+{
+    if (_separatorStyle != separatorStyle) {
+        cachedSeparatorImage = nil;
+        [self _setNeedsReloadData];
+    }
+}
+
+- (UIImage *)_separatorImage
+{
+    if (!cachedSeparatorImage) {
+        CGFloat pixel = MDPixel();
+        
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(2, 2), NO, 0);
+        
+        [_separatorColor setFill];
+        
+        if (_separatorStyle == MDSpreadViewCellSeparatorStyleCorner) {
+            UIRectFill(CGRectMake(0, 2-pixel, 2, pixel));
+            UIRectFill(CGRectMake(2-pixel, 0, pixel, 2));
+        } else if (_separatorStyle == MDSpreadViewCellSeparatorStyleHorizontal) {
+            UIRectFill(CGRectMake(0, 2-pixel, 2, pixel));
+        } else if (_separatorStyle == MDSpreadViewCellSeparatorStyleVertical) {
+            UIRectFill(CGRectMake(2-pixel, 0, pixel, 2));
+        }
+        
+        cachedSeparatorImage = [UIGraphicsGetImageFromCurrentImageContext() resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 1, 1)];
+        UIGraphicsEndImageContext();
+    }
+    
+    return cachedSeparatorImage;
+}
 
 #pragma mark - Layout
 

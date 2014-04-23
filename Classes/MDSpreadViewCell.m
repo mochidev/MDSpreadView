@@ -106,6 +106,7 @@
 - (BOOL)_touchesBeganInCell:(MDSpreadViewCell *)cell;
 - (void)_touchesEndedInCell:(MDSpreadViewCell *)cell;
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell;
+- (UIImage *)_separatorImage;
 
 @end
 
@@ -132,8 +133,8 @@
         
         if (NSClassFromString(@"UIMotionEffect")) {
             
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCell.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
-            self.backgroundView = imageView;
+//            UIImageView *imageView = [[UIImageView alloc] initWithImage:[[UIImage imageNamed:@"MDSpreadViewCell.png"] resizableImageWithCapInsets:UIEdgeInsetsMake(2, 2, 2, 2)]];
+//            self.backgroundView = imageView;
             
             UIView *view = [[UIView alloc] init];
             view.backgroundColor = [UIColor colorWithWhite:217./255. alpha:1.];
@@ -174,6 +175,12 @@
             self.detailTextLabel = label;
         }
         
+        if ([self hasSeparators]) {
+            separators = [[UIImageView alloc] initWithFrame:self.bounds];
+            separators.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+            [self addSubview:separators];
+        }
+        
         _tapGesture = [[MDSpreadViewCellTapGestureRecognizer alloc] init];
         _tapGesture.cancelsTouchesInView = NO;
         _tapGesture.delaysTouchesEnded = NO;
@@ -182,6 +189,18 @@
         [self addGestureRecognizer:_tapGesture];
     }
     return self;
+}
+
+- (void)setSpreadView:(MDSpreadView *)aSpreadView
+{
+    spreadView = aSpreadView;
+    
+    separators.image = [spreadView _separatorImage];
+}
+
+- (BOOL)hasSeparators
+{
+    return YES;
 }
 
 - (void)setReuseIdentifier:(NSString *)anIdentifier
@@ -230,7 +249,13 @@
     } else {
         highlightedBackgroundView.alpha = 0;
     }
-    [self insertSubview:highlightedBackgroundView aboveSubview:self.backgroundView];
+    
+    if (backgroundView) {
+        [self insertSubview:highlightedBackgroundView aboveSubview:backgroundView];
+    } else {
+        [self insertSubview:highlightedBackgroundView atIndex:0];
+    }
+    
     [self setNeedsLayout];
 }
 

@@ -164,6 +164,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     CGSize dequeuedCellSizeHint;
     
+    UIImage *cachedSeparatorImage;
+    
     // Done with new algorithm
     
     NSMutableArray *visibleCells; // array of array
@@ -303,9 +305,9 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 // Appearance
 
-@property (nonatomic) MDSpreadViewCellSeparatorStyle separatorStyle __attribute__((unavailable));
+@property (nonatomic) MDSpreadViewCellSeparatorStyle separatorStyle;
 // default is MDSpreadViewCellSeparatorStyleCorner
-@property (nonatomic, strong) UIColor *separatorColor __attribute__((unavailable));
+@property (nonatomic, strong) UIColor *separatorColor;
 // default is the standard separator gray
 
 - (MDSpreadViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;

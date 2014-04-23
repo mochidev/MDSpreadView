@@ -101,6 +101,11 @@
     return self;
 }
 
+- (BOOL)hasSeparators
+{
+    return NO;
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];

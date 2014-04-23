@@ -72,6 +72,7 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
     NSString *reuseIdentifier;
     BOOL highlighted;
     NSInteger style;
+    UIImageView *separators;
 	
     id objectValue;
 
@@ -105,6 +106,8 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
 
 // If you want to customize cells by simply adding additional views, you should add them to the content view so they will be positioned appropriately as the cell transitions into and out of editing mode.
 @property (nonatomic, readonly, retain) UIView *contentView __attribute__((unavailable));
+
+- (BOOL)hasSeparators; // returns YES. Subclasses can turn off separators completely here;
 
 // Default is nil for cells in UITableViewStylePlain, and non-nil for UITableViewStyleGrouped. The 'backgroundView' will be added as a subview behind all other views.
 @property (nonatomic, retain) UIView *backgroundView;
