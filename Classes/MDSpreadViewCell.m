@@ -113,12 +113,12 @@
 
 @synthesize backgroundView, highlighted, highlightedBackgroundView, reuseIdentifier, textLabel, detailTextLabel, style, objectValue, _tapGesture, spreadView, sortDescriptorPrototype, defaultSortAxis, _rowPath, _columnPath, _pureFrame;
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
     return [self initWithStyle:MDSpreadViewCellStyleDefault reuseIdentifier:@"_MDDefaultCell"];
 }
 
-- (id)initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:(NSString *)aReuseIdentifier
+- (instancetype)initWithStyle:(MDSpreadViewCellStyle)aStyle reuseIdentifier:(NSString *)aReuseIdentifier
 {
     if (!aReuseIdentifier) return nil;
     if (self = [super initWithFrame:CGRectZero]) {

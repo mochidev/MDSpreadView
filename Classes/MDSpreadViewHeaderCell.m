@@ -41,7 +41,7 @@
 
 @dynamic sortDescriptorPrototype, defaultSortAxis;
 
-- (id)initWithStyle:(MDSpreadViewHeaderCellStyle)aStyle reuseIdentifier:(NSString *)reuseIdentifier
+- (instancetype)initWithStyle:(MDSpreadViewHeaderCellStyle)aStyle reuseIdentifier:(NSString *)reuseIdentifier
 {
     if (!reuseIdentifier) {
         if (aStyle == MDSpreadViewHeaderCellStyleCorner) {

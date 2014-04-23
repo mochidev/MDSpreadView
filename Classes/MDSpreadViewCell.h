@@ -35,31 +35,31 @@
 #import <QuartzCore/CoreAnimation.h>
 @class MDSpreadView, MDSortDescriptor, MDIndexPath;
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellStyle) {
     MDSpreadViewCellStyleDefault
-} MDSpreadViewCellStyle;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellSeparatorStyle) {
     MDSpreadViewCellSeparatorStyleNone,
     MDSpreadViewCellSeparatorStyleHorizontal,
     MDSpreadViewCellSeparatorStyleVertical,
     MDSpreadViewCellSeparatorStyleCorner
-} MDSpreadViewCellSeparatorStyle;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellSelectionStyle) {
     MDSpreadViewCellSelectionStyleNone,
     MDSpreadViewCellSelectionStyleDefault
-} MDSpreadViewCellSelectionStyle;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellAccessoryType) {
     MDSpreadViewCellAccessoryNone,
     MDSpreadViewCellAccessoryDisclosureIndicator
-} MDSpreadViewCellAccessoryType;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
     MDSpreadViewSortRows,
     MDSpreadViewSortColumns
-} MDSpreadViewSortAxis;
+};
 
 @interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {
   @public
@@ -85,7 +85,7 @@ typedef enum {
 }
 
 // Designated initializer.  If the cell can be reused, you must pass in a reuse identifier.  You should use the same reuse identifier for all cells of the same form.
-- (id)initWithStyle:(MDSpreadViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
+- (instancetype)initWithStyle:(MDSpreadViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
 
 @property(nonatomic,readonly,copy) NSString *reuseIdentifier;
 - (void)prepareForReuse;
