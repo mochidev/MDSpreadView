@@ -1099,6 +1099,7 @@
             }
             _visibleBounds.origin.y += height;
             minRowSection++;
+            if (minRowSection >= totalNumberOfRowSections) minRowSection = (totalNumberOfRowSections == 0) ? 0 : totalNumberOfRowSections - 1;
         } else {
             if (_visibleBounds.origin.y + _visibleBounds.size.height > bounds.origin.y + bounds.size.height) {
                 break;
@@ -1153,6 +1154,7 @@
             }
             _visibleBounds.origin.x += width;
             minColumnSection++;
+            if (minColumnSection >= totalNumberOfColumnSections) minColumnSection = (totalNumberOfColumnSections == 0) ? 0 : totalNumberOfColumnSections - 1;
         } else {
             if (_visibleBounds.origin.x + _visibleBounds.size.width > bounds.origin.x + bounds.size.width) {
                 break;
@@ -1631,7 +1633,7 @@
             [mapForContent insertColumnsAfter:columns];
         }
         
-    } else { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -1898,7 +1900,7 @@
             [mapForColumnHeaders insertColumnsAfter:columns];
         }
         
-    } else { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         
@@ -2224,7 +2226,7 @@
             [mapForRowHeaders insertColumnsAfter:columns];
         }
         
-    } else { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -2560,7 +2562,7 @@
             [mapForCornerHeaders insertColumnsAfter:columns];
         }
         
-    } else { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         
