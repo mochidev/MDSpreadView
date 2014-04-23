@@ -1633,7 +1633,7 @@
             [mapForContent insertColumnsAfter:columns];
         }
         
-    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -1900,7 +1900,7 @@
             [mapForColumnHeaders insertColumnsAfter:columns];
         }
         
-    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         
@@ -2226,7 +2226,7 @@
             [mapForRowHeaders insertColumnsAfter:columns];
         }
         
-    } else if (totalNumberOfColumnSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -2562,7 +2562,7 @@
             [mapForCornerHeaders insertColumnsAfter:columns];
         }
         
-    } else if (totalNumberOfColumnSections) { // if there is nothing, start fresh, and do the whole thing in one go
+    } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
         NSInteger workingColumnSection = minColumnSection;
         
@@ -2702,11 +2702,13 @@
         }
     }
     
-    mapBounds = _visibleBounds;
-    minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
-    maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
-    minRowIndexPath = [MDIndexPath indexPathForColumn:minRowIndex inSection:minRowSection];
-    maxRowIndexPath = [MDIndexPath indexPathForColumn:maxRowIndex inSection:maxRowSection];
+    if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) {
+        mapBounds = _visibleBounds;
+        minColumnIndexPath = [MDIndexPath indexPathForColumn:minColumnIndex inSection:minColumnSection];
+        maxColumnIndexPath = [MDIndexPath indexPathForColumn:maxColumnIndex inSection:maxColumnSection];
+        minRowIndexPath = [MDIndexPath indexPathForColumn:minRowIndex inSection:minRowSection];
+        maxRowIndexPath = [MDIndexPath indexPathForColumn:maxRowIndex inSection:maxRowSection];
+    }
     
 //    NSLog(@" \n ");
 //    NSLog(@"Min Target: [%d, %d] x [%d, %d]", minColumnSection, minColumnIndex, minRowSection, minRowIndex);
