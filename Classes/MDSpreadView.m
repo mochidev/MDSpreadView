@@ -3208,7 +3208,7 @@
     NSInteger returnValue = 0;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:numberOfColumnsInSection:)])
-        returnValue = [_dataSource spreadView:self numberOfColumnsInSection:section];
+        returnValue = MAX([_dataSource spreadView:self numberOfColumnsInSection:section], 0);
     
     return returnValue;
 }
@@ -3220,7 +3220,7 @@
     NSInteger returnValue = 0;
     
     if ([_dataSource respondsToSelector:@selector(spreadView:numberOfRowsInSection:)])
-        returnValue = [_dataSource spreadView:self numberOfRowsInSection:section];
+        returnValue = MAX([_dataSource spreadView:self numberOfRowsInSection:section], 0);
     
     return returnValue;
 }
@@ -3230,7 +3230,7 @@
     NSInteger returnValue = 1;
     
     if ([_dataSource respondsToSelector:@selector(numberOfColumnSectionsInSpreadView:)])
-        returnValue = [_dataSource numberOfColumnSectionsInSpreadView:self];
+        returnValue = MAX([_dataSource numberOfColumnSectionsInSpreadView:self], 0);
     
     return returnValue;
 }
@@ -3240,7 +3240,7 @@
     NSInteger returnValue = 1;
     
     if ([_dataSource respondsToSelector:@selector(numberOfRowSectionsInSpreadView:)])
-        returnValue = [_dataSource numberOfRowSectionsInSpreadView:self];
+        returnValue = MAX([_dataSource numberOfRowSectionsInSpreadView:self], 0);
     
     return returnValue;
 }
