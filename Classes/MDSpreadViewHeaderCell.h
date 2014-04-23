@@ -47,6 +47,6 @@ typedef enum {
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 // This needs to be set if you want to support sorting for this column/row.
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
-// Which direction will a orner header sort in?
+// Which direction will a corner header sort in?
 
 @end

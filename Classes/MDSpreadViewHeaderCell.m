@@ -127,6 +127,14 @@
         }
     }
 }
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    
+    self.sortDescriptorPrototype = nil;
+}
+
 - (BOOL)isAccessibilityElement
 {
     return YES;
