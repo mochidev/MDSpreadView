@@ -999,7 +999,9 @@ static CGFloat MDPixel()
 - (void)setSeparatorStyle:(MDSpreadViewCellSeparatorStyle)separatorStyle
 {
     if (_separatorStyle != separatorStyle) {
+        _separatorStyle = separatorStyle;
         cachedSeparatorImage = nil;
+        
         [self _setNeedsReloadData];
     }
 }
