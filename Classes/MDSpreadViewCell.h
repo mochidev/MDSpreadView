@@ -57,8 +57,10 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewCellAccessoryType) {
 };
 
 typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
+    MDSpreadViewSortNone,
     MDSpreadViewSortRows,
-    MDSpreadViewSortColumns
+    MDSpreadViewSortColumns,
+    MDSpreadViewSortBoth
 };
 
 @interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {

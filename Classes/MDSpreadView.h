@@ -293,13 +293,31 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // Selection
 
 @property (nonatomic) MDSpreadViewSelectionMode highlightMode;
-// the default selection mode. defaults to MDSpreadViewSelectionModeNone
+// the default highlight mode. defaults to MDSpreadViewSelectionModeNone. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as MDSpreadViewSelectionModeNone.
 @property (nonatomic) MDSpreadViewSelectionMode selectionMode;
-// the default selection mode. defaults to MDSpreadViewSelectionModeNone
+// the default selection mode. defaults to MDSpreadViewSelectionModeAutomatic. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as highlightMode.
 @property (nonatomic) BOOL allowsSelection;
 // default is YES. Controls whether rows can be selected when not in editing mode
 @property (nonatomic) BOOL allowsMultipleSelection;
 // default is NO. Controls whether multiple rows can be selected simultaneously
+
+@property (nonatomic) BOOL rowHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeRow
+@property (nonatomic) BOOL columnHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeColumn
+@property (nonatomic) BOOL cornerHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeCell
+// the default highlight mode for header cells. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as  highlightMode.
+
+@property (nonatomic) BOOL rowHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeRow
+@property (nonatomic) BOOL columnHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeColumn
+@property (nonatomic) BOOL cornerHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeCell
+// the default selection mode for header cells. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as selectionMode.
+
+// Allow headers to be highlighted, and eventually selected. Defaults to NO. These apply for footers as well
+@property (nonatomic) BOOL allowsRowHeaderSelection;
+@property (nonatomic) BOOL allowsColumnHeaderSelection;
+@property (nonatomic) BOOL allowsCornerHeaderSelection;
+
+// Overrides the above values with the sort prototype for the header. This includes the selection modes. If you want to further costomize this behavior, ovveride the delegate methods related to highlighting and selection.
+@property (nonatomic) BOOL autoAllowSortableHeaderSelection; // default is YES
 
 - (NSArray *)selections __attribute__((unavailable));
 // array of MDSpreadViewSelection's
@@ -330,7 +348,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // Sorting
 
 @property (nonatomic, copy) NSArray *sortDescriptors;
-// Calling -setSortDescriptors: may have the side effect of calling -spreadView:sortDescriptorsDidChange: on the -dataSource/
+// Calling -setSortDescriptors: may have the side effect of calling -spreadView:sortDescriptorsDidChange: on the -dataSource.
 
 @end
 
