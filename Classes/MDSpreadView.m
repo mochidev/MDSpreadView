@@ -3679,9 +3679,71 @@ static CGFloat MDPixel()
 
 - (BOOL)_touchesBeganInCell:(MDSpreadViewCell *)cell
 {
-    if (!allowsSelection) return NO;
+    MDSpreadViewSelectionMode resolvedSelectionMode = MDSpreadViewSelectionModeAutomatic;
     
-    MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:cell._rowPath column:cell._columnPath mode:self.selectionMode];
+    BOOL override = NO;
+    MDSortDescriptor *sortDescriptorPrototype = nil;
+    if (_autoAllowSortableHeaderSelection) {
+        if ([(MDSpreadViewHeaderCell *)cell respondsToSelector:@selector(sortDescriptorPrototype)] && [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype]) {
+            sortDescriptorPrototype = [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype];
+            override = YES;
+            
+            resolvedSelectionMode = MDSpreadViewSelectionModeCell + sortDescriptorPrototype.sortAxis;
+        }
+    }
+    
+    if (!allowsSelection && !override) return NO;
+    
+    MDIndexPath *rowPath = cell._rowPath;
+    MDIndexPath *columnPath = cell._columnPath;
+    NSInteger row = rowPath.row;
+    NSInteger rowSection = rowPath.section;
+    NSInteger column = columnPath.column;
+    NSInteger columnSection = columnPath.section;
+    NSUInteger rowSectionCount = [(MDSpreadViewSection *)[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSUInteger columnSectionCount = [(MDSpreadViewSection *)[columnSections objectAtIndex:columnSection] numberOfCells];
+    
+    if ((row == -1 && column == -1) ||
+        (row == rowSectionCount && column == columnSectionCount) ||
+        (row == -1 && column == columnSectionCount) ||
+        (row == rowSectionCount && column == -1)) { // corner header
+        
+        if (!_allowsCornerHeaderSelection && !override) {
+            return NO;
+        }
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _cornerHeaderHighlightMode;
+        }
+    } else if (row == -1 || row == rowSectionCount) { // header row
+        
+        if (!_allowsRowHeaderSelection && !override) {
+            return NO;
+        }
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _rowHeaderHighlightMode;
+        }
+    } else if (column == -1 || column == columnSectionCount) { // header column
+        
+        if (!_allowsColumnHeaderSelection && !override) {
+            return NO;
+        }
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _columnHeaderHighlightMode;
+        }
+    }
+    
+    if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+        resolvedSelectionMode = _highlightMode;
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = MDSpreadViewSelectionModeNone;
+        }
+    }
+    
+    MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:resolvedSelectionMode];
     self._currentSelection = [self _willSelectCellForSelection:selection];
     
     if (self._currentSelection) {
