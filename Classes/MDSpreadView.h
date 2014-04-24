@@ -34,8 +34,9 @@
 #import <UIKit/UIKit.h>
 #import "MDSpreadViewCell.h"
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewScrollPosition) {
     MDSpreadViewScrollPositionNone,
+    MDSpreadViewScrollPositionAutomatic,
     MDSpreadViewScrollPositionTopLeft,
     MDSpreadViewScrollPositionTopMiddle,
     MDSpreadViewScrollPositionTopRight,
@@ -45,23 +46,24 @@ typedef enum {
     MDSpreadViewScrollPositionBottomLeft,
     MDSpreadViewScrollPositionBottomMiddle,
     MDSpreadViewScrollPositionBottomRight
-} MDSpreadViewScrollPosition;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewSelectionMode) {
     MDSpreadViewSelectionModeNone,
-    MDSpreadViewSelectionModeCell,        
-    MDSpreadViewSelectionModeRow,    
-    MDSpreadViewSelectionModeColumn,   
+    MDSpreadViewSelectionModeAutomatic,
+    MDSpreadViewSelectionModeCell,
+    MDSpreadViewSelectionModeRow,
+    MDSpreadViewSelectionModeColumn,
     MDSpreadViewSelectionModeRowAndColumn
-} MDSpreadViewSelectionMode;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, MDSpreadViewCellDomain) {
     MDSpreadViewCellDomainHeaders = -1,
     MDSpreadViewCellDomainCells = 0,
     MDSpreadViewCellDomainFooters = 1
-} MDSpreadViewCellDomain;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellResizing) {
     MDSpreadViewCellResizingNone,
     MDSpreadViewCellResizingUniform,
     MDSpreadViewCellResizingCellsOnly,
@@ -71,7 +73,7 @@ typedef enum {
     MDSpreadViewCellResizingLastFooter,
     MDSpreadViewCellResizingFirstCell,
     MDSpreadViewCellResizingLastCell
-} MDSpreadViewCellResizing;
+};
 
 @class MDSpreadView;
 @protocol MDSpreadViewDataSource;
