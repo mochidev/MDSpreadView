@@ -647,8 +647,25 @@ static CGFloat MDPixel()
     _separatorColor = [UIColor colorWithWhite:0.9 alpha:1];
     
     _selectedCells = [[NSMutableArray alloc] init];
-    selectionMode = MDSpreadViewSelectionModeCell;
+    
+    _highlightMode = MDSpreadViewSelectionModeCell;
+    selectionMode = MDSpreadViewSelectionModeAutomatic;
     allowsSelection = YES;
+    allowsMultipleSelection = NO;
+    
+    _rowHeaderHighlightMode = MDSpreadViewSelectionModeRow;
+    _columnHeaderHighlightMode = MDSpreadViewSelectionModeColumn;
+    _cornerHeaderHighlightMode = MDSpreadViewSelectionModeCell;
+    
+    _rowHeaderSelectionMode = MDSpreadViewSelectionModeRow;
+    _columnHeaderSelectionMode = MDSpreadViewSelectionModeColumn;
+    _cornerHeaderSelectionMode = MDSpreadViewSelectionModeCell;
+    
+    _allowsRowHeaderSelection = NO;
+    _allowsColumnHeaderSelection = NO;
+    _allowsCornerHeaderSelection = NO;
+    
+    _autoAllowSortableHeaderSelection = YES;
     
     _defaultCellClass = [MDSpreadViewCell class];
     _defaultHeaderColumnCellClass = [MDSpreadViewHeaderCell class];

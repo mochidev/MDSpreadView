@@ -293,7 +293,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // Selection
 
 @property (nonatomic) MDSpreadViewSelectionMode highlightMode;
-// the default highlight mode. defaults to MDSpreadViewSelectionModeNone. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as MDSpreadViewSelectionModeNone.
+// the default highlight mode. defaults to MDSpreadViewSelectionModeCell. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as MDSpreadViewSelectionModeNone.
 @property (nonatomic) MDSpreadViewSelectionMode selectionMode;
 // the default selection mode. defaults to MDSpreadViewSelectionModeAutomatic. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as highlightMode.
 @property (nonatomic) BOOL allowsSelection;
