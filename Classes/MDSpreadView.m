@@ -3802,8 +3802,8 @@ static CGFloat MDPixel()
 
 - (MDSpreadViewSelection *)_willSelectCellForSelection:(MDSpreadViewSelection *)selection
 {
-    if ([self.delegate respondsToSelector:@selector(spreadView:willSelectCellForSelection:)])
-        selection = [self.delegate spreadView:self willSelectCellForSelection:selection];
+    if ([self.delegate respondsToSelector:@selector(spreadView:willSelectCellWithSelection:)])
+        selection = [self.delegate spreadView:self willSelectCellWithSelection:selection];
     
     return selection;
 }

@@ -130,6 +130,7 @@
         //        self.layer.shouldRasterize = YES;
         //        self.layer.rasterizationScale = [UIScreen mainScreen].scale;
         style = aStyle;
+        _selectionStyle = MDSpreadViewCellSelectionStyleDefault;
         
         if (NSClassFromString(@"UIMotionEffect")) {
             
@@ -230,6 +231,8 @@
     }
 }
 
+#pragma mark - Background Views
+
 - (void)setBackgroundView:(UIView *)aBackgroundView
 {
     [backgroundView removeFromSuperview];
@@ -246,11 +249,15 @@
     
     if (highlighted) {
         highlightedBackgroundView.alpha = 1;
+        highlightedBackgroundView.hidden = NO;
     } else {
         highlightedBackgroundView.alpha = 0;
+        highlightedBackgroundView.hidden = YES;
     }
     
-    if (backgroundView) {
+    if (_selectedBackgroundView) {
+        [self insertSubview:highlightedBackgroundView aboveSubview:_selectedBackgroundView];
+    } else if (backgroundView) {
         [self insertSubview:highlightedBackgroundView aboveSubview:backgroundView];
     } else {
         [self insertSubview:highlightedBackgroundView atIndex:0];
@@ -258,6 +265,30 @@
     
     [self setNeedsLayout];
 }
+
+- (void)setSelectedBackgroundView:(UIView *)selectedBackgroundView
+{
+    [_selectedBackgroundView removeFromSuperview];
+    _selectedBackgroundView = selectedBackgroundView;
+    
+    if (_selected) {
+        _selectedBackgroundView.alpha = 1;
+        _selectedBackgroundView.hidden = NO;
+    } else {
+        _selectedBackgroundView.alpha = 0;
+        _selectedBackgroundView.hidden = YES;
+    }
+    
+    if (backgroundView) {
+        [self insertSubview:_selectedBackgroundView aboveSubview:backgroundView];
+    } else {
+        [self insertSubview:_selectedBackgroundView atIndex:0];
+    }
+    
+    [self setNeedsLayout];
+}
+
+#pragma mark - Content Views
 
 - (void)setTextLabel:(UILabel *)aTextLabel
 {
@@ -286,11 +317,6 @@
     textLabel.frame = CGRectMake(10, 2, self.bounds.size.width-20, self.bounds.size.height-3);
 }
 
-- (void)setHighlighted:(BOOL)isHighlighted
-{
-    [self setHighlighted:isHighlighted animated:NO];
-}
-
 - (void)prepareForReuse
 {
     self.highlighted = NO;
@@ -305,46 +331,154 @@
         [super setFrame:frame];
 }
 
+- (void)set_pureFrame:(CGRect)pureFrame
+{
+    _pureFrame = pureFrame;
+    self.frame = _pureFrame;
+}
+
+#pragma mark - State
+
+- (void)setHighlighted:(BOOL)isHighlighted
+{
+    [self setHighlighted:isHighlighted animated:NO];
+}
+
 - (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
 {
     if (highlighted != isHighlighted) {
         highlighted = isHighlighted;
         
-        textLabel.opaque = !isHighlighted;
-        detailTextLabel.opaque = !isHighlighted;
-        if (highlighted) {
+        void (^animations)(void) = NULL;
+        
+        if (highlighted && _selectionStyle > MDSpreadViewCellSelectionStyleNone) {
+            highlightedBackgroundView.hidden = NO;
+            
+            animations = ^() {
+                highlightedBackgroundView.alpha = 1;
+                textLabel.highlighted = YES;
+                detailTextLabel.highlighted = YES;
+            };
+        } else {
+            animations = ^() {
+                highlightedBackgroundView.alpha = 0;
+                textLabel.highlighted = NO;
+                detailTextLabel.highlighted = NO;
+            };
+        }
+        
+        void (^completion)(BOOL) = NULL;
+        
+        if ((highlighted || _selected) && _selectionStyle > MDSpreadViewCellSelectionStyleNone) {
+            textLabel.opaque = NO;
+            detailTextLabel.opaque = NO;
+            
             textLabel.backgroundColor = [UIColor clearColor];
             detailTextLabel.backgroundColor = [UIColor clearColor];
-        } else {
-            textLabel.backgroundColor = [UIColor whiteColor];
-            detailTextLabel.backgroundColor = [UIColor whiteColor];
-        }
-        if (animated) {
-            [UIView animateWithDuration:0.2 animations:^{
-                if (highlighted) {
-                    highlightedBackgroundView.alpha = 1;
-                } else {
-                    highlightedBackgroundView.alpha = 0;
+            
+            completion = ^(BOOL finished) {
+                if (!highlighted || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                    highlightedBackgroundView.hidden = YES;
                 }
-                textLabel.highlighted = highlighted;
-                detailTextLabel.highlighted = highlighted;
-            }];
+            };
         } else {
-            if (highlighted) {
-                highlightedBackgroundView.alpha = 1;
-            } else {
-                highlightedBackgroundView.alpha = 0;
-            }
-            textLabel.highlighted = highlighted;
-            detailTextLabel.highlighted = highlighted;
+            completion = ^(BOOL finished) {
+                if (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                    textLabel.opaque = YES;
+                    detailTextLabel.opaque = YES;
+                    
+                    textLabel.backgroundColor = self.backgroundColor;
+                    detailTextLabel.backgroundColor = self.backgroundColor;
+                }
+            };
+        }
+        
+        if (animated) {
+            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:animations completion:completion];
+        } else {
+            animations();
         }
     }
 }
 
-- (id)objectValue
+- (void)setSelected:(BOOL)selected
 {
-    return self.textLabel.text;
+    [self setSelected:selected animated:NO];
 }
+
+- (void)setSelected:(BOOL)isSelected animated:(BOOL)animated
+{
+    if (_selected != isSelected) {
+        _selected = isSelected;
+        
+        void (^animations)(void) = NULL;
+        
+        if (_selected && _selectionStyle > MDSpreadViewCellSelectionStyleNone) {
+            _selectedBackgroundView.hidden = NO;
+            
+            animations = ^() {
+                _selectedBackgroundView.alpha = 1;
+            };
+        } else {
+            animations = ^() {
+                _selectedBackgroundView.alpha = 0;
+            };
+        }
+        
+        void (^completion)(BOOL) = NULL;
+        
+        if ((highlighted || _selected) && _selectionStyle > MDSpreadViewCellSelectionStyleNone) {
+            textLabel.opaque = NO;
+            detailTextLabel.opaque = NO;
+            
+            textLabel.backgroundColor = [UIColor clearColor];
+            detailTextLabel.backgroundColor = [UIColor clearColor];
+            
+            completion = ^(BOOL finished) {
+                if (!_selected || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                    _selectedBackgroundView.hidden = YES;
+                }
+            };
+        } else {
+            completion = ^(BOOL finished) {
+                if (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                    textLabel.opaque = YES;
+                    detailTextLabel.opaque = YES;
+                    
+                    textLabel.backgroundColor = self.backgroundColor;
+                    detailTextLabel.backgroundColor = self.backgroundColor;
+                }
+                
+                if (!_selected || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                    _selectedBackgroundView.hidden = YES;
+                }
+            };
+        }
+        
+        if (animated) {
+            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:animations completion:completion];
+        } else {
+            animations();
+        }
+    }
+}
+
+- (void)setSelectionStyle:(MDSpreadViewCellSelectionStyle)selectionStyle
+{
+    if (_selectionStyle != selectionStyle) {
+        _selectionStyle = selectionStyle;
+        
+        if (_selected && _selectionStyle > MDSpreadViewCellSelectionStyleNone) {
+            _selectedBackgroundView.alpha = 1;
+            _selectedBackgroundView.hidden = NO;
+        } else {
+            _selectedBackgroundView.alpha = 0;
+            _selectedBackgroundView.hidden = YES;
+        }
+    }
+}
+
+#pragma mark - Value
 
 - (void)setObjectValue:(id)anObject
 {
@@ -357,11 +491,7 @@
     }
 }
 
-- (void)set_pureFrame:(CGRect)pureFrame
-{
-    _pureFrame = pureFrame;
-    self.frame = _pureFrame;
-}
+#pragma mark - Accessibility
 
 - (BOOL)isAccessibilityElement
 {

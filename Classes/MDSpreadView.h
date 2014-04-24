@@ -117,9 +117,16 @@ typedef enum {
 
 // Selection
 
-// Called before the user changes the selection. Return an array, or nil, to change the proposed selection.
-- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willSelectCellForSelection:(MDSpreadViewSelection *)selection;
-- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellForSelection:(MDSpreadViewSelection *)selection __attribute__((unavailable));
+// Called just after the user touches down on a cell. Return a new selection, or nil, to change the proposed highlight.
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willHighlightCellWithSelection:(MDSpreadViewSelection *)selection;
+
+// Called after the user lifts their finger.
+- (void)spreadView:(MDSpreadView *)aSpreadView didHighlightCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
+- (void)spreadView:(MDSpreadView *)aSpreadView didUnhighlightCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+
+// Called before the user changes the selection. Return a new selection, or nil, to change the proposed selection.
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willSelectCellWithSelection:(MDSpreadViewSelection *)selection;
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellWithSelection:(MDSpreadViewSelection *)selection __attribute__((unavailable));
 
 // Called after the user changes the selection.
 - (void)spreadView:(MDSpreadView *)aSpreadView didSelectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
@@ -283,12 +290,17 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 // Selection
 
+@property (nonatomic) MDSpreadViewSelectionMode highlightMode;
+// the default selection mode. defaults to MDSpreadViewSelectionModeNone
 @property (nonatomic) MDSpreadViewSelectionMode selectionMode;
 // the default selection mode. defaults to MDSpreadViewSelectionModeNone
 @property (nonatomic) BOOL allowsSelection;
 // default is YES. Controls whether rows can be selected when not in editing mode
 @property (nonatomic) BOOL allowsMultipleSelection;
 // default is NO. Controls whether multiple rows can be selected simultaneously
+
+- (NSArray *)selections __attribute__((unavailable));
+// array of MDSpreadViewSelection's
 
 - (MDIndexPath *)rowIndexPathForSelectedCell __attribute__((unavailable));
 // returns nil or index path representing section and row of selection.
