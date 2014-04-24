@@ -56,13 +56,6 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewCellAccessoryType) {
     MDSpreadViewCellAccessoryDisclosureIndicator
 };
 
-typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
-    MDSpreadViewSortNone,
-    MDSpreadViewSortRows,
-    MDSpreadViewSortColumns,
-    MDSpreadViewSortBoth
-};
-
 @interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {
   @public
     NSUInteger _reuseHash;
@@ -82,9 +75,6 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
     MDIndexPath *_columnPath;
     UIGestureRecognizer *_tapGesture;
     BOOL _shouldCancelTouches;
-    
-    MDSortDescriptor *sortDescriptorPrototype;
-    MDSpreadViewSortAxis defaultSortAxis;
 }
 
 // Designated initializer.  If the cell can be reused, you must pass in a reuse identifier.  You should use the same reuse identifier for all cells of the same form.

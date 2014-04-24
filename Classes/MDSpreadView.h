@@ -57,6 +57,13 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewSelectionMode) {
     MDSpreadViewSelectionModeRowAndColumn
 };
 
+typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
+    MDSpreadViewSortNone,
+    MDSpreadViewSortRows,
+    MDSpreadViewSortColumns,
+    MDSpreadViewSortBoth
+};
+
 typedef NS_ENUM(NSInteger, MDSpreadViewCellDomain) {
     MDSpreadViewCellDomainHeaders = -1,
     MDSpreadViewCellDomainCells = 0,
