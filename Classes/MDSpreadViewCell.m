@@ -383,7 +383,7 @@
             };
         } else {
             completion = ^(BOOL finished) {
-                if (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                if (finished && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
                     textLabel.opaque = YES;
                     detailTextLabel.opaque = YES;
                     
@@ -441,7 +441,7 @@
             };
         } else {
             completion = ^(BOOL finished) {
-                if (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone) {
+                if (finished && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
                     textLabel.opaque = YES;
                     detailTextLabel.opaque = YES;
                     
