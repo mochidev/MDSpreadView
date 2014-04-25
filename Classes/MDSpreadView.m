@@ -422,12 +422,15 @@ static CGFloat MDPixel()
 {
     if ([object isKindOfClass:[MDSpreadViewSelection class]]) {
         if (self == object) return YES;
-        return (self.rowPath.row == object.rowPath.row &&
-                self.rowPath.section == object.rowPath.section &&
-                self.columnPath.column == object.columnPath.column &&
-                self.columnPath.section == object.columnPath.section);
+        return ([self.rowPath isEqual:object.rowPath] &&
+                [self.columnPath isEqual:object.columnPath]);
     }
     return NO;
+}
+
+- (NSUInteger)hash // https://www.mikeash.com/pyblog/friday-qa-2010-06-18-implementing-equality-and-hashing.html
+{
+    return ((((NSUInteger)self.rowPath.hash) << (CHAR_BIT * sizeof(NSUInteger)) / 2) | (((NSUInteger)self.rowPath.hash) >> ((CHAR_BIT * sizeof(NSUInteger)) - (CHAR_BIT * sizeof(NSUInteger)) / 2))) ^ self.columnPath.hash;
 }
 
 
@@ -469,9 +472,19 @@ static CGFloat MDPixel()
     return [NSString stringWithFormat:@"[%ld, %ld]", (long)section, (long)row];
 }
 
+- (BOOL)isEqual:(id)object
+{
+    return [self isEqualToIndexPath:object];
+}
+
 - (BOOL)isEqualToIndexPath:(MDIndexPath *)object
 {
     return (object->section == self->section && object->row == self->row);
+}
+
+- (NSUInteger)hash // https://www.mikeash.com/pyblog/friday-qa-2010-06-18-implementing-equality-and-hashing.html
+{
+    return ((((NSUInteger)row) << (CHAR_BIT * sizeof(NSUInteger)) / 2) | (((NSUInteger)row) >> ((CHAR_BIT * sizeof(NSUInteger)) - (CHAR_BIT * sizeof(NSUInteger)) / 2))) ^ section;
 }
 
 @end
