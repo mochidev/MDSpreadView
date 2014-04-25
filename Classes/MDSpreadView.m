@@ -2882,6 +2882,57 @@ static CGFloat MDPixel()
     cell._pureFrame = frame;
     cell.hidden = NO;
     
+    BOOL shouldSelect = NO;
+    
+    for (MDSpreadViewSelection *selection in _selectedCells) {
+        if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+        
+        if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
+                selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldSelect = YES;
+            }
+        }
+        
+        if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldSelect = YES;
+            }
+            
+            if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
+                shouldSelect = YES;
+            }
+        }
+    }
+    
+    [cell setSelected:shouldSelect animated:NO];
+    
+    BOOL shouldHighlight = NO;
+    
+    if (_currentSelection && _currentSelection.selectionMode != MDSpreadViewSelectionModeNone && _currentSelection.selectionMode != MDSpreadViewSelectionModeAutomatic) {
+    
+        if ([cell._rowPath isEqualToIndexPath:_currentSelection.rowPath]) {
+            if (_currentSelection.selectionMode == MDSpreadViewSelectionModeRow ||
+                _currentSelection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldHighlight = YES;
+            }
+        }
+        
+        if ([cell._columnPath isEqualToIndexPath:_currentSelection.columnPath]) {
+            if (_currentSelection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                _currentSelection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldHighlight = YES;
+            }
+            
+            if ([cell._rowPath isEqualToIndexPath:_currentSelection.rowPath] && _currentSelection.selectionMode == MDSpreadViewSelectionModeCell) {
+                shouldHighlight = YES;
+            }
+        }
+    }
+    
+    [cell setHighlighted:shouldHighlight animated:NO];
+    
     [self _willDisplayCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
     
     if ([cell superview] != self) {
