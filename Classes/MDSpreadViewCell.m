@@ -375,12 +375,14 @@
                 highlightedBackgroundView.alpha = 1;
                 textLabel.highlighted = YES;
                 detailTextLabel.highlighted = YES;
+                [self layoutIfNeeded];
             };
         } else {
             animations = ^() {
                 highlightedBackgroundView.alpha = 0;
                 textLabel.highlighted = NO;
                 detailTextLabel.highlighted = NO;
+                [self layoutIfNeeded];
             };
         }
         
@@ -435,10 +437,12 @@
             
             animations = ^() {
                 _selectedBackgroundView.alpha = 1;
+                [self layoutIfNeeded];
             };
         } else {
             animations = ^() {
                 _selectedBackgroundView.alpha = 0;
+                [self layoutIfNeeded];
             };
         }
         
