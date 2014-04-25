@@ -131,15 +131,15 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewCellResizing) {
 
 // Called after the user lifts their finger.
 - (void)spreadView:(MDSpreadView *)aSpreadView didHighlightCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
-- (void)spreadView:(MDSpreadView *)aSpreadView didUnhighlightCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView didUnhighlightCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
 // Called before the user changes the selection. Return a new selection, or nil, to change the proposed selection.
 - (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willSelectCellWithSelection:(MDSpreadViewSelection *)selection;
-- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellWithSelection:(MDSpreadViewSelection *)selection __attribute__((unavailable));
+- (MDSpreadViewSelection *)spreadView:(MDSpreadView *)aSpreadView willDeselectCellWithSelection:(MDSpreadViewSelection *)selection;
 
 // Called after the user changes the selection.
 - (void)spreadView:(MDSpreadView *)aSpreadView didSelectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
-- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath __attribute__((unavailable));
+- (void)spreadView:(MDSpreadView *)aSpreadView didDeselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;
 
 // Copy/Paste.  All three methods must be implemented by the delegate.
 

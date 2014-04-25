@@ -591,12 +591,6 @@ static CGFloat MDPixel()
 - (void)_touchesEndedInCell:(MDSpreadViewCell *)cell;
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell;
 
-- (void)_addSelection:(MDSpreadViewSelection *)selection;
-- (void)_removeSelection:(MDSpreadViewSelection *)selection;
-
-- (MDSpreadViewSelection *)_willSelectCellForSelection:(MDSpreadViewSelection *)selection;
-- (void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath;
-
 @end
 
 @implementation MDSpreadView
@@ -3757,10 +3751,10 @@ static CGFloat MDPixel()
     }
     
     MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:resolvedSelectionMode];
-    self._currentSelection = [self _willSelectCellForSelection:selection];
+    self._currentSelection = [self _willHighlightCellWithSelection:selection];
     
     if (self._currentSelection) {
-        [self _addSelection:self._currentSelection];
+        [self _setSelection:self._currentSelection highlighted:YES animated:NO];
         return YES;
     } else {
         return NO;
@@ -3769,118 +3763,179 @@ static CGFloat MDPixel()
 
 - (void)_touchesEndedInCell:(MDSpreadViewCell *)cell
 {
-    [self _addSelection:[MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
-                                                         column:self._currentSelection.columnPath
-                                                           mode:self._currentSelection.selectionMode]];
-    [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
+    if (!self._currentSelection) return;
+    
+    [self _setSelection:self._currentSelection highlighted:NO animated:YES];
+    MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
+                                                                        column:self._currentSelection.columnPath
+                                                                          mode:self._currentSelection.selectionMode];
+    selection = [self _willSelectCellForSelection:selection];
+    
+    [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
+    
+    if (selection) {
+        [self _addSelection:selection animated:YES notify:YES];
+        [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
+    }
     self._currentSelection = nil;
 }
 
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
 {
-    [self _removeSelection:self._currentSelection];
+    if (!self._currentSelection) return;
+    
+    [self _setSelection:self._currentSelection highlighted:NO animated:NO];
+    [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
+    
     self._currentSelection = nil;
 }
 
-- (void)_addSelection:(MDSpreadViewSelection *)selection
+- (void)_addSelection:(MDSpreadViewSelection *)selection animated:(BOOL)animated notify:(BOOL)notify
 {
-    if (selection != _currentSelection) {
-        NSUInteger index = [_selectedCells indexOfObject:selection];
-        if (index != NSNotFound) {
-            [_selectedCells replaceObjectAtIndex:index withObject:selection];
-        } else {
-            [_selectedCells addObject:selection];
-        }
+    NSUInteger index = [_selectedCells indexOfObject:selection];
+    while (index != NSNotFound) {
+        [_selectedCells removeObjectAtIndex:index];
+        index = [_selectedCells indexOfObject:selection];
     }
+    
+    [_selectedCells addObject:selection];
     
     if (!allowsMultipleSelection) {
         NSMutableArray *bucket = [[NSMutableArray alloc] initWithCapacity:_selectedCells.count];
         
         for (MDSpreadViewSelection *oldSelection in _selectedCells) {
-            if (oldSelection != selection) {
+            if (![oldSelection isEqual:selection]) {
                 [bucket addObject:oldSelection];
             }
         }
         
-        for (MDSpreadViewSelection *oldSelection in bucket) {
-            [self _removeSelection:oldSelection];
-        }
-        
+        [self _removeSelections:bucket animated:YES notify:YES];
+        return;
     }
-    
-    
-    NSMutableArray *allSelections = [_selectedCells mutableCopy];
-    if (_currentSelection) [allSelections addObject:_currentSelection];
     
     NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
     [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
     [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
     [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
     
-    for (MDSpreadViewCell *cell in allVisibleCells) {
-        cell.highlighted = NO;
-        for (MDSpreadViewSelection *selection in allSelections) {
-            if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+    BOOL shouldSelect = NO;
+    
+    for (MDSpreadViewCell *cell in _selectedCells) {
+        shouldSelect = NO;
+        for (MDSpreadViewSelection *selection in _selectedCells) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeNone || selection.selectionMode == MDSpreadViewSelectionModeAutomatic) continue;
             
             if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
                 if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
                     selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
             }
             
             if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
                 if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
                     selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
                 
                 if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
             }
         }
+        [cell setSelected:shouldSelect animated:animated];
     }
 }
 
-- (void)_removeSelection:(MDSpreadViewSection *)selection
+- (void)_removeSelection:(MDSpreadViewSelection *)selection animated:(BOOL)animated notify:(BOOL)notify
 {
-    [_selectedCells removeObject:selection];
+    if (selection) [self _removeSelections:@[selection] animated:animated notify:notify];
+}
+
+- (void)_removeSelections:(NSArray *)selections animated:(BOOL)animated notify:(BOOL)notify
+{
+    NSMutableSet *deselectedSet = [NSMutableSet setWithArray:_selectedCells];
+    [deselectedSet intersectSet:[NSSet setWithArray:selections]];
+    
+    [_selectedCells removeObjectsInArray:selections];
     
     NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
     [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
     [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
     [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
     
+    BOOL shouldSelect = NO;
+    
     for (MDSpreadViewCell *cell in allVisibleCells) {
-        cell.highlighted = NO;
+        shouldSelect = NO;
         for (MDSpreadViewSelection *selection in _selectedCells) {
             if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
             
             if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
                 if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
                     selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
             }
             
             if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
                 if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
                     selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
                 
                 if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
-                    cell.highlighted = YES;
+                    shouldSelect = YES;
                 }
             }
         }
+        [cell setSelected:shouldSelect animated:animated];
+    }
+    
+    if (notify) for (MDSpreadViewSelection *selection in deselectedSet) {
+        [self _didDeselectCellForRowAtIndexPath:selection.rowPath forColumnIndex:selection.columnPath];
+    }
+}
+
+- (void)_setSelection:(MDSpreadViewSelection *)selection highlighted:(BOOL)highlighted animated:(BOOL)animated
+{
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
+    [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
+    
+    BOOL shouldHighlight = NO;
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        shouldHighlight = NO;
+        
+        if (selection.selectionMode == MDSpreadViewSelectionModeNone) continue;
+        
+        if ([cell._rowPath isEqualToIndexPath:selection.rowPath]) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeRow ||
+                selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldHighlight = YES;
+            }
+        }
+        
+        if ([cell._columnPath isEqualToIndexPath:selection.columnPath]) {
+            if (selection.selectionMode == MDSpreadViewSelectionModeColumn ||
+                selection.selectionMode == MDSpreadViewSelectionModeRowAndColumn) {
+                shouldHighlight = YES;
+            }
+            
+            if ([cell._rowPath isEqualToIndexPath:selection.rowPath] && selection.selectionMode == MDSpreadViewSelectionModeCell) {
+                shouldHighlight = YES;
+            }
+        }
+    
+        [cell setHighlighted:(shouldHighlight && highlighted) animated:animated];
     }
 }
 
 - (void)selectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSelectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition
 {
-    [self _addSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:mode]];
+    [self _addSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:mode] animated:animated notify:NO];
     
 //    if (mode != MDSpreadViewScrollPositionNone) {
 //        [self scrollToCell...];
@@ -3889,7 +3944,21 @@ static CGFloat MDPixel()
 
 - (void)deselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath animated:(BOOL)animated
 {
-    [self _removeSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:MDSpreadViewSelectionModeNone]];
+    [self _removeSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:MDSpreadViewSelectionModeNone] animated:animated notify:NO];
+}
+
+- (MDSpreadViewSelection *)_willHighlightCellWithSelection:(MDSpreadViewSelection *)selection
+{
+    if ([self.delegate respondsToSelector:@selector(spreadView:willHighlightCellWithSelection:)])
+        selection = [self.delegate spreadView:self willHighlightCellWithSelection:selection];
+    
+    return selection;
+}
+
+- (void)_didHighlightCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
+{
+	if ([self.delegate respondsToSelector:@selector(spreadView:didHighlightCellForRowAtIndexPath:forColumnAtIndexPath:)])
+		[self.delegate spreadView:self didHighlightCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
 }
 
 - (MDSpreadViewSelection *)_willSelectCellForSelection:(MDSpreadViewSelection *)selection
@@ -3900,10 +3969,30 @@ static CGFloat MDPixel()
     return selection;
 }
 
+- (void)_didUnhighlightCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
+{
+	if ([self.delegate respondsToSelector:@selector(spreadView:didUnhighlightCellForRowAtIndexPath:forColumnAtIndexPath:)])
+		[self.delegate spreadView:self didUnhighlightCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
+}
+
 - (void)_didSelectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
 {
 	if ([self.delegate respondsToSelector:@selector(spreadView:didSelectCellForRowAtIndexPath:forColumnAtIndexPath:)])
 		[self.delegate spreadView:self didSelectCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
+}
+
+- (MDSpreadViewSelection *)_willDeselectCellWithSelection:(MDSpreadViewSelection *)selection
+{
+    if ([self.delegate respondsToSelector:@selector(spreadView:willDeselectCellWithSelection:)])
+        selection = [self.delegate spreadView:self willDeselectCellWithSelection:selection];
+    
+    return selection;
+}
+
+- (void)_didDeselectCellForRowAtIndexPath:(MDIndexPath *)indexPath forColumnIndex:(MDIndexPath *)columnPath
+{
+	if ([self.delegate respondsToSelector:@selector(spreadView:didDeselectCellForRowAtIndexPath:forColumnAtIndexPath:)])
+		[self.delegate spreadView:self didDeselectCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
 }
 
 
