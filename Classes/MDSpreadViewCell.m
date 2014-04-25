@@ -315,13 +315,23 @@
 
 - (void)layoutSubviews
 {
-    textLabel.frame = CGRectMake(10, 2, self.bounds.size.width-20, self.bounds.size.height-3);
     CGRect bounds = self.bounds;
     
     backgroundView.frame = bounds;
     highlightedBackgroundView.frame = bounds;
     _selectedBackgroundView.frame = bounds;
     separators.frame = bounds;
+    
+    CGRect textLabelFrame = CGRectMake(10, 2, bounds.size.width-20, bounds.size.height-3);
+    if (bounds.size.width < 20) {
+        textLabelFrame.origin.x = 0;
+        textLabelFrame.size.width = bounds.size.width;
+    }
+    if (bounds.size.height < 3) {
+        textLabelFrame.origin.y = 0;
+        textLabelFrame.size.height = bounds.size.height;
+    }
+    textLabel.frame = textLabelFrame;
 }
 
 - (void)prepareForReuse
