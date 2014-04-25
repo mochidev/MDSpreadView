@@ -3775,21 +3775,21 @@ static CGFloat MDPixel()
         }
     } else if (row == -1 || row == rowSectionCount) { // header row
         
-        if (!_allowsRowHeaderSelection && !override) {
-            return NO;
-        }
-        
-        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
-            resolvedSelectionMode = _rowHeaderHighlightMode;
-        }
-    } else if (column == -1 || column == columnSectionCount) { // header column
-        
         if (!_allowsColumnHeaderSelection && !override) {
             return NO;
         }
         
         if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
             resolvedSelectionMode = _columnHeaderHighlightMode;
+        }
+    } else if (column == -1 || column == columnSectionCount) { // header column
+        
+        if (!_allowsRowHeaderSelection && !override) {
+            return NO;
+        }
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _rowHeaderHighlightMode;
         }
     }
     
@@ -3817,9 +3817,60 @@ static CGFloat MDPixel()
     if (!self._currentSelection) return;
     
     [self _setSelection:self._currentSelection highlighted:NO animated:YES];
+    
+    MDSpreadViewSelectionMode resolvedSelectionMode = MDSpreadViewSelectionModeAutomatic;
+    
+    BOOL override = NO;
+    MDSortDescriptor *sortDescriptorPrototype = nil;
+    if (_autoAllowSortableHeaderSelection) {
+        if ([(MDSpreadViewHeaderCell *)cell respondsToSelector:@selector(sortDescriptorPrototype)] && [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype]) {
+            sortDescriptorPrototype = [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype];
+            override = YES;
+            
+            resolvedSelectionMode = MDSpreadViewSelectionModeCell + sortDescriptorPrototype.sortAxis;
+        }
+    }
+    
+    MDIndexPath *rowPath = cell._rowPath;
+    MDIndexPath *columnPath = cell._columnPath;
+    NSInteger row = rowPath.row;
+    NSInteger rowSection = rowPath.section;
+    NSInteger column = columnPath.column;
+    NSInteger columnSection = columnPath.section;
+    NSUInteger rowSectionCount = [(MDSpreadViewSection *)[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSUInteger columnSectionCount = [(MDSpreadViewSection *)[columnSections objectAtIndex:columnSection] numberOfCells];
+    
+    if ((row == -1 && column == -1) ||
+        (row == rowSectionCount && column == columnSectionCount) ||
+        (row == -1 && column == columnSectionCount) ||
+        (row == rowSectionCount && column == -1)) { // corner header
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _cornerHeaderHighlightMode;
+        }
+    } else if (row == -1 || row == rowSectionCount) { // header row
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _columnHeaderHighlightMode;
+        }
+    } else if (column == -1 || column == columnSectionCount) { // header column
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = _rowHeaderHighlightMode;
+        }
+    }
+    
+    if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+        resolvedSelectionMode = _highlightMode;
+        
+        if (resolvedSelectionMode == MDSpreadViewSelectionModeAutomatic) {
+            resolvedSelectionMode = MDSpreadViewSelectionModeNone;
+        }
+    }
+    
     MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
                                                                         column:self._currentSelection.columnPath
-                                                                          mode:self._currentSelection.selectionMode];
+                                                                          mode:resolvedSelectionMode];
     selection = [self _willSelectCellForSelection:selection];
     
     [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];

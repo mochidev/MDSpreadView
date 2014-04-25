@@ -308,14 +308,14 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 @property (nonatomic) BOOL allowsMultipleSelection;
 // default is NO. Controls whether multiple rows can be selected simultaneously
 
-@property (nonatomic) BOOL rowHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeRow
-@property (nonatomic) BOOL columnHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeColumn
-@property (nonatomic) BOOL cornerHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeCell
+@property (nonatomic) MDSpreadViewSelectionMode rowHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeRow
+@property (nonatomic) MDSpreadViewSelectionMode columnHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeColumn
+@property (nonatomic) MDSpreadViewSelectionMode cornerHeaderHighlightMode; // defaults to MDSpreadViewSelectionModeCell
 // the default highlight mode for header cells. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as  highlightMode.
 
-@property (nonatomic) BOOL rowHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeRow
-@property (nonatomic) BOOL columnHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeColumn
-@property (nonatomic) BOOL cornerHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeCell
+@property (nonatomic) MDSpreadViewSelectionMode rowHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeRow
+@property (nonatomic) MDSpreadViewSelectionMode columnHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeColumn
+@property (nonatomic) MDSpreadViewSelectionMode cornerHeaderSelectionMode; // defaults to MDSpreadViewSelectionModeCell
 // the default selection mode for header cells. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as selectionMode.
 
 // Allow headers to be highlighted, and eventually selected. Defaults to NO. These apply for footers as well
