@@ -138,7 +138,7 @@
 //            self.backgroundView = imageView;
             
             UIView *view = [[UIView alloc] init];
-            view.backgroundColor = [UIColor colorWithWhite:217./255. alpha:1.];
+            view.backgroundColor = [UIColor colorWithWhite:0 alpha:0.15];
             self.highlightedBackgroundView = view;
             
             UIView *selectedView = [[UIView alloc] init];
@@ -400,7 +400,7 @@
             };
         } else {
             completion = ^(BOOL finished) {
-                if (finished && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
+                if (finished && !backgroundView && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
                     textLabel.opaque = YES;
                     detailTextLabel.opaque = YES;
                     
@@ -458,7 +458,7 @@
             };
         } else {
             completion = ^(BOOL finished) {
-                if (finished && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
+                if (finished && !backgroundView && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
                     textLabel.opaque = YES;
                     detailTextLabel.opaque = YES;
                     

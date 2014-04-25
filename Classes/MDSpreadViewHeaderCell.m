@@ -63,7 +63,7 @@
             newHighlightedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
             newSelectedBackground.backgroundColor = [self.tintColor colorWithAlphaComponent:0.65];
             self.backgroundView = newBackground;
-            self.highlightedBackgroundView = newHighlightedBackground;
+//            self.highlightedBackgroundView = newHighlightedBackground;
             self.selectedBackgroundView = newSelectedBackground;
             
             self.textLabel.font = [UIFont boldSystemFontOfSize:14];
@@ -114,21 +114,6 @@
     [super layoutSubviews];
     
     self.textLabel.frame = CGRectMake(14, 2, self.bounds.size.width-28, self.bounds.size.height-3);
-}
-
-- (void)setHighlighted:(BOOL)isHighlighted animated:(BOOL)animated
-{
-    if (self.highlighted != isHighlighted) {
-        [super setHighlighted:isHighlighted animated:animated];
-        
-        if (isHighlighted) {
-            self.textLabel.opaque = NO;
-            self.textLabel.backgroundColor = [UIColor clearColor];
-        } else {
-            self.textLabel.opaque = YES;
-            self.textLabel.backgroundColor = self.backgroundView.backgroundColor;
-        }
-    }
 }
 
 - (void)prepareForReuse
