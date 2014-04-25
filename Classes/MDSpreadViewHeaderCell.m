@@ -57,11 +57,14 @@
             self.clipsToBounds = NO;
             
             UIView *newBackground = [[UIView alloc] init];
+            UIView *newHighlightedBackground = [[UIView alloc] init];
             UIView *newSelectedBackground = [[UIView alloc] init];
             newBackground.backgroundColor = [UIColor colorWithWhite:247./255. alpha:1];
-            newSelectedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
+            newHighlightedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
+            newSelectedBackground.backgroundColor = [self.tintColor colorWithAlphaComponent:0.65];
             self.backgroundView = newBackground;
-            self.highlightedBackgroundView = newSelectedBackground;
+            self.highlightedBackgroundView = newHighlightedBackground;
+            self.selectedBackgroundView = newSelectedBackground;
             
             self.textLabel.font = [UIFont boldSystemFontOfSize:14];
             self.textLabel.backgroundColor = self.backgroundView.backgroundColor;

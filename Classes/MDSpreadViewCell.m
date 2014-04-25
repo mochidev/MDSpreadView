@@ -141,6 +141,10 @@
             view.backgroundColor = [UIColor colorWithWhite:217./255. alpha:1.];
             self.highlightedBackgroundView = view;
             
+            UIView *selectedView = [[UIView alloc] init];
+            selectedView.backgroundColor = [self.tintColor colorWithAlphaComponent:0.15];
+            self.selectedBackgroundView = selectedView;
+            
             UILabel *label = [[UILabel alloc] init];
             label.opaque = YES;
             label.backgroundColor = [UIColor whiteColor];
@@ -178,7 +182,6 @@
         
         if ([self hasSeparators]) {
             separators = [[UIImageView alloc] initWithFrame:self.bounds];
-            separators.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
             [self addSubview:separators];
         }
         
@@ -312,9 +315,13 @@
 
 - (void)layoutSubviews
 {
-    backgroundView.frame = self.bounds;
-    highlightedBackgroundView.frame = self.bounds;
     textLabel.frame = CGRectMake(10, 2, self.bounds.size.width-20, self.bounds.size.height-3);
+    CGRect bounds = self.bounds;
+    
+    backgroundView.frame = bounds;
+    highlightedBackgroundView.frame = bounds;
+    _selectedBackgroundView.frame = bounds;
+    separators.frame = bounds;
 }
 
 - (void)prepareForReuse
