@@ -632,7 +632,7 @@ static CGFloat MDPixel()
     self.backgroundColor = [UIColor whiteColor];
     self.directionalLockEnabled = YES;
     
-    _dequeuedCells = [[NSMutableSet alloc] init];
+    _dequeuedCells = [[NSMutableArray alloc] init];
 //    visibleCells = [[NSMutableArray alloc] init];
     
     mapForContent = [[MDSpreadViewCellMap alloc] init];
@@ -1362,7 +1362,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1370,7 +1370,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1378,7 +1378,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1386,7 +1386,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1473,7 +1473,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1482,7 +1482,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1491,7 +1491,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -1500,7 +1500,7 @@ static CGFloat MDPixel()
             for (MDSpreadViewCell *cell in oldCells) {
                 if ((NSNull *)cell != [NSNull null]) {
                     cell.hidden = YES;
-                    [_dequeuedCells addObject:cell];
+                    [_dequeuedCells insertObject:cell atIndex:0];
                 }
             }
             
@@ -2849,6 +2849,8 @@ static CGFloat MDPixel()
     NSInteger columnSection = columnIndexPath.section;
     
     dequeuedCellSizeHint = frame.size;
+    dequeuedCellRowIndexHint = rowIndexPath;
+    dequeuedCellColumnIndexHint = columnIndexPath;
     
     if (row == -1 && column == -1) { // corner header
         cell = [self _cellForHeaderInRowSection:rowSection forColumnSection:columnSection];
@@ -3191,6 +3193,13 @@ static CGFloat MDPixel()
     NSUInteger _reuseHash = [identifier hash];
     
     for (MDSpreadViewCell *aCell in _dequeuedCells) {
+        if (aCell->_reuseHash == _reuseHash && [aCell._rowPath isEqualToIndexPath:dequeuedCellRowIndexHint] && [aCell._columnPath isEqualToIndexPath:dequeuedCellColumnIndexHint]) {
+            dequeuedCell = aCell;
+            break;
+        }
+    }
+    
+    if (!dequeuedCell) for (MDSpreadViewCell *aCell in _dequeuedCells) {
         if (aCell->_reuseHash == _reuseHash && CGSizeEqualToSize(aCell.frame.size, dequeuedCellSizeHint)) {
             dequeuedCell = aCell;
             break;
@@ -3228,7 +3237,7 @@ static CGFloat MDPixel()
     for (MDSpreadViewCell *cell in array) {
         if ((NSNull *)cell != [NSNull null]) {
             cell.hidden = YES;
-            [_dequeuedCells addObject:cell];
+            [_dequeuedCells insertObject:cell atIndex:0];
         }
     }
 }

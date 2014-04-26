@@ -157,7 +157,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
   @private
     id <MDSpreadViewDataSource> __weak _dataSource;
     
-    NSMutableSet *_dequeuedCells;
+    NSMutableArray *_dequeuedCells;
     
     // New algorithm
     
@@ -179,6 +179,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     UIView *dummyViewB;
     
     CGSize dequeuedCellSizeHint;
+    MDIndexPath *dequeuedCellRowIndexHint;
+    MDIndexPath *dequeuedCellColumnIndexHint;
     
     UIImage *cachedSeparatorImage;
     
