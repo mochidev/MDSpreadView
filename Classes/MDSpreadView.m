@@ -711,6 +711,15 @@ static CGFloat MDPixel()
 - (void)setDelegate:(id<MDSpreadViewDelegate>)delegate
 {
     super.delegate = delegate;
+    
+    [self _setNeedsReloadData];
+}
+
+- (void)setDataSource:(id<MDSpreadViewDataSource>)dataSource
+{
+    _dataSource = dataSource;
+    
+    [self _setNeedsReloadData];
 }
 
 - (void)dealloc
@@ -872,9 +881,6 @@ static CGFloat MDPixel()
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadData) object:nil];
     _didSetReloadData = NO;
     
-    [CATransaction begin];
-    [CATransaction setDisableActions:YES];
-    
     @autoreleasepool {
     
         implementsRowHeight = YES;
@@ -996,9 +1002,8 @@ static CGFloat MDPixel()
     
     }
     
-    [self layoutSubviews];
-    
-    [CATransaction commit];
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
 }
 
 //- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
@@ -1079,6 +1084,11 @@ static CGFloat MDPixel()
 - (void)layoutSubviews
 {
     [super layoutSubviews];
+    
+    if (_didSetReloadData) {
+        [self reloadData];
+        return;
+    }
     
 /* OK, the general algorithm will be something like this:
  
