@@ -337,6 +337,8 @@
 - (void)prepareForReuse
 {
     self.highlighted = NO;
+    self.selected = NO;
+    self.sortDescriptorPrototype = nil;
 //    self.objectValue = nil;
 //    self.textLabel.text = nil;
 //    self.detailTextLabel.text = nil;
