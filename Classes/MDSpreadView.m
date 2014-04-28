@@ -724,7 +724,8 @@ static CGFloat MDPixel()
 
 - (void)dealloc
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [reloadTimer invalidate];
+    reloadTimer = nil;
 }
 
 #pragma mark - Data
@@ -870,16 +871,20 @@ static CGFloat MDPixel()
 
 - (void)_setNeedsReloadData
 {
-    if (!_didSetReloadData) {
-        [self performSelector:@selector(reloadData) withObject:nil afterDelay:0];
-        _didSetReloadData = YES;
+    if (!reloadTimer) {
+        reloadTimer = [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(_reloadDataRightAway:) userInfo:nil repeats:NO];
     }
+}
+
+- (void)_reloadDataRightAway:(id)sender
+{
+    [self reloadData];
 }
 
 - (void)reloadData
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadData) object:nil];
-    _didSetReloadData = NO;
+    [reloadTimer invalidate];
+    reloadTimer = nil;
     
     @autoreleasepool {
     
@@ -1085,7 +1090,7 @@ static CGFloat MDPixel()
 {
     [super layoutSubviews];
     
-    if (_didSetReloadData) {
+    if (reloadTimer) {
         [self reloadData];
         return;
     }
