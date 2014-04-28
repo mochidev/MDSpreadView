@@ -710,22 +710,21 @@ static CGFloat MDPixel()
 
 - (void)setDelegate:(id<MDSpreadViewDelegate>)delegate
 {
-    super.delegate = delegate;
-    
     [self _setNeedsReloadData];
+    super.delegate = delegate;
 }
 
 - (void)setDataSource:(id<MDSpreadViewDataSource>)dataSource
 {
-    _dataSource = dataSource;
-    
     [self _setNeedsReloadData];
+    _dataSource = dataSource;
 }
 
 - (void)dealloc
 {
     [reloadTimer invalidate];
     reloadTimer = nil;
+    preventReload = YES; // UIScrollView stupidly calls self.delegate = nil; instead of _delegate = nil, so we are forced to do this…
 }
 
 #pragma mark - Data
@@ -871,6 +870,7 @@ static CGFloat MDPixel()
 
 - (void)_setNeedsReloadData
 {
+    if (preventReload) return;
     if (!reloadTimer) {
         reloadTimer = [NSTimer scheduledTimerWithTimeInterval:0 target:self selector:@selector(_reloadDataRightAway:) userInfo:nil repeats:NO];
     }
