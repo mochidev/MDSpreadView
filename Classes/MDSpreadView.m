@@ -4233,7 +4233,7 @@ static CGFloat MDPixel()
 {
     if (!sortDescryptor) return;
     
-    NSArray *oldDescriptors = _sortDescriptors;
+    NSArray *oldDescriptors = self.sortDescriptors;
     
     NSMutableArray *matchingSortDescryptors = [[NSMutableArray alloc] init];
     
@@ -4246,7 +4246,9 @@ static CGFloat MDPixel()
     if (matchingSortDescryptors.count) {
         MDSortDescriptor *firstDescriptor = matchingSortDescryptors.firstObject;
         
-        if (firstDescriptor.ascending == sortDescryptor.ascending) {
+        if ([_sortDescriptors indexOfObject:firstDescriptor] == 0 && firstDescriptor.ascending == sortDescryptor.ascending) {
+            sortDescryptor = [sortDescryptor reversedSortDescriptor];
+        } else if ([_sortDescriptors indexOfObject:firstDescriptor] != 0 && firstDescriptor.ascending != sortDescryptor.ascending) {
             sortDescryptor = [sortDescryptor reversedSortDescriptor];
         }
     }
