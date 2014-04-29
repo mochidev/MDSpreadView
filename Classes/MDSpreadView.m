@@ -550,9 +550,20 @@ static CGFloat MDPixel()
     return self;
 }
 
-- (id)copyWithZone:(NSZone *)zone
+- (instancetype)copyWithZone:(NSZone *)zone
 {
     MDSortDescriptor *sortDescriptor = [super copyWithZone:zone];
+    sortDescriptor.indexPath = self.indexPath;
+    sortDescriptor.rowSection = self.rowSection;
+    sortDescriptor.rowSection = self.columnSection;
+    sortDescriptor.sortAxis = self.sortAxis;
+    
+    return sortDescriptor;
+}
+
+- (instancetype)reversedSortDescriptor
+{
+    MDSortDescriptor *sortDescriptor = [super reversedSortDescriptor];
     sortDescriptor.indexPath = self.indexPath;
     sortDescriptor.rowSection = self.rowSection;
     sortDescriptor.rowSection = self.columnSection;
@@ -625,7 +636,7 @@ static CGFloat MDPixel()
 
 @synthesize dataSource=_dataSource;
 @synthesize _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath;
-@synthesize _headerCornerCell, sortDescriptors, selectionMode, _rowSections, _columnSections;
+@synthesize _headerCornerCell, selectionMode, _rowSections, _columnSections;
 @synthesize _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
 
 - (id)initWithFrame:(CGRect)frame
@@ -672,6 +683,7 @@ static CGFloat MDPixel()
     _separatorColor = [UIColor colorWithWhite:0.9 alpha:1];
     
     _selectedCells = [[NSMutableArray alloc] init];
+    _sortDescriptors = [[NSMutableArray alloc] init];
     
     _highlightMode = MDSpreadViewSelectionModeCell;
     selectionMode = MDSpreadViewSelectionModeAutomatic;
@@ -3784,8 +3796,8 @@ static CGFloat MDPixel()
     BOOL override = NO;
     MDSortDescriptor *sortDescriptorPrototype = nil;
     if (_autoAllowSortableHeaderSelection) {
-        if ([(MDSpreadViewHeaderCell *)cell respondsToSelector:@selector(sortDescriptorPrototype)] && [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype]) {
-            sortDescriptorPrototype = [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype];
+        sortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+        if (sortDescriptorPrototype) {
             override = YES;
             
             resolvedSelectionMode = MDSpreadViewSelectionModeCell + sortDescriptorPrototype.sortAxis;
@@ -3922,6 +3934,8 @@ static CGFloat MDPixel()
         [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     }
     self._currentSelection = nil;
+    
+    [self _addSortDescriptor:[self _sortDescriptorForRowIndexPath:selection.rowPath columnIndexPath:selection.columnPath cell:nil]];
 }
 
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
@@ -4139,5 +4153,127 @@ static CGFloat MDPixel()
 		[self.delegate spreadView:self didDeselectCellForRowAtIndexPath:indexPath forColumnAtIndexPath:columnPath];
 }
 
+#pragma mark - Sorting
+
+- (MDSortDescriptor *)_sortDescriptorForRowIndexPath:(MDIndexPath *)rowIndexPath columnIndexPath:(MDIndexPath *)columnIndexPath cell:(MDSpreadViewCell *)cell
+{
+    MDSortDescriptor *sortDescriptor = nil;
+    
+    if (cell) rowIndexPath = cell._rowPath;
+    if (cell) columnIndexPath = cell._columnPath;
+    NSInteger row = rowIndexPath.row;
+    NSInteger rowSection = rowIndexPath.section;
+    NSInteger column = columnIndexPath.column;
+    NSInteger columnSection = columnIndexPath.section;
+    NSUInteger rowSectionCount = [(MDSpreadViewSection *)[rowSections objectAtIndex:rowSection] numberOfCells];
+    NSUInteger columnSectionCount = [(MDSpreadViewSection *)[columnSections objectAtIndex:columnSection] numberOfCells];
+    
+    MDSpreadViewSortAxis sortAxis = MDSpreadViewSortNone;
+    
+    if (row == -1 && column == -1) { // corner header
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForHeaderInRowSection:forColumnSection:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForHeaderInRowSection:rowSection forColumnSection:columnSection];
+            sortAxis = MDSpreadViewSortBoth;
+        }
+    } else if (row == rowSectionCount && column == columnSectionCount) { // corner footer
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForFooterInRowSection:forColumnSection:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForFooterInRowSection:rowSection forColumnSection:columnSection];
+            sortAxis = MDSpreadViewSortBoth;
+        }
+    } else if (row == -1 && column == columnSectionCount) { // header row footer column
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForHeaderInRowSection:forColumnFooterSection:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForHeaderInRowSection:rowSection forColumnFooterSection:columnSection];
+            sortAxis = MDSpreadViewSortBoth;
+        }
+    } else if (row == rowSectionCount && column == -1) { // header column footer row
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForHeaderInColumnSection:forRowFooterSection:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForHeaderInColumnSection:columnSection forRowFooterSection:rowSection];
+            sortAxis = MDSpreadViewSortBoth;
+        }
+    } else if (row == -1) { // header row
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForHeaderInRowSection:forColumnAtIndexPath:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForHeaderInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+            sortAxis = MDSpreadViewSortRows;
+        }
+    } else if (row == rowSectionCount) { // footer row
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForFooterInRowSection:forColumnAtIndexPath:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForFooterInRowSection:rowSection forColumnAtIndexPath:columnIndexPath];
+            sortAxis = MDSpreadViewSortRows;
+        }
+    } else if (column == -1) { // header column
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForHeaderInColumnSection:forRowAtIndexPath:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForHeaderInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+            sortAxis = MDSpreadViewSortColumns;
+        }
+    } else if (column == columnSectionCount) { // footer column
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorPrototypeForFooterInColumnSection:forRowAtIndexPath:)]) {
+            sortDescriptor = [self.dataSource spreadView:self sortDescriptorPrototypeForFooterInColumnSection:columnSection forRowAtIndexPath:rowIndexPath];
+            sortAxis = MDSpreadViewSortColumns;
+        }
+    }
+    
+    if (!sortDescriptor && cell) {
+        sortDescriptor = cell.sortDescriptorPrototype;
+    }
+    
+    if (sortDescriptor.rowSection != MDSpreadViewSelectWholeSpreadView) {
+        sortDescriptor.rowSection = rowSection;
+    }
+    
+    if (sortDescriptor.columnSection != MDSpreadViewSelectWholeSpreadView) {
+        sortDescriptor.columnSection = columnSection;
+    }
+    
+    sortDescriptor.sortAxis = sortAxis;
+    
+    return sortDescriptor;
+}
+
+- (void)_addSortDescriptor:(MDSortDescriptor *)sortDescryptor
+{
+    if (!sortDescryptor) return;
+    
+    NSArray *oldDescriptors = _sortDescriptors;
+    
+    NSMutableArray *matchingSortDescryptors = [[NSMutableArray alloc] init];
+    
+    for (MDSortDescriptor *descriptor in _sortDescriptors) {
+        if ([descriptor.key isEqualToString:sortDescryptor.key]) {
+            [matchingSortDescryptors addObject:descriptor];
+        }
+    }
+    
+    if (matchingSortDescryptors.count) {
+        MDSortDescriptor *firstDescriptor = matchingSortDescryptors.firstObject;
+        
+        if (firstDescriptor.ascending == sortDescryptor.ascending) {
+            sortDescryptor = [sortDescryptor reversedSortDescriptor];
+        }
+    }
+    
+    [_sortDescriptors removeObjectsInArray:matchingSortDescryptors];
+    [_sortDescriptors insertObject:sortDescryptor atIndex:0];
+    
+    if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorsDidChange:)]) {
+        [self.dataSource spreadView:self sortDescriptorsDidChange:oldDescriptors];
+    }
+}
+
+- (void)setSortDescriptors:(NSArray *)sortDescriptors
+{
+    if (_sortDescriptors != sortDescriptors) {
+        NSArray *oldDescriptors = _sortDescriptors;
+        _sortDescriptors = [sortDescriptors mutableCopy];
+        
+        if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorsDidChange:)]) {
+            [self.dataSource spreadView:self sortDescriptorsDidChange:oldDescriptors];
+        }
+    }
+}
+
+- (NSArray *)sortDescriptors
+{
+    return [_sortDescriptors copy];
+}
 
 @end

@@ -228,7 +228,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDSpreadViewSelection *_currentSelection;
     
     MDSpreadViewSelectionMode selectionMode;
-    NSMutableArray *sortDescriptors;
+    NSMutableArray *_sortDescriptors;
     
     NSTimer *reloadTimer;
     BOOL preventReload;
