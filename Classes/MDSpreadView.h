@@ -59,8 +59,8 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewSelectionMode) {
 
 typedef NS_ENUM(NSUInteger, MDSpreadViewSortAxis) {
     MDSpreadViewSortNone,
-    MDSpreadViewSortRows,
     MDSpreadViewSortColumns,
+    MDSpreadViewSortRows,
     MDSpreadViewSortBoth
 };
 
@@ -445,15 +445,12 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 
 enum {MDSpreadViewSelectWholeSpreadView = -1};
 
-@interface MDSortDescriptor : NSSortDescriptor {
-    MDIndexPath *indexPath;
-    NSInteger section;
-    MDSpreadViewSortAxis sortAxis;
-}
+@interface MDSortDescriptor : NSSortDescriptor <NSCopying>
 
 @property (nonatomic, readonly, strong) MDIndexPath *indexPath;
 // index path for sort header
-@property (nonatomic, readonly) NSInteger section;
+@property (nonatomic, readonly) NSInteger rowSection;
+@property (nonatomic, readonly) NSInteger columnSection;
 // the section to sort, or MDSpreadViewSelectWholeSpreadView to sort the whole spread view
 @property (nonatomic, readonly) MDSpreadViewSortAxis sortAxis;
 // which direction this sort applies to.

@@ -494,14 +494,13 @@ static CGFloat MDPixel()
 @interface MDSortDescriptor ()
 
 @property (nonatomic, readwrite, strong) MDIndexPath *indexPath;
-@property (nonatomic, readwrite) NSInteger section;
+@property (nonatomic, readwrite) NSInteger rowSection;
+@property (nonatomic, readwrite) NSInteger columnSection;
 @property (nonatomic, readwrite) MDSpreadViewSortAxis sortAxis;
 
 @end
 
 @implementation MDSortDescriptor
-
-@synthesize indexPath, section, sortAxis;
 
 + (id)sortDescriptorWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView
 {
@@ -521,7 +520,10 @@ static CGFloat MDPixel()
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selectsWholeSpreadView:(BOOL)wholeView
 {
     if (self = [super initWithKey:key ascending:ascending]) {
-        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+        if (wholeView) {
+            _rowSection = MDSpreadViewSelectWholeSpreadView;
+            _columnSection = MDSpreadViewSelectWholeSpreadView;
+        }
     }
     return self;
 }
@@ -529,7 +531,10 @@ static CGFloat MDPixel()
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending selector:(SEL)selector selectsWholeSpreadView:(BOOL)wholeView
 {
     if (self = [super initWithKey:key ascending:ascending selector:selector]) {
-        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+        if (wholeView) {
+            _rowSection = MDSpreadViewSelectWholeSpreadView;
+            _columnSection = MDSpreadViewSelectWholeSpreadView;
+        }
     }
     return self;
 }
@@ -537,11 +542,24 @@ static CGFloat MDPixel()
 - (id)initWithKey:(NSString *)key ascending:(BOOL)ascending comparator:(NSComparator)cmptr selectsWholeSpreadView:(BOOL)wholeView
 {
     if (self = [super initWithKey:key ascending:ascending comparator:cmptr]) {
-        if (wholeView) section = MDSpreadViewSelectWholeSpreadView;
+        if (wholeView) {
+            _rowSection = MDSpreadViewSelectWholeSpreadView;
+            _columnSection = MDSpreadViewSelectWholeSpreadView;
+        }
     }
     return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+    MDSortDescriptor *sortDescriptor = [super copyWithZone:zone];
+    sortDescriptor.indexPath = self.indexPath;
+    sortDescriptor.rowSection = self.rowSection;
+    sortDescriptor.rowSection = self.columnSection;
+    sortDescriptor.sortAxis = self.sortAxis;
+    
+    return sortDescriptor;
+}
 
 @end
 
