@@ -567,7 +567,7 @@ static CGFloat MDPixel()
     MDSortDescriptor *sortDescriptor = [super reversedSortDescriptor];
     sortDescriptor.indexPath = self.indexPath;
     sortDescriptor.rowSection = self.rowSection;
-    sortDescriptor.rowSection = self.columnSection;
+    sortDescriptor.columnSection = self.columnSection;
     sortDescriptor.sortAxis = self.sortAxis;
     
     return sortDescriptor;
