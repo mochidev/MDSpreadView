@@ -51,6 +51,6 @@ typedef enum {
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 // Which direction will a corner header sort in?
 
-- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator;
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator sortAxis:(MDSpreadViewSortAxis)sortAxis;
 
 @end

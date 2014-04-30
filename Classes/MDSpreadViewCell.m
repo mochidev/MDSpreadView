@@ -94,6 +94,8 @@
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 @property (nonatomic) MDSpreadViewCellSortIndicator _sortIndicator;
+@property (nonatomic) MDSpreadViewSortAxis _sortAxis;
+- (void)_setSortIndicator:(MDSpreadViewCellSortIndicator)_sortIndicator sortAxis:(MDSpreadViewSortAxis)_sortAxis;
 
 @property (nonatomic, readonly) UIGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
@@ -237,14 +239,15 @@
 
 #pragma mark - Sorting
 
-- (void)set_sortIndicator:(MDSpreadViewCellSortIndicator)_sortIndicator
+- (void)_setSortIndicator:(MDSpreadViewCellSortIndicator)_sortIndicator sortAxis:(MDSpreadViewSortAxis)_sortAxis;
 {
-    __sortIndicator = _sortIndicator;
+    self._sortIndicator = _sortIndicator;
+    self._sortAxis = _sortAxis;
     
-    [self updateSortIndicator:__sortIndicator];
+    [self updateSortIndicator:__sortIndicator sortAxis:__sortAxis];
 }
 
-- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator sortAxis:(MDSpreadViewSortAxis)sortAxis
 {
     
 }
@@ -499,6 +502,8 @@
         } else {
             animations();
         }
+        
+        [self updateSortIndicator:__sortIndicator sortAxis:__sortAxis];
     }
 }
 

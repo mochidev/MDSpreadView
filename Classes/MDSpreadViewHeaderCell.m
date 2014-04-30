@@ -116,18 +116,15 @@
     return NO;
 }
 
-- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator sortAxis:(MDSpreadViewSortAxis)sortAxis
 {
     if (sortIndicator == MDSpreadViewCellSortIndicatorAscending) {
         _sortIndicatorImage.hidden = !self.selected;
-        _sortIndicatorImage.image = [[self class] _defaultVerticalAscendingSortImage];
+        _sortIndicatorImage.image = (sortAxis == MDSpreadViewSortBoth) ? [[self class] _defaultDiagonalAscendingSortImage] : (sortAxis == MDSpreadViewSortColumns) ? [[self class] _defaultHorizontalAscendingSortImage] : [[self class] _defaultVerticalAscendingSortImage];
     } else if (sortIndicator == MDSpreadViewCellSortIndicatorDescending) {
         _sortIndicatorImage.hidden = !self.selected;
-        _sortIndicatorImage.image = [[self class] _defaultVerticalDescendingSortImage];
+        _sortIndicatorImage.image = (sortAxis == MDSpreadViewSortBoth) ? [[self class] _defaultDiagonalDescendingSortImage] : (sortAxis == MDSpreadViewSortColumns) ? [[self class] _defaultHorizontalDescendingSortImage] : [[self class] _defaultVerticalDescendingSortImage];
     } else {
-        if (_sortIndicatorImage.hidden == NO) {
-            NSLog(@"wut");
-        }
         _sortIndicatorImage.hidden = YES;
     }
     
@@ -194,7 +191,7 @@
     if (!returnImage) {
         UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
         
-        [[UIColor blackColor] setStroke];
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
         
         UIBezierPath *bezierPath = [UIBezierPath bezierPath];
         bezierPath.lineJoinStyle = kCGLineJoinMiter;
@@ -220,7 +217,7 @@
     if (!returnImage) {
         UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
         
-        [[UIColor blackColor] setStroke];
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
         
         UIBezierPath *bezierPath = [UIBezierPath bezierPath];
         bezierPath.lineJoinStyle = kCGLineJoinMiter;
@@ -230,6 +227,110 @@
         [bezierPath moveToPoint:CGPointMake(10, 19)];
         [bezierPath addLineToPoint:CGPointMake(16, 13)];
         [bezierPath addLineToPoint:CGPointMake(22, 19)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
+
++ (UIImage *)_defaultHorizontalAscendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(13, 10)];
+        [bezierPath addLineToPoint:CGPointMake(19, 16)];
+        [bezierPath addLineToPoint:CGPointMake(13, 22)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
+
++ (UIImage *)_defaultHorizontalDescendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(19, 10)];
+        [bezierPath addLineToPoint:CGPointMake(13, 16)];
+        [bezierPath addLineToPoint:CGPointMake(19, 22)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
+
++ (UIImage *)_defaultDiagonalAscendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(12, 20)];
+        [bezierPath addLineToPoint:CGPointMake(20, 20)];
+        [bezierPath addLineToPoint:CGPointMake(20, 12)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
+
++ (UIImage *)_defaultDiagonalDescendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor colorWithWhite:0 alpha:0.4] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(20, 12)];
+        [bezierPath addLineToPoint:CGPointMake(12, 12)];
+        [bezierPath addLineToPoint:CGPointMake(12, 20)];
         
         [bezierPath stroke];
         

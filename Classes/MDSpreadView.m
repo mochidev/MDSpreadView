@@ -345,7 +345,7 @@ static CGFloat MDPixel()
 @property (nonatomic, readwrite, assign) MDSpreadView *spreadView;
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
-@property (nonatomic) MDSpreadViewCellSortIndicator _sortIndicator;
+- (void)_setSortIndicator:(MDSpreadViewCellSortIndicator)_sortIndicator sortAxis:(MDSpreadViewSortAxis)_sortAxis;
 
 @property (nonatomic, readonly) UILongPressGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
@@ -2993,7 +2993,7 @@ static CGFloat MDPixel()
         }
     }
     
-    [cell set_sortIndicator:sortIndicator];
+    [cell _setSortIndicator:sortIndicator sortAxis:firstSortDescriptor.sortAxis];
     
     [self _willDisplayCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
     
@@ -4290,7 +4290,7 @@ static CGFloat MDPixel()
             }
         }
         
-        [cell set_sortIndicator:sortIndicator];
+        [cell _setSortIndicator:sortIndicator sortAxis:sortDescryptor.sortAxis];
     }
     
     if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorsDidChange:)]) {
