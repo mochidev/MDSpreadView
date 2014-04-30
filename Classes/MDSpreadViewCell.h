@@ -56,6 +56,12 @@ typedef NS_ENUM(NSUInteger, MDSpreadViewCellAccessoryType) {
     MDSpreadViewCellAccessoryDisclosureIndicator
 };
 
+typedef NS_ENUM(NSUInteger, MDSpreadViewCellSortIndicator) {
+    MDSpreadViewCellSortIndicatorNone = 0,
+    MDSpreadViewCellSortIndicatorAscending,
+    MDSpreadViewCellSortIndicatorDescending
+};
+
 @interface MDSpreadViewCell : UIView <UIGestureRecognizerDelegate> {
   @public
     NSUInteger _reuseHash;

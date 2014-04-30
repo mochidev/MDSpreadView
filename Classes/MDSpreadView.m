@@ -345,6 +345,7 @@ static CGFloat MDPixel()
 @property (nonatomic, readwrite, assign) MDSpreadView *spreadView;
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
+@property (nonatomic) MDSpreadViewCellSortIndicator _sortIndicator;
 
 @property (nonatomic, readonly) UILongPressGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
@@ -2980,6 +2981,20 @@ static CGFloat MDPixel()
     
     [cell setHighlighted:shouldHighlight animated:NO];
     
+    MDSpreadViewCellSortIndicator sortIndicator = MDSpreadViewCellSortIndicatorNone;
+    MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+    MDSortDescriptor *firstSortDescriptor = _sortDescriptors.firstObject;
+    
+    if (firstSortDescriptor && [cellSortDescriptorPrototype.key isEqualToString:firstSortDescriptor.key]) {
+        if ([firstSortDescriptor ascending]) {
+            sortIndicator = MDSpreadViewCellSortIndicatorAscending;
+        } else {
+            sortIndicator = MDSpreadViewCellSortIndicatorDescending;
+        }
+    }
+    
+    [cell set_sortIndicator:sortIndicator];
+    
     [self _willDisplayCell:cell forRowAtIndexPath:rowIndexPath forColumnAtIndexPath:columnIndexPath];
     
     if ([cell superview] != self) {
@@ -4214,6 +4229,9 @@ static CGFloat MDPixel()
     
     if (!sortDescriptor && cell) {
         sortDescriptor = cell.sortDescriptorPrototype;
+        if (cell.defaultSortAxis != MDSpreadViewSortNone) {
+            sortAxis = cell.defaultSortAxis;
+        }
     }
     
     if (sortDescriptor.rowSection != MDSpreadViewSelectWholeSpreadView) {
@@ -4255,6 +4273,25 @@ static CGFloat MDPixel()
     
     [_sortDescriptors removeObjectsInArray:matchingSortDescryptors];
     [_sortDescriptors insertObject:sortDescryptor atIndex:0];
+    
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForColumnHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        MDSpreadViewCellSortIndicator sortIndicator = MDSpreadViewCellSortIndicatorNone;
+        MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+        
+        if ([cellSortDescriptorPrototype.key isEqualToString:sortDescryptor.key]) {
+            if ([sortDescryptor ascending]) {
+                sortIndicator = MDSpreadViewCellSortIndicatorAscending;
+            } else {
+                sortIndicator = MDSpreadViewCellSortIndicatorDescending;
+            }
+        }
+        
+        [cell set_sortIndicator:sortIndicator];
+    }
     
     if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorsDidChange:)]) {
         [self.dataSource spreadView:self sortDescriptorsDidChange:oldDescriptors];

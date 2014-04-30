@@ -69,6 +69,11 @@
             self.textLabel.font = [UIFont boldSystemFontOfSize:14];
             self.textLabel.backgroundColor = self.backgroundView.backgroundColor;
             self.textLabel.textColor = [UIColor blackColor];
+            
+            _sortIndicatorImage = [[UIImageView alloc] init];
+            _sortIndicatorImage.contentMode = UIViewContentModeCenter;
+            _sortIndicatorImage.hidden = YES;
+            [self addSubview:_sortIndicatorImage];
         } else {
             self.clipsToBounds = NO;
             self.backgroundColor = nil;
@@ -104,16 +109,44 @@
     return self;
 }
 
+#pragma mark - Ovverides
+
 - (BOOL)hasSeparators
 {
     return NO;
+}
+
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator
+{
+    if (sortIndicator == MDSpreadViewCellSortIndicatorAscending) {
+        _sortIndicatorImage.hidden = !self.selected;
+        _sortIndicatorImage.image = [[self class] _defaultVerticalAscendingSortImage];
+    } else if (sortIndicator == MDSpreadViewCellSortIndicatorDescending) {
+        _sortIndicatorImage.hidden = !self.selected;
+        _sortIndicatorImage.image = [[self class] _defaultVerticalDescendingSortImage];
+    } else {
+        if (_sortIndicatorImage.hidden == NO) {
+            NSLog(@"wut");
+        }
+        _sortIndicatorImage.hidden = YES;
+    }
+    
+    [self setNeedsLayout];
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     
-    self.textLabel.frame = CGRectMake(14, 2, self.bounds.size.width-28, self.bounds.size.height-3);
+    CGRect bounds = self.bounds;
+    
+    if (self.selected && !self.sortIndicatorImage.hidden) {
+        self.textLabel.frame = CGRectMake(14, 2, bounds.size.width - 28 - 32, bounds.size.height - 3);
+    } else {
+        self.textLabel.frame = CGRectMake(14, 2, bounds.size.width - 28, bounds.size.height - 3);
+    }
+    
+    _sortIndicatorImage.frame = CGRectMake(bounds.size.width - 32, 0, 32, bounds.size.height);
 }
 
 - (void)prepareForReuse
@@ -152,5 +185,59 @@
 //    }
 //    return UIAccessibilityTraitButton;
 //}
+
+#pragma mark - Sort Images
+
++ (UIImage *)_defaultVerticalAscendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor blackColor] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(10, 13)];
+        [bezierPath addLineToPoint:CGPointMake(16, 19)];
+        [bezierPath addLineToPoint:CGPointMake(22, 13)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
+
++ (UIImage *)_defaultVerticalDescendingSortImage
+{
+    static UIImage *returnImage = nil;
+    if (!returnImage) {
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(32, 32), NO, 0);
+        
+        [[UIColor blackColor] setStroke];
+        
+        UIBezierPath *bezierPath = [UIBezierPath bezierPath];
+        bezierPath.lineJoinStyle = kCGLineJoinMiter;
+        bezierPath.lineCapStyle = kCGLineCapButt;
+        bezierPath.lineWidth = 2;
+        
+        [bezierPath moveToPoint:CGPointMake(10, 19)];
+        [bezierPath addLineToPoint:CGPointMake(16, 13)];
+        [bezierPath addLineToPoint:CGPointMake(22, 19)];
+        
+        [bezierPath stroke];
+        
+        returnImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    }
+    
+    return returnImage;
+}
 
 @end

@@ -93,6 +93,7 @@
 @property (nonatomic, readwrite, weak) MDSpreadView *spreadView;
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
+@property (nonatomic) MDSpreadViewCellSortIndicator _sortIndicator;
 
 @property (nonatomic, readonly) UIGestureRecognizer *_tapGesture;
 @property (nonatomic, retain) MDIndexPath *_rowPath;
@@ -234,6 +235,20 @@
     }
 }
 
+#pragma mark - Sorting
+
+- (void)set_sortIndicator:(MDSpreadViewCellSortIndicator)_sortIndicator
+{
+    __sortIndicator = _sortIndicator;
+    
+    [self updateSortIndicator:__sortIndicator];
+}
+
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator
+{
+    
+}
+
 #pragma mark - Background Views
 
 - (void)setBackgroundView:(UIView *)aBackgroundView
@@ -339,6 +354,7 @@
     self.highlighted = NO;
     self.selected = NO;
     self.sortDescriptorPrototype = nil;
+    self._sortIndicator = MDSpreadViewCellSortIndicatorNone;
 //    self.objectValue = nil;
 //    self.textLabel.text = nil;
 //    self.detailTextLabel.text = nil;

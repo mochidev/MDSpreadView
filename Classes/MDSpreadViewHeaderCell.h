@@ -44,9 +44,13 @@ typedef enum {
 
 - (id)initWithStyle:(MDSpreadViewHeaderCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier;
 
+@property (nonatomic, strong, readonly) UIImageView *sortIndicatorImage;
+
 @property (nonatomic, retain) MDSortDescriptor *sortDescriptorPrototype;
 // This needs to be set if you want to support sorting for this column/row.
 @property (nonatomic) MDSpreadViewSortAxis defaultSortAxis;
 // Which direction will a corner header sort in?
+
+- (void)updateSortIndicator:(MDSpreadViewCellSortIndicator)sortIndicator;
 
 @end
