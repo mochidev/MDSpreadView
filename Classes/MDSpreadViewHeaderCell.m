@@ -137,13 +137,18 @@
     
     CGRect bounds = self.bounds;
     
+    _sortIndicatorImage.frame = CGRectMake(bounds.size.width - 32, 0, 32, bounds.size.height);
+    
     if (self.selected && !self.sortIndicatorImage.hidden) {
-        self.textLabel.frame = CGRectMake(14, 2, bounds.size.width - 28 - 32, bounds.size.height - 3);
+        if (bounds.size.width - 28 - 32 > 42) {
+            self.textLabel.frame = CGRectMake(14, 2, bounds.size.width - 28 - 32, bounds.size.height - 3);
+        } else {
+            self.textLabel.frame = CGRectMake(2, 2, bounds.size.width - 18, bounds.size.height - 3);
+            _sortIndicatorImage.frame = CGRectMake(bounds.size.width - 26, 0, 32, bounds.size.height);
+        }
     } else {
         self.textLabel.frame = CGRectMake(14, 2, bounds.size.width - 28, bounds.size.height - 3);
     }
-    
-    _sortIndicatorImage.frame = CGRectMake(bounds.size.width - 32, 0, 32, bounds.size.height);
 }
 
 - (void)prepareForReuse
