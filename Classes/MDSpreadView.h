@@ -184,6 +184,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     UIImage *cachedSeparatorImage;
     
+    MDSortDescriptor *_currentSortDescriptor;
+    
     // Done with new algorithm
     
     NSMutableArray *visibleCells; // array of array
@@ -308,6 +310,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 // the default selection mode. defaults to MDSpreadViewSelectionModeAutomatic. Setting to MDSpreadViewSelectionModeAutomatic results in the same behaviour as highlightMode.
 @property (nonatomic) BOOL allowsSelection;
 // default is YES. Controls whether rows can be selected when not in editing mode
+@property (nonatomic) BOOL preservesSortSelections;
+// default is YES. If a selection is related to a sort, and allowsMultipleSelection is NO, any other non-selection will not deselect that selection, while any other sort selection on the same axis will.
 @property (nonatomic) BOOL allowsMultipleSelection;
 // default is NO. Controls whether multiple rows can be selected simultaneously
 
@@ -447,7 +451,8 @@ enum {MDSpreadViewSelectWholeSpreadView = -1};
 
 @interface MDSortDescriptor : NSSortDescriptor <NSCopying>
 
-@property (nonatomic, readonly, strong) MDIndexPath *indexPath;
+@property (nonatomic, readonly, strong) MDIndexPath *rowIndexPath;
+@property (nonatomic, readonly, strong) MDIndexPath *columnIndexPath;
 // index path for sort header
 @property (nonatomic, readonly) NSInteger rowSection;
 @property (nonatomic, readonly) NSInteger columnSection;

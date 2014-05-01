@@ -494,7 +494,8 @@ static CGFloat MDPixel()
 
 @interface MDSortDescriptor ()
 
-@property (nonatomic, readwrite, strong) MDIndexPath *indexPath;
+@property (nonatomic, readwrite, strong) MDIndexPath *rowIndexPath;
+@property (nonatomic, readwrite, strong) MDIndexPath *columnIndexPath;
 @property (nonatomic, readwrite) NSInteger rowSection;
 @property (nonatomic, readwrite) NSInteger columnSection;
 @property (nonatomic, readwrite) MDSpreadViewSortAxis sortAxis;
@@ -554,7 +555,8 @@ static CGFloat MDPixel()
 - (instancetype)copyWithZone:(NSZone *)zone
 {
     MDSortDescriptor *sortDescriptor = [super copyWithZone:zone];
-    sortDescriptor.indexPath = self.indexPath;
+    sortDescriptor.rowIndexPath = self.rowIndexPath;
+    sortDescriptor.columnIndexPath = self.columnIndexPath;
     sortDescriptor.rowSection = self.rowSection;
     sortDescriptor.rowSection = self.columnSection;
     sortDescriptor.sortAxis = self.sortAxis;
@@ -565,7 +567,8 @@ static CGFloat MDPixel()
 - (instancetype)reversedSortDescriptor
 {
     MDSortDescriptor *sortDescriptor = [super reversedSortDescriptor];
-    sortDescriptor.indexPath = self.indexPath;
+    sortDescriptor.rowIndexPath = self.rowIndexPath;
+    sortDescriptor.columnIndexPath = self.columnIndexPath;
     sortDescriptor.rowSection = self.rowSection;
     sortDescriptor.columnSection = self.columnSection;
     sortDescriptor.sortAxis = self.sortAxis;
@@ -704,6 +707,7 @@ static CGFloat MDPixel()
     _allowsCornerHeaderSelection = NO;
     
     _autoAllowSortableHeaderSelection = YES;
+    _preservesSortSelections = YES;
     
     _defaultCellClass = [MDSpreadViewCell class];
     _defaultHeaderColumnCellClass = [MDSpreadViewHeaderCell class];
@@ -3946,13 +3950,16 @@ static CGFloat MDPixel()
     
     [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     
+    MDSortDescriptor *sortDescriptor = [self _sortDescriptorForRowIndexPath:newSelection.rowPath columnIndexPath:newSelection.columnPath cell:cell];
+    _currentSortDescriptor = sortDescriptor;
+    
     if (newSelection) {
         [self _addSelection:newSelection animated:YES notify:YES];
         [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     }
     self._currentSelection = nil;
     
-    [self _addSortDescriptor:[self _sortDescriptorForRowIndexPath:newSelection.rowPath columnIndexPath:newSelection.columnPath cell:cell]];
+    [self _addSortDescriptor:sortDescriptor];
 }
 
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
@@ -3982,6 +3989,20 @@ static CGFloat MDPixel()
             if (![oldSelection isEqual:selection]) {
                 [bucket addObject:oldSelection];
             }
+        }
+        
+        MDSortDescriptor *firstDescriptor = (_currentSortDescriptor) ? _currentSortDescriptor : _sortDescriptors.firstObject;
+        if (_preservesSortSelections && firstDescriptor) {
+            MDSpreadViewSelection *sortSelection = nil;
+            
+            for (MDSpreadViewSelection *oldSelection in bucket) {
+                if ([oldSelection.rowPath isEqualToIndexPath:firstDescriptor.rowIndexPath] && [oldSelection.columnPath isEqualToIndexPath:firstDescriptor.columnIndexPath]) {
+                    sortSelection = oldSelection;
+                    break;
+                }
+            }
+            
+            if (sortSelection) [bucket removeObject:sortSelection];
         }
         
         [self _removeSelections:bucket animated:YES notify:YES];
@@ -4246,6 +4267,9 @@ static CGFloat MDPixel()
     
     sortDescriptor.sortAxis = sortAxis;
     
+    sortDescriptor.rowIndexPath = rowIndexPath;
+    sortDescriptor.columnIndexPath = columnIndexPath;
+    
     return sortDescriptor;
 }
 
@@ -4275,6 +4299,7 @@ static CGFloat MDPixel()
     
     [_sortDescriptors removeObjectsInArray:matchingSortDescryptors];
     [_sortDescriptors insertObject:sortDescryptor atIndex:0];
+    _currentSortDescriptor = nil;
     
     NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForColumnHeaders.allCells];
     [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
