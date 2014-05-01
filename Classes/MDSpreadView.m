@@ -3993,7 +3993,7 @@ static CGFloat MDPixel()
     
     BOOL shouldSelect = NO;
     
-    for (MDSpreadViewCell *cell in _selectedCells) {
+    for (MDSpreadViewCell *cell in allVisibleCells) {
         shouldSelect = NO;
         for (MDSpreadViewSelection *selection in _selectedCells) {
             if (selection.selectionMode == MDSpreadViewSelectionModeNone || selection.selectionMode == MDSpreadViewSelectionModeAutomatic) continue;
