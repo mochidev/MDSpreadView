@@ -45,7 +45,7 @@ static CGFloat MDRound(CGFloat value)
         scale = [[UIScreen mainScreen] scale];
     }
     
-    return roundf(value*scale)/scale;
+    return (CGFloat)round(((double)value)*((double)scale))/scale;
 }
 
 static CGFloat MDPixel()
@@ -3314,14 +3314,14 @@ static CGFloat MDPixel()
     if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
     
     if (implementsColumnHeaderWidth && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnHeaderInSection:)]) {
-        return [self.delegate spreadView:self widthForColumnHeaderInSection:columnSection];
+        return MDRound([self.delegate spreadView:self widthForColumnHeaderInSection:columnSection]);
     } else {
         implementsColumnHeaderWidth = NO;
     }
     
     if (!didSetHeaderWidth && !implementsColumnHeaderData) return 0;
     
-    return self.sectionColumnHeaderWidth;
+    return MDRound(self.sectionColumnHeaderWidth);
 }
 
 - (CGFloat)_widthForColumnAtIndexPath:(MDIndexPath *)columnPath
@@ -3330,12 +3330,12 @@ static CGFloat MDPixel()
     else if (columnPath.column >= [self _numberOfColumnsInSection:columnPath.section]) return [self _widthForColumnFooterInSection:columnPath.section];
     
     if (implementsColumnWidth && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnAtIndexPath:)]) {
-        return [self.delegate spreadView:self widthForColumnAtIndexPath:columnPath];
+        return MDRound([self.delegate spreadView:self widthForColumnAtIndexPath:columnPath]);
     } else {
         implementsColumnWidth = NO;
     }
     
-    return self.columnWidth;
+    return MDRound(self.columnWidth);
 }
 
 - (CGFloat)_widthForColumnFooterInSection:(NSInteger)columnSection
@@ -3343,14 +3343,14 @@ static CGFloat MDPixel()
     if (columnSection < 0 || columnSection >= [self _numberOfColumnSections]) return 0;
     
     if (implementsColumnFooterWidth && [self.delegate respondsToSelector:@selector(spreadView:widthForColumnFooterInSection:)]) {
-        return [self.delegate spreadView:self widthForColumnFooterInSection:columnSection];
+        return MDRound([self.delegate spreadView:self widthForColumnFooterInSection:columnSection]);
     } else {
         implementsColumnFooterWidth = NO;
     }
     
     if (!didSetFooterWidth && !implementsColumnFooterData) return 0;
     
-    return self.sectionColumnFooterWidth;
+    return MDRound(self.sectionColumnFooterWidth);
 }
 
 - (CGFloat)_heightForRowHeaderInSection:(NSInteger)rowSection
@@ -3358,14 +3358,14 @@ static CGFloat MDPixel()
     if (rowSection < 0 || rowSection >= [self _numberOfRowSections]) return 0;
     
     if (implementsRowHeaderHeight && [self.delegate respondsToSelector:@selector(spreadView:heightForRowHeaderInSection:)]) {
-        return [self.delegate spreadView:self heightForRowHeaderInSection:rowSection];
+        return MDRound([self.delegate spreadView:self heightForRowHeaderInSection:rowSection]);
     } else {
         implementsRowHeaderHeight = NO;
     }
     
     if (!didSetHeaderHeight && !implementsRowHeaderData) return 0;
     
-    return self.sectionRowHeaderHeight;
+    return MDRound(self.sectionRowHeaderHeight);
 }
 
 - (CGFloat)_heightForRowAtIndexPath:(MDIndexPath *)rowPath
@@ -3374,12 +3374,12 @@ static CGFloat MDPixel()
     else if (rowPath.row >= [self _numberOfRowsInSection:rowPath.section]) return [self _heightForRowFooterInSection:rowPath.section];
     
     if (implementsRowHeight && [self.delegate respondsToSelector:@selector(spreadView:heightForRowAtIndexPath:)]) {
-        return [self.delegate spreadView:self heightForRowAtIndexPath:rowPath];
+        return MDRound([self.delegate spreadView:self heightForRowAtIndexPath:rowPath]);
     } else {
         implementsRowHeight = NO;
     }
     
-    return self.rowHeight;
+    return MDRound(self.rowHeight);
 }
 
 - (CGFloat)_heightForRowFooterInSection:(NSInteger)rowSection
@@ -3387,14 +3387,14 @@ static CGFloat MDPixel()
     if (rowSection < 0 || rowSection >= [self _numberOfRowSections]) return 0;
     
     if (implementsRowFooterHeight && [self.delegate respondsToSelector:@selector(spreadView:heightForRowFooterInSection:)]) {
-        return [self.delegate spreadView:self heightForRowFooterInSection:rowSection];
+        return MDRound([self.delegate spreadView:self heightForRowFooterInSection:rowSection]);
     } else {
         implementsRowFooterHeight = NO;
     }
     
     if (!didSetFooterHeight && !implementsRowFooterData) return 0;
     
-    return self.sectionRowFooterHeight;
+    return MDRound(self.sectionRowFooterHeight);
 }
 
 #pragma mark — Counts
