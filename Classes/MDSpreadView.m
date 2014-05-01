@@ -3940,17 +3940,21 @@ static CGFloat MDPixel()
     MDSpreadViewSelection *selection = [MDSpreadViewSelection selectionWithRow:self._currentSelection.rowPath
                                                                         column:self._currentSelection.columnPath
                                                                           mode:resolvedSelectionMode];
-    selection = [self _willSelectCellForSelection:selection];
+    
+    MDSpreadViewSelection *newSelection = [self _willSelectCellForSelection:selection];
+    if (selection != newSelection) {
+        cell = nil; // FIXME: Fetch actual cell in this case
+    }
     
     [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     
-    if (selection) {
-        [self _addSelection:selection animated:YES notify:YES];
+    if (newSelection) {
+        [self _addSelection:newSelection animated:YES notify:YES];
         [self _didSelectCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     }
     self._currentSelection = nil;
     
-    [self _addSortDescriptor:[self _sortDescriptorForRowIndexPath:selection.rowPath columnIndexPath:selection.columnPath cell:nil]];
+    [self _addSortDescriptor:[self _sortDescriptorForRowIndexPath:newSelection.rowPath columnIndexPath:newSelection.columnPath cell:cell]];
 }
 
 - (void)_touchesCancelledInCell:(MDSpreadViewCell *)cell
