@@ -3560,7 +3560,7 @@ static CGFloat MDPixel()
     NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
 	
     returnValue.spreadView = self;
-	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
+	returnValue._rowPath = [MDIndexPath indexPathForRow:-1 inSection:rowSection];
     returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:columnSection];
     
     [returnValue setNeedsLayout];
@@ -3595,7 +3595,7 @@ static CGFloat MDPixel()
 	
     returnValue.spreadView = self;
 	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
-    returnValue._columnPath = [MDIndexPath indexPathForColumn:numberOfColumnsInSection inSection:columnSection];
+    returnValue._columnPath = [MDIndexPath indexPathForColumn:-1 inSection:columnSection];
     
     [returnValue setNeedsLayout];
     
