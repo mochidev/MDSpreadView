@@ -3556,7 +3556,6 @@ static CGFloat MDPixel()
         returnValue = cell;
     }
     
-    NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowSection] numberOfCells];
     NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
 	
     returnValue.spreadView = self;
@@ -3591,7 +3590,6 @@ static CGFloat MDPixel()
     }
     
     NSInteger numberOfRowsInSection = [[rowSections objectAtIndex:rowSection] numberOfCells];
-    NSInteger numberOfColumnsInSection = [[columnSections objectAtIndex:columnSection] numberOfCells];
 	
     returnValue.spreadView = self;
 	returnValue._rowPath = [MDIndexPath indexPathForRow:numberOfRowsInSection inSection:rowSection];
