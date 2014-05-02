@@ -37,6 +37,12 @@
 #import "MDSpreadViewCellColumnHeaderBackground.h"
 #import "MDSpreadViewCellCornerHeaderBackground.h"
 
+@interface MDSpreadViewHeaderCell () {
+    UIView *_originalSelectedBackground;
+}
+
+@end
+
 @implementation MDSpreadViewHeaderCell
 
 @dynamic sortDescriptorPrototype, defaultSortAxis;
@@ -62,6 +68,7 @@
             newBackground.backgroundColor = [UIColor colorWithWhite:247./255. alpha:1];
             newHighlightedBackground.backgroundColor = [UIColor colorWithWhite:210./255. alpha:1.];
             newSelectedBackground.backgroundColor = [self.tintColor colorWithAlphaComponent:0.65];
+            _originalSelectedBackground = newSelectedBackground;
             self.backgroundView = newBackground;
 //            self.highlightedBackgroundView = newHighlightedBackground;
             self.selectedBackgroundView = newSelectedBackground;
@@ -156,6 +163,22 @@
     [super prepareForReuse];
     
     self.sortDescriptorPrototype = nil;
+}
+
+- (void)setSelectedBackgroundView:(UIView *)selectedBackgroundView
+{
+    if (_originalSelectedBackground != selectedBackgroundView) {
+        _originalSelectedBackground = nil;
+    }
+    
+    [super setSelectedBackgroundView:selectedBackgroundView];
+}
+
+- (void)tintColorDidChange
+{
+    [super tintColorDidChange];
+    
+    _originalSelectedBackground.backgroundColor = [self.tintColor colorWithAlphaComponent:0.65];
 }
 
 - (BOOL)isAccessibilityElement

@@ -87,7 +87,9 @@
 
 @end
 
-@interface MDSpreadViewCell ()
+@interface MDSpreadViewCell () {
+    UIView *_originalSelectedBackground;
+}
 
 @property (nonatomic, readwrite, copy) NSString *reuseIdentifier;
 @property (nonatomic, readwrite, weak) MDSpreadView *spreadView;
@@ -145,6 +147,7 @@
             self.highlightedBackgroundView = view;
             
             UIView *selectedView = [[UIView alloc] init];
+            _originalSelectedBackground = selectedView;
             selectedView.backgroundColor = [self.tintColor colorWithAlphaComponent:0.15];
             self.selectedBackgroundView = selectedView;
             
@@ -292,6 +295,10 @@
     [_selectedBackgroundView removeFromSuperview];
     _selectedBackgroundView = selectedBackgroundView;
     
+    if (_originalSelectedBackground != selectedBackgroundView) {
+        _originalSelectedBackground = nil;
+    }
+    
     if (_selected) {
         _selectedBackgroundView.alpha = 1;
         _selectedBackgroundView.hidden = NO;
@@ -307,6 +314,13 @@
     }
     
     [self setNeedsLayout];
+}
+
+- (void)tintColorDidChange
+{
+    [super tintColorDidChange];
+    
+    _originalSelectedBackground.backgroundColor = [self.tintColor colorWithAlphaComponent:0.15];
 }
 
 #pragma mark - Content Views
