@@ -4214,8 +4214,8 @@ static CGFloat MDPixel()
     NSInteger rowSection = rowIndexPath.section;
     NSInteger column = columnIndexPath.column;
     NSInteger columnSection = columnIndexPath.section;
-    NSUInteger rowSectionCount = [(MDSpreadViewSection *)[rowSections objectAtIndex:rowSection] numberOfCells];
-    NSUInteger columnSectionCount = [(MDSpreadViewSection *)[columnSections objectAtIndex:columnSection] numberOfCells];
+    NSUInteger rowSectionCount = [self numberOfRowsInRowSection:rowSection];
+    NSUInteger columnSectionCount = [self numberOfColumnsInColumnSection:columnSection];
     
     MDSpreadViewSortAxis sortAxis = MDSpreadViewSortNone;
     
