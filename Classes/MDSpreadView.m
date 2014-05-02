@@ -480,6 +480,7 @@ static CGFloat MDPixel()
 
 - (BOOL)isEqualToIndexPath:(MDIndexPath *)object
 {
+    if (object == nil) return nil;
     return (object->section == self->section && object->row == self->row);
 }
 
@@ -2986,7 +2987,7 @@ static CGFloat MDPixel()
     [cell setHighlighted:shouldHighlight animated:NO];
     
     MDSpreadViewCellSortIndicator sortIndicator = MDSpreadViewCellSortIndicatorNone;
-    MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+    MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell prototype:nil];
     MDSortDescriptor *firstSortDescriptor = _sortDescriptors.firstObject;
     
     if (firstSortDescriptor && [cellSortDescriptorPrototype.key isEqualToString:firstSortDescriptor.key]) {
@@ -3813,7 +3814,7 @@ static CGFloat MDPixel()
     BOOL override = NO;
     MDSortDescriptor *sortDescriptorPrototype = nil;
     if (_autoAllowSortableHeaderSelection) {
-        sortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+        sortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell prototype:nil];
         if (sortDescriptorPrototype) {
             override = YES;
             
@@ -3950,7 +3951,7 @@ static CGFloat MDPixel()
     
     [self _didUnhighlightCellForRowAtIndexPath:self._currentSelection.rowPath forColumnIndex:self._currentSelection.columnPath];
     
-    MDSortDescriptor *sortDescriptor = [self _sortDescriptorForRowIndexPath:newSelection.rowPath columnIndexPath:newSelection.columnPath cell:cell];
+    MDSortDescriptor *sortDescriptor = [self _sortDescriptorForRowIndexPath:newSelection.rowPath columnIndexPath:newSelection.columnPath cell:cell prototype:nil];
     _currentSortDescriptor = sortDescriptor;
     
     if (newSelection) {
@@ -4193,7 +4194,17 @@ static CGFloat MDPixel()
 
 #pragma mark - Sorting
 
-- (MDSortDescriptor *)_sortDescriptorForRowIndexPath:(MDIndexPath *)rowIndexPath columnIndexPath:(MDIndexPath *)columnIndexPath cell:(MDSpreadViewCell *)cell
+- (void)sortCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withPrototypeSortDescriptor:(MDSortDescriptor *)prototypeSortDescriptor selectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition
+{
+    MDSortDescriptor *sortDescriptor = [self _sortDescriptorForRowIndexPath:rowPath columnIndexPath:columnPath cell:nil prototype:prototypeSortDescriptor];
+    _currentSortDescriptor = sortDescriptor;
+    
+    [self _addSelection:[MDSpreadViewSelection selectionWithRow:rowPath column:columnPath mode:mode] animated:animated notify:NO];
+    
+    [self _addSortDescriptor:sortDescriptor];
+}
+
+- (MDSortDescriptor *)_sortDescriptorForRowIndexPath:(MDIndexPath *)rowIndexPath columnIndexPath:(MDIndexPath *)columnIndexPath cell:(MDSpreadViewCell *)cell prototype:(MDSortDescriptor *)prototype
 {
     MDSortDescriptor *sortDescriptor = nil;
     
@@ -4255,6 +4266,8 @@ static CGFloat MDPixel()
         if (cell.defaultSortAxis != MDSpreadViewSortNone) {
             sortAxis = cell.defaultSortAxis;
         }
+    } else if (!sortDescriptor && prototype) {
+        sortDescriptor = prototype;
     }
     
     if (sortDescriptor.rowSection != MDSpreadViewSelectWholeSpreadView) {
@@ -4273,16 +4286,16 @@ static CGFloat MDPixel()
     return sortDescriptor;
 }
 
-- (void)_addSortDescriptor:(MDSortDescriptor *)sortDescryptor
+- (void)_addSortDescriptor:(MDSortDescriptor *)sortDescriptor
 {
-    if (!sortDescryptor) return;
+    if (!sortDescriptor) return;
     
     NSArray *oldDescriptors = self.sortDescriptors;
     
     NSMutableArray *matchingSortDescryptors = [[NSMutableArray alloc] init];
     
     for (MDSortDescriptor *descriptor in _sortDescriptors) {
-        if ([descriptor.key isEqualToString:sortDescryptor.key]) {
+        if ([descriptor.key isEqualToString:sortDescriptor.key]) {
             [matchingSortDescryptors addObject:descriptor];
         }
     }
@@ -4290,15 +4303,15 @@ static CGFloat MDPixel()
     if (matchingSortDescryptors.count) {
         MDSortDescriptor *firstDescriptor = matchingSortDescryptors.firstObject;
         
-        if ([_sortDescriptors indexOfObject:firstDescriptor] == 0 && firstDescriptor.ascending == sortDescryptor.ascending) {
-            sortDescryptor = [sortDescryptor reversedSortDescriptor];
-        } else if ([_sortDescriptors indexOfObject:firstDescriptor] != 0 && firstDescriptor.ascending != sortDescryptor.ascending) {
-            sortDescryptor = [sortDescryptor reversedSortDescriptor];
+        if ([_sortDescriptors indexOfObject:firstDescriptor] == 0 && firstDescriptor.ascending == sortDescriptor.ascending) {
+            sortDescriptor = [sortDescriptor reversedSortDescriptor];
+        } else if ([_sortDescriptors indexOfObject:firstDescriptor] != 0 && firstDescriptor.ascending != sortDescriptor.ascending) {
+            sortDescriptor = [sortDescriptor reversedSortDescriptor];
         }
     }
     
     [_sortDescriptors removeObjectsInArray:matchingSortDescryptors];
-    [_sortDescriptors insertObject:sortDescryptor atIndex:0];
+    [_sortDescriptors insertObject:sortDescriptor atIndex:0];
     _currentSortDescriptor = nil;
     
     NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForColumnHeaders.allCells];
@@ -4307,17 +4320,17 @@ static CGFloat MDPixel()
     
     for (MDSpreadViewCell *cell in allVisibleCells) {
         MDSpreadViewCellSortIndicator sortIndicator = MDSpreadViewCellSortIndicatorNone;
-        MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell];
+        MDSortDescriptor *cellSortDescriptorPrototype = [self _sortDescriptorForRowIndexPath:nil columnIndexPath:nil cell:cell prototype:nil];
         
-        if ([cellSortDescriptorPrototype.key isEqualToString:sortDescryptor.key]) {
-            if ([sortDescryptor ascending]) {
+        if ([cellSortDescriptorPrototype.key isEqualToString:sortDescriptor.key]) {
+            if ([sortDescriptor ascending]) {
                 sortIndicator = MDSpreadViewCellSortIndicatorAscending;
             } else {
                 sortIndicator = MDSpreadViewCellSortIndicatorDescending;
             }
         }
         
-        [cell _setSortIndicator:sortIndicator sortAxis:sortDescryptor.sortAxis];
+        [cell _setSortIndicator:sortIndicator sortAxis:sortDescriptor.sortAxis];
     }
     
     if ([self.dataSource respondsToSelector:@selector(spreadView:sortDescriptorsDidChange:)]) {

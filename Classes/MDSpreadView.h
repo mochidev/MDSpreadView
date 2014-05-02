@@ -345,6 +345,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 - (NSArray *)columnIndexPathsForSelectedCells __attribute__((unavailable));
 // returns nil or a set of index paths representing the sections and rows of the selection.
 
+- (void)sortCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withPrototypeSortDescriptor:(MDSortDescriptor *)prototypeSortDescriptor selectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition;
+
 - (void)selectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath withSelectionMode:(MDSpreadViewSelectionMode)mode animated:(BOOL)animated scrollPosition:(MDSpreadViewScrollPosition)scrollPosition;
 // scroll position only works with MDSpreadViewScrollPositionNone for now
 - (void)deselectCellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath animated:(BOOL)animated;
