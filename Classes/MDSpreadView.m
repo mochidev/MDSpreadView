@@ -3209,41 +3209,35 @@ static CGFloat MDPixel()
 
 - (CGRect)rectForRowSection:(NSInteger)rowSection columnSection:(NSInteger)columnSection
 {
-    if (!_rowSections || !_columnSections ||
-        rowSection < 0 || rowSection >= [self numberOfRowSections] ||
-        columnSection < 0 || columnSection >= [self numberOfColumnSections]) return CGRectNull;
+    if (!rowSections || !columnSections ||
+        rowSection < 0 || rowSection >= rowSections.count ||
+        columnSection < 0 || columnSection >= columnSections.count) return CGRectNull;
     
-    MDSpreadViewSection *column = [_columnSections objectAtIndex:columnSection];
-    MDSpreadViewSection *row = [_rowSections objectAtIndex:rowSection];
+    MDSpreadViewSection *column = [columnSections objectAtIndex:columnSection];
+    MDSpreadViewSection *row = [rowSections objectAtIndex:rowSection];
     
     return CGRectMake(column.offset, row.offset, column.size, row.size);
 }
 
 - (CGRect)cellRectForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
 {
-    if (!_rowSections || !_columnSections ||
-        rowPath.section < 0 || rowPath.section >= [self numberOfRowSections] ||
-        columnPath.section < 0 || columnPath.section >= [self numberOfColumnSections]) return CGRectNull;
+    if (!rowSections || !columnSections ||
+        rowPath.section < 0 || rowPath.section >= rowSections.count ||
+        columnPath.section < 0 || columnPath.section >= columnSections.count) return CGRectNull;
     
-    MDSpreadViewSection *columnSection = [_columnSections objectAtIndex:columnPath.section];
-    MDSpreadViewSection *rowSection = [_rowSections objectAtIndex:rowPath.section];
+    MDSpreadViewSection *columnSection = [columnSections objectAtIndex:columnPath.section];
+    MDSpreadViewSection *rowSection = [rowSections objectAtIndex:rowPath.section];
     
     if (rowPath.row < -1 || rowPath.row > rowSection.numberOfCells ||
         columnPath.column < -1 || columnPath.column > columnSection.numberOfCells) return CGRectNull;
     
     CGRect rect = CGRectMake(columnSection.offset, rowSection.offset, [self _widthForColumnAtIndexPath:columnPath], [self _heightForRowAtIndexPath:rowPath]);
     
-    if (columnPath.column >= 0)
-        rect.origin.x += [self _widthForColumnHeaderInSection:columnPath.section];
-    
-    for (int i = 0; i < columnPath.column; i++) {
+    for (int i = -1; i < columnPath.column; i++) {
         rect.origin.x += [self _widthForColumnAtIndexPath:[MDIndexPath indexPathForColumn:i inSection:columnPath.section]];
     }
     
-    if (rowPath.row >= 0)
-        rect.origin.y += [self _heightForRowHeaderInSection:rowPath.section];
-    
-    for (int i = 0; i < rowPath.row; i++) {
+    for (int i = -1; i < rowPath.row; i++) {
         rect.origin.y += [self _heightForRowAtIndexPath:[MDIndexPath indexPathForRow:i inSection:rowPath.section]];
     }
     
