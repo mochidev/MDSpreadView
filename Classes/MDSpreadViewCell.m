@@ -389,6 +389,25 @@
     self.frame = _pureFrame;
 }
 
+- (void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    [super setBackgroundColor:backgroundColor];
+    
+    if (!backgroundView && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
+        textLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
+        detailTextLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
+        
+        textLabel.backgroundColor = self.backgroundColor;
+        detailTextLabel.backgroundColor = self.backgroundColor;
+    } else {
+        textLabel.opaque = NO;
+        detailTextLabel.opaque = NO;
+        
+        textLabel.backgroundColor = [UIColor clearColor];
+        detailTextLabel.backgroundColor = [UIColor clearColor];
+    }
+}
+
 #pragma mark - State
 
 - (void)setHighlighted:(BOOL)isHighlighted
@@ -438,8 +457,8 @@
         } else {
             completion = ^(BOOL finished) {
                 if (finished && !backgroundView && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
-                    textLabel.opaque = YES;
-                    detailTextLabel.opaque = YES;
+                    textLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
+                    detailTextLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
                     
                     textLabel.backgroundColor = self.backgroundColor;
                     detailTextLabel.backgroundColor = self.backgroundColor;
@@ -498,8 +517,8 @@
         } else {
             completion = ^(BOOL finished) {
                 if (finished && !backgroundView && (!(highlighted || _selected) || _selectionStyle == MDSpreadViewCellSelectionStyleNone)) {
-                    textLabel.opaque = YES;
-                    detailTextLabel.opaque = YES;
+                    textLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
+                    detailTextLabel.opaque = (self.backgroundColor && self.backgroundColor != [UIColor clearColor]);
                     
                     textLabel.backgroundColor = self.backgroundColor;
                     detailTextLabel.backgroundColor = self.backgroundColor;
