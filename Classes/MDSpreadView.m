@@ -352,6 +352,8 @@ static CGFloat MDPixel()
 @property (nonatomic, retain) MDIndexPath *_columnPath;
 @property (nonatomic) CGRect _pureFrame;
 
+- (void)_updateSeparators;
+
 @end
 
 #pragma mark - MDSpreadViewSection
@@ -1072,7 +1074,35 @@ static CGFloat MDPixel()
         _separatorStyle = separatorStyle;
         cachedSeparatorImage = nil;
         
+        NSMutableSet *allCreatedCells = [NSMutableSet setWithArray:mapForContent.allCells];
+        [allCreatedCells addObjectsFromArray:mapForColumnHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:mapForRowHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:mapForCornerHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:_dequeuedCells];
+        
+        for (MDSpreadViewCell *cell in allCreatedCells) {
+            [cell _updateSeparators];
+        }
+        
         [self _setNeedsReloadData];
+    }
+}
+
+- (void)setSeparatorColor:(UIColor *)separatorColor
+{
+    if (_separatorColor != separatorColor) {
+        _separatorColor = separatorColor;
+        cachedSeparatorImage = nil;
+        
+        NSMutableSet *allCreatedCells = [NSMutableSet setWithArray:mapForContent.allCells];
+        [allCreatedCells addObjectsFromArray:mapForColumnHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:mapForRowHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:mapForCornerHeaders.allCells];
+        [allCreatedCells addObjectsFromArray:_dequeuedCells];
+        
+        for (MDSpreadViewCell *cell in allCreatedCells) {
+            [cell _updateSeparators];
+        }
     }
 }
 

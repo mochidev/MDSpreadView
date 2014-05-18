@@ -208,6 +208,11 @@
     separators.image = [spreadView _separatorImage];
 }
 
+- (void)_updateSeparators
+{
+    separators.image = [spreadView _separatorImage];
+}
+
 - (BOOL)hasSeparators
 {
     return YES;
