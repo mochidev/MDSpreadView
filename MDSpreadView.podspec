@@ -29,6 +29,5 @@ Pod::Spec.new do |s|
   s.resources    = "Images/*.png"
   
   s.framework    = 'QuartzCore'
-  s.requires_arc = false
-  s.compiler_flags = '-fno-objc-arc'
+  s.requires_arc = true
 end
