@@ -1813,6 +1813,8 @@ static CGFloat MDPixel()
         
     } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
         
+        [mapForContent removeAllCells];
+        
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
         
@@ -2079,6 +2081,8 @@ static CGFloat MDPixel()
         }
         
     } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+        
+        [mapForColumnHeaders removeAllCells];
         
         NSInteger workingColumnSection = minColumnSection;
         
@@ -2405,6 +2409,8 @@ static CGFloat MDPixel()
         }
         
     } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+        
+        [mapForRowHeaders removeAllCells];
         
         NSInteger workingColumnSection = minColumnSection;
         NSInteger workingColumnIndex = minColumnIndex;
@@ -2741,6 +2747,8 @@ static CGFloat MDPixel()
         }
         
     } else if (totalNumberOfColumnSections > 0 && totalNumberOfRowSections > 0) { // if there is nothing, start fresh, and do the whole thing in one go
+        
+        [mapForCornerHeaders removeAllCells];
         
         NSInteger workingColumnSection = minColumnSection;
         
