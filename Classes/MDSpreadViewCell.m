@@ -201,6 +201,11 @@
     return self;
 }
 
+- (void)dealloc {
+    [self removeGestureRecognizer: _tapGesture];
+    _tapGesture.delegate = nil;
+}
+
 - (void)setSpreadView:(MDSpreadView *)aSpreadView
 {
     spreadView = aSpreadView;
