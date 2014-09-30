@@ -193,11 +193,6 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     MDIndexPath *_visibleColumnIndexPath;
     CGRect visibleBounds;
     
-    NSMutableArray *_headerRowCells;
-    NSMutableArray *_headerColumnCells;
-    MDSpreadViewCell *_headerCornerCell;
-    CGRect _headerBounds;
-    
     MDIndexPath *_headerRowIndexPath;
     MDIndexPath *_headerColumnIndexPath;
     

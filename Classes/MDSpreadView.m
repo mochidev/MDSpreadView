@@ -616,8 +616,6 @@ static CGFloat MDPixel()
 @property (nonatomic, strong) MDIndexPath *_headerRowIndexPath;
 @property (nonatomic, strong) MDIndexPath *_headerColumnIndexPath;
 
-@property (nonatomic, strong) MDSpreadViewCell *_headerCornerCell;
-
 @property (nonatomic, strong) NSMutableArray *_rowSections;
 @property (nonatomic, strong) NSMutableArray *_columnSections;
 
@@ -643,7 +641,7 @@ static CGFloat MDPixel()
 
 @synthesize dataSource=_dataSource;
 @synthesize _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath;
-@synthesize _headerCornerCell, selectionMode, _rowSections, _columnSections;
+@synthesize selectionMode, _rowSections, _columnSections;
 @synthesize _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
 
 - (id)initWithFrame:(CGRect)frame
@@ -675,9 +673,6 @@ static CGFloat MDPixel()
     mapForColumnHeaders = [[MDSpreadViewCellMap alloc] init];
     mapForRowHeaders = [[MDSpreadViewCellMap alloc] init];
     mapForCornerHeaders = [[MDSpreadViewCellMap alloc] init];
-    
-    _headerColumnCells = [[NSMutableArray alloc] init];
-    _headerRowCells = [[NSMutableArray alloc] init];
     
     _rowHeight = 44; // 25
     _sectionRowHeaderHeight = 22;
