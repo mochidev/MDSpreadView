@@ -128,7 +128,7 @@ static CGFloat MDPixel()
 
 - (NSArray *)columnAtIndex:(NSUInteger)columnIndex
 {
-    NSAssert((columnIndex < _rowCount), @"column index %lu beyond bounds of cell map [0, %lu]", (unsigned long)columnIndex, (unsigned long)_columnCount);
+    NSAssert((columnIndex < _columnCount), @"column index %lu beyond bounds of cell map [0, %lu]", (unsigned long)columnIndex, (unsigned long)_columnCount);
     
     return [[columns objectAtIndex:columnIndex] copy];
 }
