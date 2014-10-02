@@ -610,12 +610,6 @@ static CGFloat MDPixel()
 
 - (void)_setNeedsReloadData;
 
-@property (nonatomic, strong) MDIndexPath *_visibleRowIndexPath;
-@property (nonatomic, strong) MDIndexPath *_visibleColumnIndexPath;
-
-@property (nonatomic, strong) MDIndexPath *_headerRowIndexPath;
-@property (nonatomic, strong) MDIndexPath *_headerColumnIndexPath;
-
 @property (nonatomic, strong) NSMutableArray *_rowSections;
 @property (nonatomic, strong) NSMutableArray *_columnSections;
 
@@ -640,7 +634,6 @@ static CGFloat MDPixel()
 #pragma mark - Setup
 
 @synthesize dataSource=_dataSource;
-@synthesize _visibleRowIndexPath, _visibleColumnIndexPath, _headerRowIndexPath, _headerColumnIndexPath;
 @synthesize selectionMode, _rowSections, _columnSections;
 @synthesize _currentSelection, allowsMultipleSelection, allowsSelection, columnResizing, rowResizing;
 
@@ -667,7 +660,6 @@ static CGFloat MDPixel()
     self.directionalLockEnabled = YES;
     
     _dequeuedCells = [[NSMutableArray alloc] init];
-//    visibleCells = [[NSMutableArray alloc] init];
     
     mapForContent = [[MDSpreadViewCellMap alloc] init];
     mapForColumnHeaders = [[MDSpreadViewCellMap alloc] init];
@@ -962,15 +954,10 @@ static CGFloat MDPixel()
         
         [self _clearAllCells];
         
-        visibleBounds.size = CGSizeZero;
-        
         minColumnIndexPath = nil;
         maxColumnIndexPath = nil;
         minRowIndexPath = nil;
         maxRowIndexPath = nil;
-        
-        self._visibleColumnIndexPath = nil;
-        self._visibleRowIndexPath = nil;
         
         NSMutableArray *newColumnSections = [[NSMutableArray alloc] init];
         

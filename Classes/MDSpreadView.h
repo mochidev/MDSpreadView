@@ -188,14 +188,6 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     // Done with new algorithm
     
-    NSMutableArray *visibleCells; // array of array
-    MDIndexPath *_visibleRowIndexPath;
-    MDIndexPath *_visibleColumnIndexPath;
-    CGRect visibleBounds;
-    
-    MDIndexPath *_headerRowIndexPath;
-    MDIndexPath *_headerColumnIndexPath;
-    
     NSMutableArray *_rowSections;
     NSMutableArray *_columnSections;
     
