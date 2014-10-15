@@ -3,8 +3,8 @@ Pod::Spec.new do |s|
   s.version      = "0.9"
   s.summary      = "A 2D table view for iOS apps!"
 
-  s.homepage     = "https://github.com/mochidev/MDSpreadViewDemo"
-  s.screenshots  = "https://raw.github.com/mochidev/MDSpreadViewDemo/master/Artwork/Screenshot.png"
+  s.homepage     = "https://github.com/tcurdt/MDSpreadViewDemo"
+  s.screenshots  = "https://raw.github.com/tcurdt/MDSpreadViewDemo/master/Artwork/Screenshot.png"
 
   s.license = { :type => 'MIT', :text => <<-LICENSE
                     Copyright (c) 2012 Dimitri Bouniol, Mochi Development, Inc.
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   
   s.author       = { "Dimitri Bouniol, Mochi Development, Inc." => "support@mochidev.com" }
  
-  s.source       = { :git => "https://github.com/mochidev/MDSpreadView.git", :tag => "0.9" }
+  s.source       = { :git => "https://github.com/tcurdt/MDSpreadView.git", :tag => "0.9" }
 
   s.platform     = :ios, '5.0'
 
