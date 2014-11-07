@@ -175,8 +175,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableArray *columnSections;
     NSMutableArray *rowSections;
     
-    UIView *dummyView;
-    UIView *dummyViewB;
+//    UIView *dummyView;
+//    UIView *dummyViewB;
     
     CGSize dequeuedCellSizeHint;
     MDIndexPath *dequeuedCellRowIndexHint;
@@ -188,7 +188,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     
     // Done with new algorithm
     
-    NSMutableArray *visibleCells; // array of array
+//    NSMutableArray *visibleCells; // array of array
     MDIndexPath *_visibleRowIndexPath;
     MDIndexPath *_visibleColumnIndexPath;
     CGRect visibleBounds;
@@ -196,7 +196,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableArray *_headerRowCells;
     NSMutableArray *_headerColumnCells;
     MDSpreadViewCell *_headerCornerCell;
-    CGRect _headerBounds;
+//    CGRect _headerBounds;
     
     MDIndexPath *_headerRowIndexPath;
     MDIndexPath *_headerColumnIndexPath;
