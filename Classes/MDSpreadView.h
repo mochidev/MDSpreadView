@@ -282,7 +282,7 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
 //- (MDIndexPath *)indexPathForCell:(UITableViewCell *)cell;                      // returns nil if cell is not visible
 //- (NSArray *)indexPathsForRowsInRect:(CGRect)rect;                              // returns nil if rect not valid 
 
-//- (UITableViewCell *)cellForRowAtIndexPath:(MDIndexPath *)indexPath;            // returns nil if cell is not visible or index path is out of range
+- (MDSpreadViewCell *)cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath;            // returns nil if cell is not visible or index path is out of range
 //- (NSArray *)visibleCells;
 //- (NSArray *)indexPathsForVisibleRows;
 

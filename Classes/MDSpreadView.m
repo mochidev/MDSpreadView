@@ -3321,6 +3321,22 @@ static CGFloat MDPixel()
     }
 }
 
+- (MDSpreadViewCell *)cellForRowAtIndexPath:(MDIndexPath *)rowPath forColumnAtIndexPath:(MDIndexPath *)columnPath
+{
+    NSMutableSet *allVisibleCells = [NSMutableSet setWithArray:mapForContent.allCells];
+    [allVisibleCells addObjectsFromArray:mapForColumnHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForRowHeaders.allCells];
+    [allVisibleCells addObjectsFromArray:mapForCornerHeaders.allCells];
+    
+    for (MDSpreadViewCell *cell in allVisibleCells) {
+        if ([cell._rowPath isEqualToIndexPath:rowPath] && [cell._columnPath isEqualToIndexPath:columnPath]) {
+            return cell;
+        }
+    }
+    
+    return nil;
+}
+
 #pragma mark - Fetchers
 
 #pragma mark — Sizes
