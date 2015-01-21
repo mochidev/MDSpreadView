@@ -3922,12 +3922,10 @@ static CGFloat MDPixel()
     
     MDSpreadViewSelectionMode resolvedSelectionMode = MDSpreadViewSelectionModeAutomatic;
     
-    BOOL override = NO;
     MDSortDescriptor *sortDescriptorPrototype = nil;
     if (_autoAllowSortableHeaderSelection) {
         if ([(MDSpreadViewHeaderCell *)cell respondsToSelector:@selector(sortDescriptorPrototype)] && [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype]) {
             sortDescriptorPrototype = [(MDSpreadViewHeaderCell *)cell sortDescriptorPrototype];
-            override = YES;
             
             resolvedSelectionMode = MDSpreadViewSelectionModeCell + sortDescriptorPrototype.sortAxis;
         }

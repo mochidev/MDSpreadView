@@ -175,8 +175,8 @@ extern NSString *MDSpreadViewSelectionDidChangeNotification __attribute__((unava
     NSMutableArray *columnSections;
     NSMutableArray *rowSections;
     
-    UIView *dummyView;
-    UIView *dummyViewB;
+//    UIView *dummyView;
+//    UIView *dummyViewB;
     
     CGSize dequeuedCellSizeHint;
     MDIndexPath *dequeuedCellRowIndexHint;
